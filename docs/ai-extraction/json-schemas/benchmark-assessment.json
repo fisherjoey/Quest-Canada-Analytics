@@ -1,0 +1,387 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://questcanada.org/schemas/benchmark-assessment.json",
+  "title": "QUEST Canada Benchmark Assessment Extraction Schema",
+  "description": "JSON schema for validating extracted data from 72-page benchmark assessment PDFs",
+  "type": "object",
+  "required": ["documentType", "extractedAt", "assessment", "scores"],
+  "properties": {
+    "documentType": {
+      "type": "string",
+      "const": "benchmark_assessment",
+      "description": "Document type identifier"
+    },
+    "extractedAt": {
+      "type": "string",
+      "format": "date-time",
+      "description": "ISO 8601 timestamp when extraction was performed"
+    },
+    "assessment": {
+      "type": "object",
+      "required": ["community_name", "assessment_year"],
+      "properties": {
+        "community_name": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 255,
+          "description": "Full name of the community (e.g., 'Corner Brook, NL')"
+        },
+        "assessment_year": {
+          "type": "integer",
+          "minimum": 2000,
+          "maximum": 2100,
+          "description": "Year the assessment was conducted"
+        },
+        "assessment_date": {
+          "type": ["string", "null"],
+          "format": "date",
+          "description": "Specific date of assessment (YYYY-MM-DD)"
+        },
+        "assessor_name": {
+          "type": ["string", "null"],
+          "maxLength": 255,
+          "description": "Name of person who conducted the assessment"
+        },
+        "assessor_organization": {
+          "type": "string",
+          "default": "QUEST Canada",
+          "maxLength": 255,
+          "description": "Organization that conducted assessment"
+        },
+        "assessment_status": {
+          "type": "string",
+          "enum": ["draft", "in_progress", "completed", "published"],
+          "default": "completed",
+          "description": "Current status of the assessment"
+        },
+        "overall_score": {
+          "type": ["number", "null"],
+          "minimum": 0,
+          "maximum": 100,
+          "description": "Overall percentage score (0-100)"
+        },
+        "overall_points_earned": {
+          "type": ["number", "null"],
+          "minimum": 0,
+          "description": "Total points earned across all indicators"
+        },
+        "overall_points_possible": {
+          "type": ["number", "null"],
+          "minimum": 0,
+          "description": "Total possible points (typically ~256)"
+        },
+        "report_pdf_url": {
+          "type": ["string", "null"],
+          "format": "uri",
+          "description": "URL to the original PDF report"
+        },
+        "executive_summary": {
+          "type": ["string", "null"],
+          "description": "Executive summary text if available"
+        }
+      }
+    },
+    "scores": {
+      "type": "array",
+      "minItems": 10,
+      "maxItems": 10,
+      "description": "Array of 10 indicator scores (one per indicator)",
+      "items": {
+        "$ref": "#/definitions/indicatorScore"
+      }
+    },
+    "strengths": {
+      "type": "array",
+      "description": "Array of community strengths identified",
+      "items": {
+        "$ref": "#/definitions/strength"
+      }
+    },
+    "recommendations": {
+      "type": "array",
+      "description": "Array of recommendations for improvement",
+      "items": {
+        "$ref": "#/definitions/recommendation"
+      }
+    },
+    "_confidence": {
+      "$ref": "#/definitions/confidenceScores"
+    },
+    "_extraction_notes": {
+      "$ref": "#/definitions/extractionNotes"
+    }
+  },
+  "definitions": {
+    "indicatorScore": {
+      "type": "object",
+      "required": ["indicator_id", "indicator_name", "indicator_points_earned", "indicator_points_possible"],
+      "properties": {
+        "indicator_id": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 10,
+          "description": "Indicator number (1=Governance, 2=Staff, ..., 10=Buildings)"
+        },
+        "indicator_name": {
+          "type": "string",
+          "enum": [
+            "Governance",
+            "Staff",
+            "Data",
+            "Financials",
+            "Strategy",
+            "Land Use",
+            "Energy Networks",
+            "Waste & Water",
+            "Transportation",
+            "Buildings"
+          ],
+          "description": "Name of the indicator"
+        },
+        "indicator_points_earned": {
+          "type": "number",
+          "minimum": 0,
+          "description": "Points earned for this indicator"
+        },
+        "indicator_points_possible": {
+          "type": "number",
+          "minimum": 0,
+          "description": "Maximum points possible for this indicator"
+        },
+        "indicator_percentage": {
+          "type": ["number", "null"],
+          "minimum": 0,
+          "maximum": 100,
+          "description": "Percentage score for this indicator (earned/possible × 100)"
+        }
+      }
+    },
+    "strength": {
+      "type": "object",
+      "required": ["indicator_id", "strength_text"],
+      "properties": {
+        "indicator_id": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 10,
+          "description": "Which indicator this strength relates to"
+        },
+        "strength_text": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Text description of the strength (preserve exact wording from PDF)"
+        },
+        "strength_category": {
+          "type": ["string", "null"],
+          "enum": [
+            "Leadership",
+            "Technical Capacity",
+            "Data Quality",
+            "Financial Resources",
+            "Policy Framework",
+            "Community Engagement",
+            "Infrastructure",
+            "Innovation",
+            "Partnership",
+            "Other",
+            null
+          ],
+          "description": "Category classification for the strength"
+        },
+        "display_order": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "Display order within the indicator section"
+        }
+      }
+    },
+    "recommendation": {
+      "type": "object",
+      "required": ["indicator_id", "recommendation_text"],
+      "properties": {
+        "indicator_id": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 10,
+          "description": "Which indicator this recommendation addresses"
+        },
+        "recommendation_text": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Full text of the recommendation"
+        },
+        "lead_party": {
+          "type": ["string", "null"],
+          "maxLength": 255,
+          "description": "Who is responsible (e.g., 'Municipal Council', 'Sustainability Staff')"
+        },
+        "priority_level": {
+          "type": ["string", "null"],
+          "enum": [
+            "critical",
+            "high",
+            "medium",
+            "low",
+            "immediate",
+            "short-term",
+            "long-term",
+            null
+          ],
+          "description": "Priority level of the recommendation"
+        },
+        "estimated_timeframe": {
+          "type": ["string", "null"],
+          "maxLength": 255,
+          "description": "Estimated time to implement (e.g., '6 months', '1-2 years')"
+        },
+        "implementation_status": {
+          "type": "string",
+          "enum": ["not_started", "in_progress", "completed", "on_hold", "cancelled", "planned"],
+          "default": "planned",
+          "description": "Current implementation status"
+        },
+        "estimated_cost_cad": {
+          "type": ["number", "null"],
+          "minimum": 0,
+          "description": "Estimated cost to implement (CAD)"
+        },
+        "display_order": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "Display order within the indicator section"
+        }
+      }
+    },
+    "confidenceScores": {
+      "type": "object",
+      "description": "Confidence scores for extracted data (0.0 - 1.0)",
+      "required": ["overall"],
+      "properties": {
+        "overall": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1,
+          "description": "Overall extraction confidence (average of all field scores)"
+        },
+        "fields": {
+          "type": "object",
+          "description": "Confidence scores for individual fields",
+          "properties": {
+            "community_name": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1
+            },
+            "assessment_year": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1
+            },
+            "overall_score": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1
+            },
+            "overall_points_earned": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1
+            },
+            "overall_points_possible": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1
+            },
+            "scores": {
+              "type": "array",
+              "minItems": 10,
+              "maxItems": 10,
+              "items": {
+                "type": "object",
+                "properties": {
+                  "indicator_points_earned": {
+                    "type": "number",
+                    "minimum": 0,
+                    "maximum": 1
+                  },
+                  "indicator_points_possible": {
+                    "type": "number",
+                    "minimum": 0,
+                    "maximum": 1
+                  }
+                }
+              }
+            },
+            "strengths_completeness": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1,
+              "description": "Confidence that all strengths were extracted"
+            },
+            "recommendations_completeness": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1,
+              "description": "Confidence that all recommendations were extracted"
+            }
+          }
+        }
+      }
+    },
+    "extractionNotes": {
+      "type": "object",
+      "description": "Metadata about the extraction process",
+      "properties": {
+        "total_pages_analyzed": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "Number of pages in the PDF"
+        },
+        "ambiguous_fields": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Fields that were difficult to extract or had multiple possible values"
+        },
+        "missing_data": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Expected fields that were not found in the document"
+        },
+        "warnings": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Warnings or potential issues discovered during extraction"
+        },
+        "document_quality": {
+          "type": "string",
+          "enum": ["high", "medium", "low"],
+          "description": "Overall quality/clarity of the source document"
+        },
+        "extraction_time_seconds": {
+          "type": "number",
+          "minimum": 0,
+          "description": "Time taken to extract (seconds)"
+        },
+        "claude_tokens_used": {
+          "type": "object",
+          "properties": {
+            "input_tokens": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "output_tokens": {
+              "type": "integer",
+              "minimum": 0
+            }
+          }
+        }
+      }
+    }
+  }
+}

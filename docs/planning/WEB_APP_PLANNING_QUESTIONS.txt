@@ -1,0 +1,271 @@
+================================================================================
+QUEST CANADA WEB APP - PLANNING QUESTIONS
+================================================================================
+
+Please answer these questions to clarify your goals and requirements for the
+new React/Node/PostgreSQL web application. This will help us create a concrete
+implementation plan.
+
+================================================================================
+SECTION 1: ARCHITECTURE & INTEGRATION
+================================================================================
+
+1. FLASK API MIGRATION
+   Do you want to:
+   [X] Port your existing Flask API to Node/Express (complete rewrite)
+   [ ] Keep Flask as a microservice alongside the new Node backend
+   [ ] Other (explain):
+
+   Your answer:
+
+
+   Follow-up: Your current Flask API has ~20 endpoints. How much of this logic
+   needs to be in the new web app vs. just used by Grafana?
+
+   Your answer: I'm not too stressed if we have to restart completely. I don't remember what endpoints are in there. It's likely form stuff that we'd remake completely anyways.
+
+
+2. DATABASE STRATEGY
+   [ ] Keep existing PostgreSQL database and schema (extend with new tables)
+   [X] Start fresh with a new database for the web app
+   [ ] Have two separate databases (one for Grafana, one for web app)
+   [ ] Other (explain):
+
+   Your answer:
+
+
+   If keeping existing: Should the web app share the same database as Grafana,
+   or have a separate database with API connections between them?
+
+   Your answer: N/A
+
+
+3. GRAFANA DASHBOARD EMBEDDING
+   Embedding approach:
+   [ ] iframe embedding (simple but limited customization)
+   [ ] Grafana anonymous/public dashboards feature
+   [ ] Grafana API with custom rendering
+   [ ] Other (explain): 
+
+   Your answer: Not sure. Whatever is best practice.
+
+
+   Do users need to interact with the dashboards (filters, dropdowns) or just
+   view them? 
+
+   Your answer: Yes, interaction will be necessary. 
+
+
+   Should dashboard access be controlled by your web app's authentication, or
+   keep Grafana's auth separate?
+
+   Your answer: Through web app's authentication. We could do this through nginx or apache maybe?
+
+
+================================================================================
+SECTION 2: AUTHENTICATION & USER MANAGEMENT
+================================================================================
+
+4. USER ACCOUNTS & MULTI-TENANCY
+   Do you need multi-tenancy (multiple organizations/communities with isolated
+   data)?
+   [ ] Yes, each community should only see their own data
+   [ ] No, single organization with different user roles
+   [ ] Not sure yet
+
+   Your answer: Not yet. If it's easy, that would be a nice start though
+
+
+   Authentication methods needed:
+   [X] Email/password only
+   [ ] Social auth (Google, GitHub, etc.)
+   [ ] Both
+   [ ] Other (explain):
+
+   Your answer:
+
+
+   User roles needed (check all that apply):
+   [X] Admin (full access to everything)
+   [X] Community Staff (manage their community's data)
+   [X] Funders (view-only access to funded projects)
+   [X] Public Viewers (anonymous/public dashboards)
+   [ ] Other (specify):
+
+   Your answer:
+
+
+================================================================================
+SECTION 3: FEATURES & FUNCTIONALITY
+================================================================================
+
+5. CORE FEATURES
+   Data entry forms: Will users enter assessment/project data through the web
+   app, or continue using Grafana forms?
+   [X] Move all forms to the web app (React forms)
+   [ ] Keep forms in Grafana for now
+   [ ] Hybrid approach (some in web app, some in Grafana)
+
+   Your answer: 
+
+
+   PDF export feature: Should this move from Grafana to the web app?
+   [X] Yes, implement in web app
+   [ ] No, keep in Grafana
+   [ ] Not sure yet
+
+   Your answer: We'll be adding a lot more features to the report export. This will be in the app.
+
+
+   Project management: Should project/funding/milestone tracking be in the web
+   app or stay in Grafana dashboards?
+   [ ] Move to web app (full CRUD interface)
+   [ ] Keep in Grafana
+   [ ] View in web app, edit in Grafana
+
+   Your answer: Whatever is best. I'm not sure.
+
+
+6. PRIORITY FEATURES (PHASE 1 MVP)
+   What's the minimum viable product feature list for the web app?
+   Check your priorities for Phase 1:
+
+   [X] User authentication & login
+   [X] User registration/signup
+   [X] Dashboard to view embedded Grafana charts
+   [X] Data entry forms for assessments
+   [X] Data entry forms for projects/funding/milestones
+   [X] User management (invite users, assign roles)
+   [X] Community/organization management (multi-tenancy)
+   [X] Admin panel
+   [X] PDF report generation
+   [ ] Email notifications
+   [ ] API for external integrations
+   [X] Mobile-responsive design
+   [ ] Other (specify):
+
+   Your top 3-5 must-haves for Phase 1: You decide. We're past the MVP phase. We're down to full implentation. 
+
+================================================================================
+SECTION 4: DEPLOYMENT & TIMELINE
+================================================================================
+
+7. HOSTING STRATEGY
+   Where will you deploy the web app?
+   [X] Keep on Proxmox LXC container (current: LXC 101 at 10.0.0.3)
+   [ ] Move to cloud (Vercel for frontend, Railway/Render for backend)
+   [ ] Docker containers on Proxmox
+   [ ] Other (explain):
+
+   Your answer:
+
+
+   Do you want Docker containers for easier deployment?
+   [ ] Yes, Dockerize everything
+   [] No, keep it simple
+   [X] Not sure yet
+
+   Your answer:
+
+
+8. TIMELINE & SCOPE
+   When do you need this working?
+   [ ] ASAP (within 1-2 weeks)
+   [X] Within a month
+   [ ] Within 2-3 months
+   [ ] No rush, personal project timeline
+   [ ] Other (specify):
+
+   Your answer:
+
+
+   Is this replacing the Grafana system entirely, or running alongside it
+   initially?
+   [ ] Replace Grafana entirely
+   [ ] Run alongside Grafana initially (hybrid approach)
+   [ ] Grafana stays permanently (only for dashboards)
+
+   Your answer: Not sure. If there's a library that replaces the functionality that's fine
+
+
+
+   What's "good enough" for a first version vs. nice-to-have later?
+
+   Your answer (explain your MVP definition):
+
+
+================================================================================
+SECTION 5: DATA MIGRATION
+================================================================================
+
+9. EXISTING DATA
+   Your current system has:
+   - 3 communities (Calgary, Edmonton, Vancouver)
+   - 15 projects with standardized codes
+   - 3 benchmark assessments with scores
+   - 50 milestones
+   - 34 funding entries
+
+   Do you need to migrate/preserve this data?
+   [ ] Yes, migrate all existing data to new system
+   [X] No, start fresh with demo/test data
+   [ ] Migrate some (specify which):
+
+   Your answer:
+
+
+   If migrating: Should we write scripts to move data from current schema to
+   the new boilerplate's schema?
+   [ ] Yes, automate the migration
+   [ ] No, I'll manually re-enter important data
+   [ ] Not sure yet
+
+   Your answer: n/a
+
+
+================================================================================
+SECTION 6: SAAS BOILERPLATE CHOICE
+================================================================================
+
+10. BOILERPLATE PREFERENCE
+    Based on the research, which starter template sounds best to you?
+
+    [X] Open SaaS (Wasp) - React/Node/PostgreSQL/TypeScript, fully featured
+    [ ] Graphile Starter - React/Node/PostgreSQL/GraphQL, PostgreSQL-first
+    [ ] BoxyHQ SaaS Starter - Next.js/React/PostgreSQL, enterprise features
+    [ ] Start from scratch (no boilerplate)
+    [ ] Not sure, need more info
+
+    Your answer:
+
+
+    Why did you choose this option?
+
+    Your answer: fastest?
+
+
+================================================================================
+SECTION 7: ADDITIONAL CONTEXT
+================================================================================
+
+11. ANYTHING ELSE?
+    Any other requirements, concerns, or preferences we should know about?
+
+    Your answer:
+
+
+12. BIGGEST PAIN POINT
+    What's the single biggest problem with the current Grafana-only setup that
+    you want the new web app to solve?
+
+    Your answer: Lack of customizability.
+
+
+================================================================================
+END OF QUESTIONS
+================================================================================
+
+Once you've filled this out, save the file and let me know. We'll review your
+answers together and create a detailed implementation plan!
+
+FILE SAVED TO: WEB_APP_PLANNING_QUESTIONS.txt

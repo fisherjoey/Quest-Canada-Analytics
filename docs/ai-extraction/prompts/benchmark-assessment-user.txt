@@ -1,0 +1,41 @@
+QUEST CANADA BENCHMARK ASSESSMENT - USER PROMPT TEMPLATE
+=========================================================
+
+This is the template for the user message sent to Claude along with the PDF text.
+Variables in {curly braces} should be replaced with actual values.
+
+=========================================================
+
+Extract all structured data from this QUEST Canada Benchmark Assessment report.
+
+DOCUMENT INFORMATION:
+- Document Type: Benchmark Assessment
+- Community: {communityName or "Unknown - please extract"}
+- Assessment Year: {assessmentYear or "Unknown - please extract"}
+- File Name: {originalFileName}
+- Total Pages: {pageCount}
+- Upload Date: {uploadDate}
+
+SPECIAL INSTRUCTIONS:
+{userInstructions or "Follow standard extraction procedures"}
+
+FULL DOCUMENT TEXT:
+{pdfText}
+
+EXTRACTION TASK:
+Please extract ALL of the following data and return it as JSON:
+
+1. Assessment metadata (community name, year, assessor details, overall score)
+2. All 10 indicator scores with points earned and possible
+3. Complete list of strengths organized by indicator
+4. Complete list of recommendations with priority levels and responsible parties
+5. Confidence scores for each extracted field
+
+Follow the JSON schema and extraction rules defined in your system prompt.
+
+If any data is ambiguous or missing:
+- Mark the field as null
+- Add it to the "_extraction_notes.missing_data" array
+- Flag it in "_extraction_notes.warnings" if you attempted inference
+
+Return ONLY the JSON output, no additional commentary.

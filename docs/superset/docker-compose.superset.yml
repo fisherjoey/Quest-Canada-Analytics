@@ -1,0 +1,118 @@
+version: '3.8'
+
+services:
+  # Redis for caching and Celery broker
+  superset-redis:
+    image: redis:7.2-alpine
+    container_name: quest_superset_redis
+    restart: unless-stopped
+    volumes:
+      - superset_redis:/data
+    networks:
+      - quest_network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # PostgreSQL for Superset metadata
+  superset-db:
+    image: postgres:14-alpine
+    container_name: quest_superset_db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: superset
+      POSTGRES_USER: superset
+      POSTGRES_PASSWORD: ${SUPERSET_DB_PASSWORD:-superset_secure_password_change_me}
+    volumes:
+      - superset_db:/var/lib/postgresql/data
+    networks:
+      - quest_network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U superset"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Apache Superset
+  superset:
+    image: apache/superset:latest
+    container_name: quest_superset
+    restart: unless-stopped
+    depends_on:
+      superset-db:
+        condition: service_healthy
+      superset-redis:
+        condition: service_healthy
+    environment:
+      # Database connection (Superset metadata)
+      DATABASE_DB: superset
+      DATABASE_HOST: superset-db
+      DATABASE_PASSWORD: ${SUPERSET_DB_PASSWORD:-superset_secure_password_change_me}
+      DATABASE_USER: superset
+      DATABASE_PORT: 5432
+      DATABASE_DIALECT: postgresql
+
+      # Redis
+      REDIS_HOST: superset-redis
+      REDIS_PORT: 6379
+
+      # Security - CHANGE THESE IN PRODUCTION!
+      SUPERSET_SECRET_KEY: ${SUPERSET_SECRET_KEY:-CHANGE_THIS_TO_A_LONG_RANDOM_STRING_MIN_42_CHARS}
+      GUEST_TOKEN_JWT_SECRET: ${GUEST_TOKEN_JWT_SECRET:-CHANGE_THIS_GUEST_TOKEN_SECRET_MIN_42_CHARS}
+
+      # Load examples (false for production)
+      SUPERSET_LOAD_EXAMPLES: ${SUPERSET_LOAD_EXAMPLES:-false}
+
+      # Analytics
+      SCARF_ANALYTICS: 'false'
+
+      # Superset config file
+      SUPERSET_CONFIG_PATH: /app/pythonpath/superset_config.py
+
+    ports:
+      - "${SUPERSET_PORT:-8088}:8088"
+
+    volumes:
+      # Configuration file
+      - ./superset_config.py:/app/pythonpath/superset_config.py:ro
+
+      # Persistent data
+      - superset_home:/app/superset_home
+
+    networks:
+      - quest_network
+
+    # Initialize Superset on first run
+    command: >
+      bash -c "
+        # Upgrade database
+        superset db upgrade &&
+
+        # Create admin user (only if doesn't exist)
+        superset fab create-admin \
+          --username ${SUPERSET_ADMIN_USER:-admin} \
+          --firstname Admin \
+          --lastname User \
+          --email ${SUPERSET_ADMIN_EMAIL:-admin@quest.ca} \
+          --password ${SUPERSET_ADMIN_PASSWORD:-admin} || true &&
+
+        # Initialize Superset
+        superset init &&
+
+        # Start web server
+        /usr/bin/run-server.sh
+      "
+
+volumes:
+  superset_redis:
+    driver: local
+  superset_db:
+    driver: local
+  superset_home:
+    driver: local
+
+networks:
+  quest_network:
+    driver: bridge

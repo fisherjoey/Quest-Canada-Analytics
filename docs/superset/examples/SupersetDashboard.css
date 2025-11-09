@@ -1,0 +1,293 @@
+/**
+ * Quest Canada - Superset Dashboard Component Styles
+ * Production-ready CSS for embedded dashboards
+ */
+
+.superset-dashboard-container {
+  width: 100%;
+  height: 100%;
+  min-height: 600px;
+  position: relative;
+  background-color: #f8f9fa;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+/* Dashboard iframe */
+.superset-dashboard-iframe {
+  width: 100%;
+  height: 100%;
+  border: none;
+  border-radius: 8px;
+  background-color: white;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Loading state */
+.superset-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  min-height: 400px;
+  padding: 24px;
+}
+
+.spinner {
+  border: 4px solid #f3f3f3;
+  border-top: 4px solid #1890ff;
+  border-radius: 50%;
+  width: 50px;
+  height: 50px;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+.superset-loading p {
+  margin-top: 16px;
+  color: #666;
+  font-size: 16px;
+  font-weight: 500;
+}
+
+.retry-info {
+  margin-top: 8px;
+  color: #999;
+  font-size: 14px;
+  font-weight: 400;
+}
+
+/* Error state */
+.superset-error {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  min-height: 400px;
+  padding: 24px;
+  text-align: center;
+}
+
+.error-icon {
+  font-size: 64px;
+  margin-bottom: 16px;
+  opacity: 0.7;
+}
+
+.superset-error h3 {
+  color: #ff4d4f;
+  margin: 0 0 12px 0;
+  font-size: 20px;
+  font-weight: 600;
+}
+
+.error-message {
+  color: #666;
+  margin: 0 0 24px 0;
+  max-width: 500px;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.retry-button {
+  padding: 10px 24px;
+  background-color: #1890ff;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 4px rgba(24, 144, 255, 0.2);
+}
+
+.retry-button:hover {
+  background-color: #096dd9;
+  box-shadow: 0 4px 8px rgba(24, 144, 255, 0.3);
+  transform: translateY(-1px);
+}
+
+.retry-button:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 4px rgba(24, 144, 255, 0.2);
+}
+
+.retry-button:disabled {
+  background-color: #d9d9d9;
+  color: #999;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .superset-dashboard-container {
+    min-height: 400px;
+  }
+
+  .superset-loading,
+  .superset-error {
+    min-height: 300px;
+    padding: 16px;
+  }
+
+  .spinner {
+    width: 40px;
+    height: 40px;
+    border-width: 3px;
+  }
+
+  .superset-loading p,
+  .error-message {
+    font-size: 14px;
+  }
+
+  .superset-error h3 {
+    font-size: 18px;
+  }
+
+  .error-icon {
+    font-size: 48px;
+  }
+
+  .retry-button {
+    padding: 8px 20px;
+    font-size: 13px;
+  }
+}
+
+@media (max-width: 480px) {
+  .superset-dashboard-container {
+    min-height: 300px;
+  }
+
+  .error-message {
+    font-size: 13px;
+  }
+}
+
+/* Custom scrollbar for embedded dashboards */
+.superset-dashboard-iframe::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+.superset-dashboard-iframe::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 4px;
+}
+
+.superset-dashboard-iframe::-webkit-scrollbar-thumb {
+  background: #c1c1c1;
+  border-radius: 4px;
+}
+
+.superset-dashboard-iframe::-webkit-scrollbar-thumb:hover {
+  background: #a8a8a8;
+}
+
+/* Print styles */
+@media print {
+  .superset-dashboard-container {
+    background-color: white;
+  }
+
+  .superset-loading,
+  .superset-error {
+    display: none;
+  }
+
+  .superset-dashboard-iframe {
+    box-shadow: none;
+    border: 1px solid #ddd;
+  }
+}
+
+/* Accessibility */
+.superset-dashboard-container:focus-within {
+  outline: 2px solid #1890ff;
+  outline-offset: 2px;
+}
+
+/* High contrast mode */
+@media (prefers-contrast: high) {
+  .superset-dashboard-iframe {
+    border: 2px solid #000;
+  }
+
+  .spinner {
+    border-color: #000;
+    border-top-color: #fff;
+  }
+
+  .retry-button {
+    border: 2px solid #000;
+  }
+}
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .spinner {
+    animation: none;
+    border: 4px solid #1890ff;
+  }
+
+  .retry-button {
+    transition: none;
+  }
+
+  .retry-button:hover {
+    transform: none;
+  }
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+  .superset-dashboard-container {
+    background-color: #1f1f1f;
+  }
+
+  .superset-dashboard-iframe {
+    background-color: #2d2d2d;
+  }
+
+  .superset-loading p,
+  .error-message {
+    color: #ccc;
+  }
+
+  .superset-error h3 {
+    color: #ff7875;
+  }
+
+  .retry-button {
+    background-color: #177ddc;
+  }
+
+  .retry-button:hover {
+    background-color: #1765ad;
+  }
+
+  .superset-dashboard-iframe::-webkit-scrollbar-track {
+    background: #2d2d2d;
+  }
+
+  .superset-dashboard-iframe::-webkit-scrollbar-thumb {
+    background: #555;
+  }
+
+  .superset-dashboard-iframe::-webkit-scrollbar-thumb:hover {
+    background: #777;
+  }
+}

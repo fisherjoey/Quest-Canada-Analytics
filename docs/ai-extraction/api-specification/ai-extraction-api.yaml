@@ -1,0 +1,649 @@
+openapi: 3.0.3
+info:
+  title: Quest Canada AI Document Extraction API
+  description: |
+    REST API for AI-powered extraction of structured data from Quest Canada documents using Claude API.
+
+    Supports:
+    - Benchmark assessment PDFs (72-page reports)
+    - Project proposals
+    - Funding reports
+
+    Features:
+    - PDF upload and text extraction
+    - Claude AI-powered structured data extraction
+    - Confidence scoring
+    - Conversational refinement via chat
+    - JSON schema validation
+    - PostgreSQL database insertion
+  version: 1.0.0
+  contact:
+    name: Quest Canada Development Team
+    email: dev@questcanada.org
+  license:
+    name: Proprietary
+
+servers:
+  - url: https://cpsc405.joeyfishertech.com/ai-api
+    description: Production server
+  - url: http://localhost:5001
+    description: Development server
+
+tags:
+  - name: Extraction
+    description: Document extraction operations
+  - name: Chat
+    description: Conversational refinement
+  - name: Database
+    description: Database insertion operations
+
+paths:
+  /api/ai/upload:
+    post:
+      tags:
+        - Extraction
+      summary: Upload document for AI extraction
+      description: |
+        Upload a PDF document and initiate AI extraction process.
+
+        Process:
+        1. Validate file (PDF, max 50MB, not encrypted)
+        2. Extract text using pdf-parse
+        3. Classify document type (if auto)
+        4. Queue Claude API extraction job
+        5. Return extraction ID for status tracking
+
+        Supported document types:
+        - benchmark_assessment: QUEST Canada 72-page assessments
+        - project_proposal: Community project proposals
+        - funding_report: Funding applications and reports
+        - auto: Automatically detect document type
+
+      operationId: uploadDocument
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required:
+                - file
+              properties:
+                file:
+                  type: string
+                  format: binary
+                  description: PDF file to extract (max 50MB)
+                documentType:
+                  type: string
+                  enum:
+                    - benchmark_assessment
+                    - project_proposal
+                    - funding_report
+                    - auto
+                  default: auto
+                  description: Type of document (auto-detect if not specified)
+                communityId:
+                  type: integer
+                  description: Community ID if known (optional)
+                metadata:
+                  type: object
+                  properties:
+                    uploadedBy:
+                      type: string
+                      description: Name of person uploading
+                    notes:
+                      type: string
+                      description: Additional notes about this document
+      responses:
+        '201':
+          description: Document uploaded successfully, extraction in progress
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  extractionId:
+                    type: string
+                    format: uuid
+                    example: "a3bb189e-8bf9-3888-9912-ace4e6543002"
+                  status:
+                    type: string
+                    enum: [processing]
+                    example: "processing"
+                  documentType:
+                    type: string
+                    example: "benchmark_assessment"
+                  estimatedCompletionTime:
+                    type: string
+                    format: date-time
+                    example: "2024-11-09T15:30:00Z"
+                  message:
+                    type: string
+                    example: "Document uploaded successfully. Extraction in progress."
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '413':
+          description: File too large (max 50MB)
+        '422':
+          description: Invalid PDF or unsupported file type
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+  /api/ai/extraction/{extractionId}:
+    get:
+      tags:
+        - Extraction
+      summary: Get extraction status and results
+      description: |
+        Retrieve the current status of an extraction job and extracted data if available.
+
+        Status values:
+        - processing: Extraction in progress
+        - review: Extraction complete, awaiting user review
+        - approved: User approved, ready for database insertion
+        - completed: Inserted to database successfully
+        - failed: Extraction failed (see errors array)
+
+      operationId: getExtraction
+      parameters:
+        - name: extractionId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: Unique extraction ID returned from upload
+      responses:
+        '200':
+          description: Extraction status and data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExtractionResponse'
+        '404':
+          description: Extraction ID not found
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+    put:
+      tags:
+        - Extraction
+      summary: Update extracted data
+      description: |
+        Manually update specific fields in the extracted data.
+        Used for correcting AI extraction errors.
+
+      operationId: updateExtraction
+      parameters:
+        - name: extractionId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - updates
+              properties:
+                updates:
+                  type: object
+                  description: Key-value pairs of fields to update (supports dot notation)
+                  example:
+                    "assessment.assessment_year": 2023
+                    "assessment.overall_score": 66.5
+                    "scores[0].indicator_points_earned": 9.5
+                reason:
+                  type: string
+                  description: Reason for manual correction
+                  example: "Corrected governance score after reviewing section 2.1"
+      responses:
+        '200':
+          description: Extraction updated successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  extractionId:
+                    type: string
+                    format: uuid
+                  updatedFields:
+                    type: array
+                    items:
+                      type: string
+                  message:
+                    type: string
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          description: Extraction ID not found
+        '422':
+          description: Validation failed for updated values
+
+  /api/ai/chat:
+    post:
+      tags:
+        - Chat
+      summary: Chat with Claude for refinement
+      description: |
+        Send a message to Claude to ask questions or request corrections to extracted data.
+
+        Claude can:
+        - Answer questions about extracted data
+        - Re-analyze specific sections of the PDF
+        - Explain confidence scores
+        - Make corrections based on user feedback
+
+        Responses are streamed using Server-Sent Events (SSE).
+
+      operationId: chatWithClaude
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - extractionId
+                - message
+              properties:
+                extractionId:
+                  type: string
+                  format: uuid
+                  description: Extraction ID to chat about
+                message:
+                  type: string
+                  description: User's message or question
+                  example: "The governance score looks too high. Can you re-check section 2.1?"
+                conversationHistory:
+                  type: array
+                  description: Previous messages in conversation
+                  items:
+                    type: object
+                    properties:
+                      role:
+                        type: string
+                        enum: [user, assistant]
+                      content:
+                        type: string
+      responses:
+        '200':
+          description: Streaming response (Server-Sent Events)
+          content:
+            text/event-stream:
+              schema:
+                type: object
+                description: SSE stream of response chunks
+                example: |
+                  data: {"type": "text", "content": "I'll re-analyze section 2.1"}
+                  data: {"type": "text", "content": " of the governance indicator..."}
+                  data: {"type": "update", "field": "scores[0].indicator_points_earned", "oldValue": 12.5, "newValue": 9.5}
+                  data: {"type": "confidence", "field": "scores[0].indicator_points_earned", "score": 0.95}
+                  data: {"type": "complete"}
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          description: Extraction ID not found
+
+  /api/ai/extraction/{extractionId}/insert:
+    post:
+      tags:
+        - Database
+      summary: Insert extracted data to database
+      description: |
+        Validate and insert approved extraction data into PostgreSQL database.
+
+        Process:
+        1. Validate against JSON schema
+        2. Check for duplicate assessments/projects
+        3. Begin database transaction
+        4. Insert data across multiple tables
+        5. Commit transaction
+        6. Update extraction status to 'completed'
+
+        If duplicate exists:
+        - Returns 409 Conflict
+        - Provides option to compare or overwrite
+
+      operationId: insertExtraction
+      parameters:
+        - name: extractionId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - confirmInsert
+              properties:
+                confirmInsert:
+                  type: boolean
+                  description: User confirmation to proceed with insert
+                  example: true
+                overwriteExisting:
+                  type: boolean
+                  default: false
+                  description: If duplicate exists, overwrite instead of failing
+                notes:
+                  type: string
+                  description: Notes about this data insertion
+                  example: "Verified by Jane Doe on 2024-11-09"
+      responses:
+        '201':
+          description: Data inserted successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  inserted:
+                    type: object
+                    description: Counts of inserted records
+                    properties:
+                      assessment_id:
+                        type: integer
+                        example: 25
+                      scores_count:
+                        type: integer
+                        example: 10
+                      strengths_count:
+                        type: integer
+                        example: 34
+                      recommendations_count:
+                        type: integer
+                        example: 47
+                  message:
+                    type: string
+                    example: "Data inserted successfully into database"
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '409':
+          description: Duplicate entry exists
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: false
+                  error:
+                    type: string
+                    example: "Assessment already exists for Calgary 2023"
+                  existingAssessmentId:
+                    type: integer
+                    example: 18
+                  options:
+                    type: object
+                    properties:
+                      overwrite:
+                        type: string
+                        example: "Set overwriteExisting: true to replace"
+                      compare:
+                        type: string
+                        example: "GET /api/ai/extraction/{extractionId}/compare/{assessmentId}"
+        '422':
+          description: Validation failed
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  error:
+                    type: string
+                  validationErrors:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        field:
+                          type: string
+                        message:
+                          type: string
+
+  /api/ai/extraction/{extractionId}/compare/{assessmentId}:
+    get:
+      tags:
+        - Database
+      summary: Compare extraction with existing database entry
+      description: |
+        Compare new extraction data with an existing assessment in the database.
+        Used when a duplicate is detected to help user decide whether to overwrite.
+
+      operationId: compareExtraction
+      parameters:
+        - name: extractionId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: assessmentId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Comparison results
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  extraction:
+                    $ref: '#/components/schemas/BenchmarkAssessmentExtraction'
+                  existing:
+                    $ref: '#/components/schemas/BenchmarkAssessmentExtraction'
+                  differences:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        field:
+                          type: string
+                        extractionValue:
+                          type: any
+                        existingValue:
+                          type: any
+        '404':
+          description: Extraction or assessment not found
+
+components:
+  schemas:
+    ExtractionResponse:
+      type: object
+      properties:
+        extractionId:
+          type: string
+          format: uuid
+        status:
+          type: string
+          enum: [processing, review, approved, completed, failed]
+        documentType:
+          type: string
+          enum: [benchmark_assessment, project_proposal, funding_report]
+        uploadedAt:
+          type: string
+          format: date-time
+        processedAt:
+          type: string
+          format: date-time
+        progress:
+          type: object
+          properties:
+            stage:
+              type: string
+              example: "claude_extraction"
+            percentage:
+              type: integer
+              minimum: 0
+              maximum: 100
+              example: 65
+            currentStep:
+              type: string
+              example: "Extracting indicator scores"
+        extractedData:
+          oneOf:
+            - $ref: '#/components/schemas/BenchmarkAssessmentExtraction'
+            - $ref: '#/components/schemas/ProjectProposalExtraction'
+            - $ref: '#/components/schemas/FundingReportExtraction'
+        confidence:
+          type: object
+          properties:
+            overall:
+              type: number
+              minimum: 0
+              maximum: 1
+              example: 0.92
+            fields:
+              type: object
+              description: Field-specific confidence scores
+        errors:
+          type: array
+          items:
+            type: object
+            properties:
+              code:
+                type: string
+              message:
+                type: string
+              field:
+                type: string
+        metadata:
+          type: object
+          properties:
+            fileName:
+              type: string
+            fileSize:
+              type: integer
+            pageCount:
+              type: integer
+            tokenUsage:
+              type: object
+              properties:
+                input:
+                  type: integer
+                output:
+                  type: integer
+
+    BenchmarkAssessmentExtraction:
+      type: object
+      description: Extracted benchmark assessment data (matches JSON schema)
+      properties:
+        documentType:
+          type: string
+          const: benchmark_assessment
+        extractedAt:
+          type: string
+          format: date-time
+        assessment:
+          type: object
+          properties:
+            community_name:
+              type: string
+            assessment_year:
+              type: integer
+            overall_score:
+              type: number
+        scores:
+          type: array
+          items:
+            type: object
+        strengths:
+          type: array
+          items:
+            type: object
+        recommendations:
+          type: array
+          items:
+            type: object
+
+    ProjectProposalExtraction:
+      type: object
+      description: Extracted project proposal data
+      properties:
+        documentType:
+          type: string
+          const: project_proposal
+        project:
+          type: object
+        funding_sources:
+          type: array
+        milestones:
+          type: array
+        partners:
+          type: array
+
+    FundingReportExtraction:
+      type: object
+      description: Extracted funding report data
+      properties:
+        documentType:
+          type: string
+          const: funding_report
+        funding_sources:
+          type: array
+        financial_summary:
+          type: object
+        disbursement_schedule:
+          type: array
+
+  responses:
+    BadRequest:
+      description: Bad request (invalid parameters)
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              success:
+                type: boolean
+                example: false
+              error:
+                type: string
+                example: "Invalid request parameters"
+
+    InternalError:
+      description: Internal server error
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              success:
+                type: boolean
+                example: false
+              error:
+                type: string
+                example: "Internal server error"
+
+  securitySchemes:
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: X-API-Key
+      description: API key for authentication
+
+security:
+  - ApiKeyAuth: []
