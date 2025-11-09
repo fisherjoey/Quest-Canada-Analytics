@@ -1,0 +1,267 @@
+version: '3.8'
+
+# Docker Compose configuration for Quest Canada Web App - Development Environment
+# This file contains only the essential services needed for local development
+#
+# Usage:
+#   Start all services:     docker compose -f docker-compose.dev.yml up -d
+#   Start PostgreSQL only:  docker compose -f docker-compose.dev.yml up -d postgres
+#   Stop all services:      docker compose -f docker-compose.dev.yml down
+#   View logs:              docker compose -f docker-compose.dev.yml logs -f
+#   Reset database:         docker compose -f docker-compose.dev.yml down -v && docker compose -f docker-compose.dev.yml up -d postgres
+
+services:
+  # ============================================================================
+  # PostgreSQL 14 with TimescaleDB Extension
+  # ============================================================================
+  postgres:
+    image: timescale/timescaledb:latest-pg14
+    container_name: quest_dev_postgres
+    restart: unless-stopped
+
+    environment:
+      # Database credentials (CHANGE IN PRODUCTION!)
+      POSTGRES_DB: quest_canada
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+
+      # Allow connections without password (DEV ONLY!)
+      POSTGRES_HOST_AUTH_METHOD: trust
+
+      # PostgreSQL configuration
+      POSTGRES_INITDB_ARGS: "--encoding=UTF8 --locale=en_US.UTF-8"
+
+    ports:
+      - "5432:5432"
+
+    volumes:
+      # Persistent data storage
+      - postgres_dev_data:/var/lib/postgresql/data
+
+      # Optional: Mount SQL initialization scripts
+      # Uncomment these if you want to auto-initialize the database with SQL files
+      # - ./docs/database/init.sql:/docker-entrypoint-initdb.d/01_init.sql:ro
+
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d quest_canada"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
+    networks:
+      - quest_dev_network
+
+    # Resource limits (optional - adjust based on your system)
+    # deploy:
+    #   resources:
+    #     limits:
+    #       cpus: '2'
+    #       memory: 2G
+    #     reservations:
+    #       cpus: '1'
+    #       memory: 1G
+
+  # ============================================================================
+  # Redis - For caching and session storage
+  # ============================================================================
+  redis:
+    image: redis:7-alpine
+    container_name: quest_dev_redis
+    restart: unless-stopped
+
+    ports:
+      - "6379:6379"
+
+    volumes:
+      - redis_dev_data:/data
+
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+      start_period: 5s
+
+    networks:
+      - quest_dev_network
+
+    # Enable persistence
+    command: redis-server --appendonly yes
+
+  # ============================================================================
+  # Apache Superset - Data Visualization Platform
+  #
+  # COMMENTED OUT BY DEFAULT
+  # Superset is resource-intensive and not needed for initial development
+  # Uncomment when you're ready to work on dashboard integration
+  # ============================================================================
+
+  # superset:
+  #   image: apache/superset:latest
+  #   container_name: quest_dev_superset
+  #   restart: unless-stopped
+  #
+  #   environment:
+  #     # Superset configuration
+  #     SUPERSET_SECRET_KEY: dev-secret-key-change-in-production
+  #
+  #     # Database connection (Superset metadata)
+  #     DATABASE_DIALECT: postgresql
+  #     DATABASE_HOST: postgres
+  #     DATABASE_PORT: 5432
+  #     DATABASE_DB: superset
+  #     DATABASE_USER: postgres
+  #     DATABASE_PASSWORD: postgres
+  #
+  #     # Redis for caching
+  #     REDIS_HOST: redis
+  #     REDIS_PORT: 6379
+  #
+  #   ports:
+  #     - "8088:8088"
+  #
+  #   depends_on:
+  #     postgres:
+  #       condition: service_healthy
+  #     redis:
+  #       condition: service_healthy
+  #
+  #   volumes:
+  #     # Superset configuration
+  #     - ./docs/superset/superset_config.py:/app/pythonpath/superset_config.py:ro
+  #
+  #     # Persistent storage
+  #     - superset_dev_data:/app/superset_home
+  #
+  #   networks:
+  #     - quest_dev_network
+  #
+  #   # Initialize Superset on first run
+  #   # Run these commands after first startup:
+  #   #   docker exec -it quest_dev_superset superset fab create-admin \
+  #   #     --username admin --firstname Admin --lastname User \
+  #   #     --email admin@example.com --password admin
+  #   #   docker exec -it quest_dev_superset superset db upgrade
+  #   #   docker exec -it quest_dev_superset superset init
+
+  # ============================================================================
+  # pgAdmin - PostgreSQL Web UI (Optional)
+  #
+  # COMMENTED OUT BY DEFAULT
+  # Useful for visualizing database without installing psql
+  # Alternative: Use Prisma Studio (npx prisma studio)
+  # ============================================================================
+
+  # pgadmin:
+  #   image: dpage/pgadmin4:latest
+  #   container_name: quest_dev_pgadmin
+  #   restart: unless-stopped
+  #
+  #   environment:
+  #     PGADMIN_DEFAULT_EMAIL: admin@questcanada.local
+  #     PGADMIN_DEFAULT_PASSWORD: admin
+  #     PGADMIN_CONFIG_SERVER_MODE: 'False'
+  #
+  #   ports:
+  #     - "5050:80"
+  #
+  #   volumes:
+  #     - pgadmin_dev_data:/var/lib/pgadmin
+  #
+  #   depends_on:
+  #     - postgres
+  #
+  #   networks:
+  #     - quest_dev_network
+
+  # ============================================================================
+  # Mailhog - Email Testing Server (Optional)
+  #
+  # COMMENTED OUT BY DEFAULT
+  # Captures emails sent from the app for testing without sending real emails
+  # Access web UI at: http://localhost:8025
+  # ============================================================================
+
+  # mailhog:
+  #   image: mailhog/mailhog:latest
+  #   container_name: quest_dev_mailhog
+  #   restart: unless-stopped
+  #
+  #   ports:
+  #     - "1025:1025"  # SMTP server
+  #     - "8025:8025"  # Web UI
+  #
+  #   networks:
+  #     - quest_dev_network
+
+# ============================================================================
+# Named Volumes (Persist data between container restarts)
+# ============================================================================
+volumes:
+  postgres_dev_data:
+    driver: local
+    name: quest_dev_postgres_data
+
+  redis_dev_data:
+    driver: local
+    name: quest_dev_redis_data
+
+  # superset_dev_data:
+  #   driver: local
+  #   name: quest_dev_superset_data
+
+  # pgadmin_dev_data:
+  #   driver: local
+  #   name: quest_dev_pgadmin_data
+
+# ============================================================================
+# Networks
+# ============================================================================
+networks:
+  quest_dev_network:
+    driver: bridge
+    name: quest_dev_network
+
+# ============================================================================
+# USAGE EXAMPLES
+# ============================================================================
+#
+# Start PostgreSQL only (recommended for initial development):
+#   docker compose -f docker-compose.dev.yml up -d postgres
+#
+# Start PostgreSQL + Redis:
+#   docker compose -f docker-compose.dev.yml up -d postgres redis
+#
+# Start all services:
+#   docker compose -f docker-compose.dev.yml up -d
+#
+# Stop all services:
+#   docker compose -f docker-compose.dev.yml down
+#
+# Stop and remove volumes (DANGER: deletes all data!):
+#   docker compose -f docker-compose.dev.yml down -v
+#
+# View logs:
+#   docker compose -f docker-compose.dev.yml logs -f postgres
+#
+# Access PostgreSQL:
+#   psql -h localhost -U postgres -d quest_canada
+#   # Password: postgres
+#
+# Execute SQL file:
+#   docker exec -i quest_dev_postgres psql -U postgres -d quest_canada < script.sql
+#
+# Backup database:
+#   docker exec quest_dev_postgres pg_dump -U postgres quest_canada > backup.sql
+#
+# Restore database:
+#   docker exec -i quest_dev_postgres psql -U postgres quest_canada < backup.sql
+#
+# Connect to container shell:
+#   docker exec -it quest_dev_postgres bash
+#
+# Check container health:
+#   docker inspect quest_dev_postgres --format='{{.State.Health.Status}}'
+#
+# ============================================================================
