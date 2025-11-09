@@ -1,0 +1,700 @@
+// Quest Canada Web Application - MERGED Prisma Schema
+// Integrates Open SaaS authentication with Quest Canada multi-tenancy models
+// Database: PostgreSQL
+// ORM: Prisma (via Wasp framework)
+// Author: Database Schema Specialist
+// Date: January 2025
+//
+// DEPLOYMENT NOTE: This schema extends Open SaaS WITHOUT breaking existing functionality
+// All Open SaaS models are preserved; Quest Canada models are added
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ============================================================================
+// USER MANAGEMENT & AUTHENTICATION (MERGED: Open SaaS + Quest Canada)
+// ============================================================================
+
+/// User accounts with integrated Open SaaS auth and Quest Canada role-based access
+/// Combines Wasp authentication framework with Quest Canada multi-tenancy
+model User {
+  // ===== OPEN SAAS CORE FIELDS (Required for Wasp auth) =====
+  id                   String    @id @default(uuid())
+  email                String?   @unique // Optional to support username-only auth
+  username             String?   @unique // Open SaaS supports username auth
+
+  // ===== OPEN SAAS ADMIN & SUBSCRIPTION FIELDS =====
+  isAdmin              Boolean   @default(false) // Keep for Open SaaS admin dashboard
+  paymentProcessorUserId String? @unique // Generic payment processor user ID (Stripe/LemonSqueezy)
+  lemonSqueezyCustomerPortalUrl String? // LemonSqueezy customer portal URL
+  subscriptionStatus   String?   // For payment integration (if needed)
+  subscriptionPlan     String?   // Subscription tier: 'hobby', 'pro', etc.
+  stripeId             String?   @unique @map("stripe_id") // Stripe customer ID
+  checkoutSessionId    String?   @map("checkout_session_id") // Payment tracking
+  credits              Int       @default(0) // For credit-based features
+  lemonSqueezyCustomerId String? @unique @map("lemon_squeezy_customer_id")
+  datePaid             DateTime? @map("date_paid")
+
+  // ===== QUEST CANADA AUTHENTICATION FIELDS =====
+  passwordHash         String?   @map("password_hash") // Null if using OAuth only
+
+  // ===== QUEST CANADA PROFILE FIELDS =====
+  firstName            String?   @map("first_name")
+  lastName             String?   @map("last_name")
+
+  // ===== QUEST CANADA ROLE-BASED ACCESS CONTROL =====
+  role                 Role      @default(COMMUNITY_STAFF)
+  isActive             Boolean   @default(true) @map("is_active")
+
+  // ===== MULTI-TENANCY: Users belong to a community =====
+  // (null for ADMIN and PUBLIC_VIEWER roles)
+  communityId          String?   @map("community_id")
+  community            Community? @relation(fields: [communityId], references: [id], onDelete: Cascade)
+
+  // ===== EMAIL VERIFICATION (compatible with Wasp auth) =====
+  emailVerified        Boolean   @default(false) @map("email_verified")
+  emailVerificationSentAt DateTime? @map("email_verification_sent_at") // Open SaaS field
+  passwordResetSentAt  DateTime? @map("password_reset_sent_at") // Open SaaS field
+
+  // ===== LEGACY QUEST CANADA VERIFICATION TOKENS =====
+  // (may be replaced by Wasp auth over time)
+  verificationToken    String?   @unique @map("verification_token")
+  resetToken           String?   @unique @map("reset_token")
+  resetTokenExpiry     DateTime? @map("reset_token_expiry")
+
+  // ===== AUDIT FIELDS =====
+  createdAt            DateTime  @default(now()) @map("created_at")
+  updatedAt            DateTime  @updatedAt @map("updated_at")
+  lastLoginAt          DateTime? @map("last_login_at")
+  lastActiveTimestamp  DateTime? @map("last_active_timestamp") // Open SaaS activity tracking
+
+  // ===== RELATIONS: Quest Canada items created/modified by this user =====
+  createdAssessments   Assessment[]    @relation("AssessmentCreator")
+  createdProjects      Project[]       @relation("ProjectCreator")
+  aiExtractionLogs     AiExtractionLog[]
+
+  // ===== RELATIONS: Open SaaS features =====
+  tasks                Task[] // Open SaaS task/todo feature (optional)
+  files                File[] // Open SaaS file uploads (optional)
+  gptResponses         GptResponse[] // Open SaaS GPT integration (optional)
+  contactFormMessages  ContactFormMessage[]
+
+  @@index([communityId])
+  @@index([email])
+  @@index([username])
+  @@index([role])
+  @@index([subscriptionStatus])
+  @@map("User")
+}
+
+/// Quest Canada user roles with hierarchical permissions
+/// Extends Open SaaS's simple isAdmin flag with granular role system
+enum Role {
+  ADMIN              // Full system access, manage all communities (maps to isAdmin=true)
+  COMMUNITY_STAFF    // Create/edit data for their community only
+  FUNDER             // View-only access to projects they fund
+  PUBLIC_VIEWER      // Anonymous/limited dashboard access
+}
+
+// ============================================================================
+// OPEN SAAS OPTIONAL FEATURES (Keep for compatibility)
+// ============================================================================
+
+/// Optional: Task management feature from Open SaaS
+model Task {
+  id          String   @id @default(uuid())
+  description String
+  isDone      Boolean  @default(false) @map("is_done")
+  time        String   @default("1")
+  userId      String   @map("user_id")
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  @@index([userId])
+  @@map("Task")
+}
+
+/// Optional: GPT response tracking from Open SaaS
+model GptResponse {
+  id        String   @id @default(uuid())
+  content   String
+  userId    String   @map("user_id")
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@index([userId])
+  @@map("GptResponse")
+}
+
+/// Optional: File upload tracking from Open SaaS
+model File {
+  id         String    @id @default(uuid())
+  name       String
+  type       String
+  key        String    @unique
+  uploadUrl  String    @map("upload_url")
+  userId     String    @map("user_id")
+  user       User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt  DateTime  @default(now()) @map("created_at")
+
+  @@index([userId])
+  @@map("File")
+}
+
+/// Optional: Daily analytics from Open SaaS
+model DailyStats {
+  id                                Int      @id @default(autoincrement())
+  date                              DateTime @unique @default(now())
+  totalViews                        Int      @default(0) @map("total_views")
+  prevDayViewsChangePercent         String   @default("0") @map("prev_day_views_change_percent")
+  userCount                         Int      @default(0) @map("user_count")
+  paidUserCount                     Int      @default(0) @map("paid_user_count")
+  userDelta                         Int      @default(0) @map("user_delta")
+  paidUserDelta                     Int      @default(0) @map("paid_user_delta")
+  totalRevenue                      Float    @default(0) @map("total_revenue")
+  totalProfit                       Float    @default(0) @map("total_profit")
+  sources                           PageViewSource[]
+
+  @@map("DailyStats")
+}
+
+/// Optional: Page view source tracking from Open SaaS
+model PageViewSource {
+  date         DateTime   @map("date")
+  name         String     @map("name")
+  visitors     Int        @map("visitors")
+  dailyStatsId Int        @map("daily_stats_id")
+  dailyStats   DailyStats @relation(fields: [dailyStatsId], references: [id], onDelete: Cascade)
+
+  @@id([date, name])
+  @@map("PageViewSource")
+}
+
+/// Optional: Application logs from Open SaaS
+model Logs {
+  id        Int      @id @default(autoincrement())
+  createdAt DateTime @default(now()) @map("created_at")
+  message   String
+  level     String
+
+  @@map("Logs")
+}
+
+/// Optional: Contact form messages from Open SaaS
+model ContactFormMessage {
+  id        String   @id @default(uuid())
+  content   String
+  userId    String   @map("user_id")
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now()) @map("created_at")
+  isRead    Boolean  @default(false) @map("is_read")
+  repliedAt DateTime? @map("replied_at")
+
+  @@index([userId])
+  @@map("ContactFormMessage")
+}
+
+// Note: Open SaaS session management is handled internally by Wasp framework
+// No need to explicitly define Session model - Wasp auto-generates it
+
+// ============================================================================
+// QUEST CANADA: COMMUNITY MANAGEMENT (Multi-Tenancy)
+// ============================================================================
+
+/// Communities represent municipalities participating in Quest Canada
+/// Core entity for multi-tenancy - all data is scoped to a community
+model Community {
+  id                    String   @id @default(uuid())
+  name                  String   @unique
+  province              Province
+  region                String?  // e.g., "Southern Alberta", "Lower Mainland"
+
+  // Community demographics
+  population            Int?
+  landAreaKm2           Float?   @map("land_area_km2")
+
+  // Baseline GHG emissions (in tonnes CO2e)
+  baselineEmissionsTco2e Float?   @map("baseline_emissions_tco2e")
+  baselineYear           Int?     @map("baseline_year")
+
+  // Contact information
+  primaryContactName    String?  @map("primary_contact_name")
+  primaryContactEmail   String?  @map("primary_contact_email")
+  primaryContactPhone   String?  @map("primary_contact_phone")
+
+  // Settings
+  isActive              Boolean  @default(true) @map("is_active")
+
+  // Audit fields
+  createdAt             DateTime @default(now()) @map("created_at")
+  updatedAt             DateTime @updatedAt @map("updated_at")
+
+  // Relations
+  users                 User[]
+  assessments           Assessment[]
+  projects              Project[]
+
+  @@index([province])
+  @@index([isActive])
+  @@map("communities")
+}
+
+/// Canadian provinces and territories
+enum Province {
+  AB // Alberta
+  BC // British Columbia
+  MB // Manitoba
+  NB // New Brunswick
+  NL // Newfoundland and Labrador
+  NS // Nova Scotia
+  NT // Northwest Territories
+  NU // Nunavut
+  ON // Ontario
+  PE // Prince Edward Island
+  QC // Quebec
+  SK // Saskatchewan
+  YT // Yukon
+}
+
+// ============================================================================
+// QUEST CANADA: BENCHMARK ASSESSMENTS
+// ============================================================================
+
+/// Quest Canada benchmark assessments
+/// Each community undergoes periodic assessments (typically every 2-3 years)
+model Assessment {
+  id                   String            @id @default(uuid())
+
+  // Multi-tenancy
+  communityId          String            @map("community_id")
+  community            Community         @relation(fields: [communityId], references: [id], onDelete: Cascade)
+
+  // Assessment metadata
+  assessmentDate       DateTime          @map("assessment_date")
+  assessmentYear       Int               @map("assessment_year")
+  assessorName         String            @map("assessor_name")
+  assessorOrganization String            @map("assessor_organization")
+  assessorEmail        String?           @map("assessor_email")
+
+  // Assessment status
+  status               AssessmentStatus  @default(DRAFT)
+
+  // Overall score (sum of all indicator scores)
+  overallScore         Float?            @map("overall_score")
+  maxPossibleScore     Float?            @default(100) @map("max_possible_score")
+
+  // Certification level achieved
+  certificationLevel   CertificationLevel? @map("certification_level")
+
+  // Notes and observations
+  generalNotes         String?           @map("general_notes")
+
+  // Audit fields
+  createdAt            DateTime          @default(now()) @map("created_at")
+  updatedAt            DateTime          @updatedAt @map("updated_at")
+  createdBy            String?           @map("created_by")
+  creator              User?             @relation("AssessmentCreator", fields: [createdBy], references: [id], onDelete: SetNull)
+
+  // Relations
+  indicators           IndicatorScore[]
+  strengths            Strength[]
+  recommendations      Recommendation[]
+
+  @@index([communityId])
+  @@index([assessmentYear])
+  @@index([status])
+  @@index([createdBy])
+  @@unique([communityId, assessmentYear]) // One assessment per community per year
+  @@map("assessments")
+}
+
+/// Assessment workflow status
+enum AssessmentStatus {
+  DRAFT         // Being prepared
+  IN_REVIEW     // Under review by assessor
+  COMPLETED     // Finalized but not published
+  PUBLISHED     // Public-facing
+  ARCHIVED      // Historical record
+}
+
+/// Quest Canada certification levels
+enum CertificationLevel {
+  SILVER
+  GOLD
+  PLATINUM
+  DIAMOND
+}
+
+/// Individual indicator scores within an assessment
+/// Quest Canada has 10 indicators across different categories
+model IndicatorScore {
+  id              String     @id @default(uuid())
+
+  // Parent assessment
+  assessmentId    String     @map("assessment_id")
+  assessment      Assessment @relation(fields: [assessmentId], references: [id], onDelete: Cascade)
+
+  // Indicator details
+  indicatorNumber Int        @map("indicator_number") // 1-10
+  indicatorName   String     @map("indicator_name")
+  category        IndicatorCategory
+
+  // Scoring
+  pointsEarned    Float      @map("points_earned")
+  pointsPossible  Float      @map("points_possible")
+  percentageScore Float?     @map("percentage_score") // Calculated: (pointsEarned / pointsPossible) * 100
+
+  // Documentation
+  notes           String?
+  evidenceFiles   String[]   @default([]) @map("evidence_files") // Array of file paths/URLs
+
+  @@index([assessmentId])
+  @@index([indicatorNumber])
+  @@unique([assessmentId, indicatorNumber])
+  @@map("indicator_scores")
+}
+
+/// Quest Canada indicator categories
+enum IndicatorCategory {
+  GOVERNANCE
+  CAPACITY
+  PLANNING
+  INFRASTRUCTURE
+  OPERATIONS
+  BUILDINGS
+  TRANSPORTATION
+  WASTE
+  ENERGY
+  OTHER
+}
+
+/// Community strengths identified during assessment
+model Strength {
+  id           String          @id @default(uuid())
+
+  // Parent assessment
+  assessmentId String          @map("assessment_id")
+  assessment   Assessment      @relation(fields: [assessmentId], references: [id], onDelete: Cascade)
+
+  // Strength details
+  category     IndicatorCategory
+  title        String
+  description  String
+
+  @@index([assessmentId])
+  @@map("strengths")
+}
+
+/// Recommendations for improvement
+model Recommendation {
+  id                   String              @id @default(uuid())
+
+  // Parent assessment
+  assessmentId         String              @map("assessment_id")
+  assessment           Assessment          @relation(fields: [assessmentId], references: [id], onDelete: Cascade)
+
+  // Recommendation details
+  indicatorNumber      Int?                @map("indicator_number") // Which indicator this addresses
+  recommendationText   String              @map("recommendation_text")
+  priorityLevel        Priority            @default(MEDIUM) @map("priority_level")
+
+  // Implementation tracking
+  responsibleParty     String?             @map("responsible_party")
+  implementationStatus ImplementationStatus @default(PLANNED) @map("implementation_status")
+  targetDate           DateTime?           @map("target_date")
+  completionDate       DateTime?           @map("completion_date")
+
+  // Estimated impact
+  estimatedCost        Float?              @map("estimated_cost")
+  estimatedGhgReduction Float?             @map("estimated_ghg_reduction") // Tonnes CO2e
+
+  // Relations - projects linked to this recommendation
+  linkedProjects       Project[]           @relation("RecommendationToProject")
+
+  @@index([assessmentId])
+  @@index([priorityLevel])
+  @@index([implementationStatus])
+  @@map("recommendations")
+}
+
+/// Priority levels for recommendations and projects
+enum Priority {
+  HIGH
+  MEDIUM
+  LOW
+}
+
+/// Implementation status for recommendations
+enum ImplementationStatus {
+  PLANNED
+  IN_PROGRESS
+  COMPLETED
+  DEFERRED
+  CANCELLED
+}
+
+// ============================================================================
+// QUEST CANADA: PROJECT MANAGEMENT
+// ============================================================================
+
+/// Climate action projects
+/// Projects implement recommendations and track progress toward emissions reduction
+model Project {
+  id                       String        @id @default(uuid())
+
+  // Multi-tenancy
+  communityId              String        @map("community_id")
+  community                Community     @relation(fields: [communityId], references: [id], onDelete: Cascade)
+
+  // Project identification
+  projectCode              String        @unique @map("project_code")
+  projectName              String        @map("project_name")
+  description              String?
+
+  // Classification
+  projectType              String        @map("project_type") // e.g., "Building Retrofit", "Renewable Energy"
+  sector                   ProjectSector
+  status                   ProjectStatus @default(PLANNED)
+  priorityLevel            Priority      @default(MEDIUM) @map("priority_level")
+
+  // Impact estimates
+  estimatedGhgReduction    Float?        @map("estimated_ghg_reduction") // Tonnes CO2e per year
+  estimatedEnergyReduction Float?        @map("estimated_energy_reduction") // GJ or kWh per year
+  estimatedCost            Float?        @map("estimated_cost")
+
+  // Timeline
+  plannedStartDate         DateTime?     @map("planned_start_date")
+  actualStartDate          DateTime?     @map("actual_start_date")
+  estimatedCompletionDate  DateTime?     @map("estimated_completion_date")
+  actualCompletionDate     DateTime?     @map("actual_completion_date")
+
+  // Progress tracking
+  completionPercentage     Int           @default(0) @map("completion_percentage") // 0-100
+
+  // Budget tracking
+  totalBudget              Float?        @map("total_budget")
+  totalSecuredFunding      Float?        @map("total_secured_funding") // Calculated from funding sources
+  fundingGap               Float?        @map("funding_gap") // Calculated: totalBudget - totalSecuredFunding
+
+  // Audit fields
+  createdAt                DateTime      @default(now()) @map("created_at")
+  updatedAt                DateTime      @updatedAt @map("updated_at")
+  createdBy                String?       @map("created_by")
+  creator                  User?         @relation("ProjectCreator", fields: [createdBy], references: [id], onDelete: SetNull)
+
+  // Relations
+  fundingSources           Funding[]
+  milestones               Milestone[]
+  recommendations          Recommendation[] @relation("RecommendationToProject")
+
+  @@index([communityId])
+  @@index([status])
+  @@index([sector])
+  @@index([priorityLevel])
+  @@index([createdBy])
+  @@map("projects")
+}
+
+/// Project sectors aligned with Quest Canada indicators
+enum ProjectSector {
+  BUILDINGS
+  TRANSPORTATION
+  WASTE_MANAGEMENT
+  RENEWABLE_ENERGY
+  ENERGY_EFFICIENCY
+  LAND_USE
+  WATER
+  OTHER
+}
+
+/// Project lifecycle status
+enum ProjectStatus {
+  PLANNED           // Conceptual stage
+  IN_DESIGN         // Design/engineering phase
+  FUNDED            // Funding secured, ready to start
+  IN_PROGRESS       // Active implementation
+  COMPLETED         // Finished
+  ON_HOLD           // Temporarily paused
+  CANCELLED         // Abandoned
+}
+
+// ============================================================================
+// QUEST CANADA: FUNDING MANAGEMENT
+// ============================================================================
+
+/// Funding sources for projects
+/// Tracks applications, approvals, and receipts from various funders
+model Funding {
+  id               String        @id @default(uuid())
+
+  // Parent project
+  projectId        String        @map("project_id")
+  project          Project       @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  // Funder details
+  funderName       String        @map("funder_name")
+  funderType       FunderType    @map("funder_type")
+  grantProgram     String?       @map("grant_program")
+
+  // Financial details
+  amount           Float         // Amount in CAD
+  status           FundingStatus @default(PENDING)
+
+  // Timeline
+  applicationDate  DateTime?     @map("application_date")
+  approvalDate     DateTime?     @map("approval_date")
+  receivedDate     DateTime?     @map("received_date")
+
+  // Documentation
+  notes            String?
+  agreementFile    String?       @map("agreement_file") // Path to funding agreement PDF
+
+  // Audit fields
+  createdAt        DateTime      @default(now()) @map("created_at")
+  updatedAt        DateTime      @updatedAt @map("updated_at")
+
+  @@index([projectId])
+  @@index([funderType])
+  @@index([status])
+  @@map("funding")
+}
+
+/// Types of funding organizations
+enum FunderType {
+  FEDERAL           // Government of Canada
+  PROVINCIAL        // Provincial/territorial government
+  MUNICIPAL         // Local government
+  FOUNDATION        // Private/public foundation
+  CORPORATE         // Corporate sponsor
+  UTILITY           // Utility company
+  OTHER
+}
+
+/// Funding application/receipt status
+enum FundingStatus {
+  PENDING           // Application submitted, awaiting decision
+  APPROVED          // Approved but not yet received
+  RECEIVED          // Funds received
+  DENIED            // Application rejected
+  WITHDRAWN         // Application withdrawn
+}
+
+// ============================================================================
+// QUEST CANADA: MILESTONE TRACKING
+// ============================================================================
+
+/// Project milestones
+/// Tracks key deliverables and deadlines within projects
+model Milestone {
+  id             String          @id @default(uuid())
+
+  // Parent project
+  projectId      String          @map("project_id")
+  project        Project         @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  // Milestone details
+  milestoneName  String          @map("milestone_name")
+  description    String?
+
+  // Timeline
+  targetDate     DateTime        @map("target_date")
+  actualDate     DateTime?       @map("actual_date")
+
+  // Status tracking
+  status         MilestoneStatus @default(NOT_STARTED)
+
+  // Ordering (for Gantt chart display)
+  displayOrder   Int             @map("display_order")
+
+  // Dependencies (optional - for advanced Gantt charts)
+  dependsOnIds   String[]        @default([]) @map("depends_on_ids") // Array of milestone IDs
+
+  // Documentation
+  notes          String?
+  completionNotes String?        @map("completion_notes")
+
+  // Audit fields
+  createdAt      DateTime        @default(now()) @map("created_at")
+  updatedAt      DateTime        @updatedAt @map("updated_at")
+
+  @@index([projectId])
+  @@index([status])
+  @@index([targetDate])
+  @@map("milestones")
+}
+
+/// Milestone completion status
+enum MilestoneStatus {
+  NOT_STARTED
+  IN_PROGRESS
+  COMPLETED
+  DELAYED
+  CANCELLED
+}
+
+// ============================================================================
+// QUEST CANADA: AI REPORT EXTRACTION
+// ============================================================================
+
+/// Audit log for AI-powered document extraction
+/// Tracks usage, costs, and results of Claude API calls
+model AiExtractionLog {
+  id                String   @id @default(uuid())
+
+  // User who initiated extraction
+  userId            String   @map("user_id")
+  user              User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // Document details
+  documentType      String   @map("document_type") // "assessment", "project", "funding"
+  fileName          String   @map("file_name")
+  fileSize          Int      @map("file_size") // Bytes
+  filePath          String?  @map("file_path") // Storage path
+
+  // Processing status
+  status            ExtractionStatus // "processing", "completed", "error"
+
+  // Extracted data (JSON)
+  extractedData     Json?    @map("extracted_data")
+  confidenceScores  Json?    @map("confidence_scores") // Per-field confidence (0-100)
+
+  // Error handling
+  errorMessage      String?  @map("error_message")
+  errorStack        String?  @map("error_stack")
+
+  // Database insertion results
+  insertedRecordIds Json?    @map("inserted_record_ids") // { assessmentId: "...", projectIds: [...] }
+
+  // Performance metrics
+  processingTimeMs  Int?     @map("processing_time_ms")
+
+  // Cost tracking
+  tokensUsed        Int?     @map("tokens_used")
+  costUsd           Float?   @map("cost_usd")
+
+  // Audit fields
+  createdAt         DateTime @default(now()) @map("created_at")
+  completedAt       DateTime? @map("completed_at")
+
+  @@index([userId])
+  @@index([status])
+  @@index([documentType])
+  @@index([createdAt])
+  @@map("ai_extraction_logs")
+}
+
+/// AI extraction processing status
+enum ExtractionStatus {
+  PENDING       // Queued
+  PROCESSING    // AI analyzing document
+  COMPLETED     // Successfully extracted
+  ERROR         // Failed
+  CANCELLED     // User cancelled
+}
