@@ -172,9 +172,10 @@
 
 @layer base {
   * {
-    @apply border-border;
+    /* @apply border-border; - temporarily disabled due to PostCSS build issue */
   }
   body {
     @apply bg-background text-foreground;
   }
 }
+

@@ -7,6 +7,55 @@ module.exports = {
   theme: {
     extend: {
       colors: {
+        // Shadcn UI base colors (using CSS variables)
+        border: "hsl(var(--border))",
+        input: "hsl(var(--input))",
+        ring: "hsl(var(--ring))",
+        background: "hsl(var(--background))",
+        foreground: "hsl(var(--foreground))",
+        primary: {
+          DEFAULT: "hsl(var(--primary))",
+          foreground: "hsl(var(--primary-foreground))",
+        },
+        secondary: {
+          DEFAULT: "hsl(var(--secondary))",
+          foreground: "hsl(var(--secondary-foreground))",
+          muted: "hsl(var(--secondary-muted))",
+          "muted-foreground": "hsl(var(--secondary-muted-foreground))",
+        },
+        destructive: {
+          DEFAULT: "hsl(var(--destructive))",
+          foreground: "hsl(var(--destructive-foreground))",
+        },
+        success: {
+          DEFAULT: "hsl(var(--success))",
+          foreground: "hsl(var(--success-foreground))",
+        },
+        warning: {
+          DEFAULT: "hsl(var(--warning))",
+          foreground: "hsl(var(--warning-foreground))",
+        },
+        muted: {
+          DEFAULT: "hsl(var(--muted))",
+          foreground: "hsl(var(--muted-foreground))",
+        },
+        accent: {
+          DEFAULT: "hsl(var(--accent))",
+          foreground: "hsl(var(--accent-foreground))",
+        },
+        popover: {
+          DEFAULT: "hsl(var(--popover))",
+          foreground: "hsl(var(--popover-foreground))",
+        },
+        card: {
+          DEFAULT: "hsl(var(--card))",
+          foreground: "hsl(var(--card-foreground))",
+          accent: "hsl(var(--card-accent))",
+          "accent-foreground": "hsl(var(--card-accent-foreground))",
+          subtle: "hsl(var(--card-subtle))",
+          "subtle-foreground": "hsl(var(--card-subtle-foreground))",
+        },
+
         // Quest Canada Brand Colors
         quest: {
           blue: {
@@ -50,46 +99,7 @@ module.exports = {
           },
         },
 
-        // Override default primary/accent for Quest Canada
-        primary: {
-          DEFAULT: '#003D7A',
-          50: '#E6EBF2',
-          100: '#CCD7E5',
-          200: '#99AFCB',
-          300: '#6687B1',
-          400: '#335F97',
-          500: '#003D7A',
-          600: '#003162',
-          700: '#002549',
-          800: '#001931',
-          900: '#000C18',
-        },
-
-        accent: {
-          DEFAULT: '#FF6B35',
-          50: '#FFF3EE',
-          100: '#FFE7DD',
-          200: '#FFCFBB',
-          300: '#FFB799',
-          400: '#FF9F77',
-          500: '#FF6B35',
-          600: '#E64D1F',
-          700: '#B83C18',
-          800: '#8A2D12',
-          900: '#5C1E0C',
-        },
-
-        // Semantic colors
-        success: {
-          DEFAULT: '#10B981',
-          light: '#D1FAE5',
-          dark: '#065F46',
-        },
-        warning: {
-          DEFAULT: '#F59E0B',
-          light: '#FEF3C7',
-          dark: '#92400E',
-        },
+        // Semantic colors (kept for backward compatibility)
         error: {
           DEFAULT: '#EF4444',
           light: '#FEE2E2',
