@@ -351,3 +351,54 @@ page AssessmentFormPage {
   component: import AssessmentFormPage from "@src/assessments/pages/AssessmentFormPage"
 }
 //#endregion
+
+//#region Project Management
+// Quest Canada Climate Action Projects
+
+// Queries
+query getProjects {
+  fn: import { getProjects } from "@src/projects/operations",
+  entities: [Project, Community, Funding, Milestone, Recommendation, User]
+}
+
+query getProject {
+  fn: import { getProject } from "@src/projects/operations",
+  entities: [Project, Community, Funding, Milestone, Recommendation, User]
+}
+
+// Actions
+action createProject {
+  fn: import { createProject } from "@src/projects/operations",
+  entities: [Project, Funding, Milestone, User]
+}
+
+action updateProject {
+  fn: import { updateProject } from "@src/projects/operations",
+  entities: [Project, Funding, Milestone, User]
+}
+
+action deleteProject {
+  fn: import { deleteProject } from "@src/projects/operations",
+  entities: [Project, Funding, Milestone, User]
+}
+
+// Routes and Pages
+route ProjectsRoute { path: "/projects", to: ProjectsPage }
+page ProjectsPage {
+  authRequired: true,
+  component: import ProjectsPage from "@src/projects/pages/ProjectsPage"
+}
+
+route ProjectDetailRoute { path: "/projects/:id", to: ProjectDetailPage }
+page ProjectDetailPage {
+  authRequired: true,
+  component: import ProjectDetailPage from "@src/projects/pages/ProjectDetailPage"
+}
+
+route ProjectNewRoute { path: "/projects/new", to: ProjectFormPage }
+route ProjectEditRoute { path: "/projects/:id/edit", to: ProjectFormPage }
+page ProjectFormPage {
+  authRequired: true,
+  component: import ProjectFormPage from "@src/projects/pages/ProjectFormPage"
+}
+//#endregion
