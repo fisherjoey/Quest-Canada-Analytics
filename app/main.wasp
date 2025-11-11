@@ -68,7 +68,7 @@ app QuestCanadaApp {
       // }
     },
     onAuthFailedRedirectTo: "/login",
-    onAuthSucceededRedirectTo: "/demo-app",
+    onAuthSucceededRedirectTo: "/assessments",
   },
 
   db: {
