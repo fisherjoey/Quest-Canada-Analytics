@@ -1,6 +1,6 @@
 import { Link as WaspRouterLink, routes } from 'wasp/client/router';
-import openSaasBannerDark from '../../client/static/quest-canada-banner-dark.png';
-import openSaasBannerLight from '../../client/static/quest-canada-banner-light.png';
+import openSaasBannerDark from '../../client/static/open-saas-banner-dark.png';
+import openSaasBannerLight from '../../client/static/open-saas-banner-light.png';
 import { Button } from '../../components/ui/button';
 
 export default function Hero() {
