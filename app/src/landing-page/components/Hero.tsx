@@ -1,6 +1,6 @@
 import { Link as WaspRouterLink, routes } from 'wasp/client/router';
-import openSaasBannerDark from '../../client/static/open-saas-banner-dark.png';
-import openSaasBannerLight from '../../client/static/open-saas-banner-light.png';
+import bannerDark from '../../../public/banner-dark.svg';
+import bannerLight from '../../../public/banner-light.svg';
 import { Button } from '../../components/ui/button';
 
 export default function Hero() {
@@ -33,7 +33,7 @@ export default function Hero() {
           <div className='mt-14 flow-root sm:mt-14'>
             <div className='hidden md:flex m-2 justify-center rounded-xl lg:-m-4 lg:rounded-2xl lg:p-4'>
               <img
-                src={openSaasBannerLight}
+                src={bannerLight}
                 alt='Quest Canada Platform'
                 width={1000}
                 height={530}
@@ -41,7 +41,7 @@ export default function Hero() {
                 className='rounded-md shadow-2xl ring-1 ring-gray-900/10 dark:hidden'
               />
               <img
-                src={openSaasBannerDark}
+                src={bannerDark}
                 alt='Quest Canada Platform'
                 width={1000}
                 height={530}

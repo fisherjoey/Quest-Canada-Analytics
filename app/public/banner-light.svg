@@ -1,0 +1,17 @@
+<svg width="1000" height="530" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bgGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#f0f9f4;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#d1f2e0;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  <rect width="1000" height="530" fill="url(#bgGradient)"/>
+  <circle cx="200" cy="150" r="80" fill="#2d7a4f" opacity="0.1"/>
+  <circle cx="800" cy="400" r="120" fill="#4a9d6f" opacity="0.1"/>
+  <text x="500" y="240" font-family="Arial, sans-serif" font-size="48" font-weight="bold" fill="#2d7a4f" text-anchor="middle">Quest Canada</text>
+  <text x="500" y="290" font-family="Arial, sans-serif" font-size="24" fill="#4a9d6f" text-anchor="middle">Climate Action Tracking Platform</text>
+  <rect x="100" y="350" width="800" height="120" rx="10" fill="white" opacity="0.8"/>
+  <rect x="120" y="370" width="250" height="20" rx="5" fill="#e0e0e0"/>
+  <rect x="120" y="410" width="350" height="20" rx="5" fill="#e0e0e0"/>
+  <rect x="520" y="370" width="340" height="80" rx="8" fill="#f5f5f5"/>
+</svg>
