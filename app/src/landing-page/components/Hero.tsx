@@ -12,12 +12,12 @@ export default function Hero() {
         <div className='mx-auto max-w-8xl px-6 lg:px-8'>
           <div className='lg:mb-18 mx-auto max-w-3xl text-center'>
             <h1 className='text-5xl font-bold text-foreground sm:text-6xl'>
-              Indigenous-led <span className='italic'>Climate Action</span>{' '}
-              <span className='text-gradient-primary'>Tracking & Assessment</span>
+              Supporting Canadian Communities on the <span className='italic'>Pathway</span> to{' '}
+              <span className='text-gradient-primary'>Net-Zero</span>
             </h1>
             <p className='mt-6 mx-auto max-w-2xl text-lg leading-8 text-muted-foreground'>
-              Empowering Indigenous communities to track, measure, and report climate action initiatives 
-              with tools built on data sovereignty principles.
+              Track, measure, and report on community-scale climate action with integrated energy solutions 
+              and smart community planning tools.
             </p>
             <div className='mt-10 flex items-center justify-center gap-x-6'>
               <Button size='lg' variant='outline' asChild>
@@ -34,7 +34,7 @@ export default function Hero() {
             <div className='hidden md:flex m-2 justify-center rounded-xl lg:-m-4 lg:rounded-2xl lg:p-4'>
               <img
                 src={openSaasBannerLight}
-                alt='Quest Canada Platform Screenshot'
+                alt='Quest Canada Platform'
                 width={1000}
                 height={530}
                 loading='lazy'
@@ -42,7 +42,7 @@ export default function Hero() {
               />
               <img
                 src={openSaasBannerDark}
-                alt='Quest Canada Platform Screenshot'
+                alt='Quest Canada Platform'
                 width={1000}
                 height={530}
                 loading='lazy'

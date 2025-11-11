@@ -6,43 +6,43 @@ export const navigation = [
 
 export const features = [
   {
-    name: 'Climate Action Assessment',
-    description: 'Comprehensive assessment tools for tracking Indigenous community climate initiatives and measuring impact.',
+    name: 'Community Energy Planning',
+    description: 'Comprehensive assessment tools for tracking municipal climate action and integrated energy solutions.',
     icon: '📊',
     href: '/assessments',
     size: 'medium' as const,
   },
   {
     name: 'Project Management',
-    description: 'Track and manage climate action projects from planning through completion with milestone tracking.',
+    description: 'Track and manage community-scale energy projects from planning through completion.',
     icon: '🌱',
     href: '/projects',
     size: 'medium' as const,
   },
   {
     name: 'Funding Coordination',
-    description: 'Coordinate funding sources, track budgets, and monitor financial progress for climate initiatives.',
+    description: 'Coordinate funding sources, track budgets, and monitor progress for community energy initiatives.',
     icon: '💰',
     href: '#',
     size: 'medium' as const,
   },
   {
     name: 'Community Dashboard',
-    description: 'Visualize climate action progress across Indigenous communities with customizable dashboards.',
+    description: 'Visualize climate action progress across Canadian municipalities with customizable dashboards.',
     icon: '📈',
     href: '/admin',
     size: 'medium' as const,
   },
   {
-    name: 'Data Analytics',
-    description: 'Advanced analytics for GHG reduction tracking, energy efficiency, and environmental impact measurement.',
+    name: 'Smart Energy Systems',
+    description: 'Advanced analytics for GHG reduction tracking, energy efficiency, and net-zero pathway monitoring.',
     icon: '📉',
     href: '#',
     size: 'medium' as const,
   },
   {
     name: 'Secure & Compliant',
-    description: 'Built with Indigenous data sovereignty principles and secure authentication for community data protection.',
+    description: 'Built with data security and privacy principles for community data protection.',
     icon: '🔒',
     href: '#',
     size: 'medium' as const,
@@ -51,20 +51,20 @@ export const features = [
 
 export const examples = [
   {
-    name: 'Climate Assessment Tools',
-    description: 'Comprehensive assessment framework for evaluating community climate action readiness',
+    name: 'Energy Assessment Tools',
+    description: 'Comprehensive framework for evaluating community energy systems and climate readiness',
     imageSrc: '',
     href: '/assessments',
   },
   {
     name: 'Project Tracking',
-    description: 'Track project progress, milestones, and outcomes in real-time',
+    description: 'Track project progress, milestones, and outcomes for community-scale initiatives',
     imageSrc: '',
     href: '/projects',
   },
   {
     name: 'Impact Reporting',
-    description: 'Generate detailed reports on GHG reductions and environmental impact',
+    description: 'Generate detailed reports on GHG reductions and progress toward net-zero',
     imageSrc: '',
     href: '/admin',
   },
@@ -72,25 +72,25 @@ export const examples = [
 
 export const testimonials = [
   {
-    name: 'Community Climate Leader',
-    role: 'Indigenous Climate Initiative',
+    name: 'Municipal Climate Coordinator',
+    role: 'Mid-sized Canadian City',
     avatarSrc: '',
     socialUrl: '',
-    quote: 'Quest Canada has transformed how we track and report on our climate action progress. The assessment tools help us demonstrate impact to funders.',
+    quote: 'Quest Canada tools have transformed how we track and report on our community energy planning. The assessment framework helps us demonstrate progress to stakeholders.',
   },
   {
-    name: 'Project Coordinator',
-    role: 'Northern Community',
+    name: 'Community Energy Manager',
+    role: 'Northern Municipality',
     avatarSrc: '',
     socialUrl: '',
-    quote: 'Managing multiple climate projects across our community is now streamlined. We can track milestones, funding, and outcomes all in one place.',
+    quote: 'Managing multiple energy projects across our community is now streamlined. We can track milestones, funding, and outcomes all in one place.',
   },
   {
-    name: 'Environmental Director',
-    role: 'First Nation',
+    name: 'Sustainability Director',
+    role: 'Regional District',
     avatarSrc: '',
     socialUrl: '',
-    quote: 'The data visualization helps our leadership make informed decisions about climate priorities and resource allocation.',
+    quote: 'The data visualization helps our leadership make informed decisions about climate priorities and resource allocation on the path to net-zero.',
   },
 ];
 
@@ -99,37 +99,37 @@ export const faqs = [
     id: 1,
     question: 'What is Quest Canada?',
     answer:
-      'Quest Canada is a climate action tracking platform designed specifically for Indigenous communities. It helps communities assess, plan, track, and report on climate initiatives while maintaining data sovereignty.',
+      'Quest Canada (Quality Urban Energy Systems of Tomorrow) is a national organization supporting Canadian communities on their pathway to net-zero through integrated, community-scale energy solutions.',
   },
   {
     id: 2,
     question: 'How does the assessment tool work?',
     answer:
-      'The assessment tool guides communities through evaluating climate action readiness across multiple sectors including energy, waste, transportation, and buildings. It generates actionable recommendations and tracks progress over time.',
+      'The assessment tool guides communities through evaluating energy systems and climate action readiness across multiple sectors. It generates actionable recommendations and tracks progress toward net-zero goals.',
   },
   {
     id: 3,
-    question: 'Can we track multiple communities?',
+    question: 'Who can use this platform?',
     answer:
-      'Yes, the platform supports tracking climate action across multiple Indigenous communities, with role-based access control to ensure data privacy and sovereignty.',
+      'The platform serves Canadian municipalities of all sizes, rural and remote communities, community energy managers, municipal staff, and stakeholders working on community-scale energy solutions.',
   },
   {
     id: 4,
     question: 'How is our data protected?',
     answer:
-      'We follow Indigenous data sovereignty principles (OCAP®). All data is encrypted, access-controlled, and communities retain ownership and control of their climate action data.',
+      'All data is encrypted, access-controlled, and communities retain ownership and control of their climate action data with secure authentication and privacy measures.',
   },
   {
     id: 5,
     question: 'What kind of reports can we generate?',
     answer:
-      'Generate comprehensive reports on GHG reduction, energy efficiency, funding status, project progress, and climate action outcomes. Reports are customizable for different stakeholders including funders, leadership, and community members.',
+      'Generate comprehensive reports on GHG reduction, energy efficiency, funding status, project progress, and net-zero pathway metrics. Reports are customizable for different stakeholders including funders, leadership, and community members.',
   },
   {
     id: 6,
     question: 'Is training provided?',
     answer:
-      'Yes, we provide comprehensive onboarding and training for community staff, with ongoing support to ensure successful platform adoption.',
+      'Yes, we provide comprehensive onboarding and training for municipal staff and community champions, with ongoing support to ensure successful platform adoption.',
   },
 ];
 
