@@ -6,7 +6,7 @@ app QuestCanadaApp {
   title: "Quest Canada - Climate Action Tracker",
 
   head: [
-    "<link rel='icon' href='/favicon.ico' />",
+    "<link rel='icon' href='/favicon.svg' type='image/svg+xml' />",
     "<meta charset='utf-8' />",
     "<meta name='description' content='Indigenous-led climate action tracking and assessment and features.' />",
     "<meta name='author' content='Quest Canada' />",
