@@ -1,166 +1,107 @@
-import daBoiAvatar from '../client/static/da-boi.webp';
-import kivo from '../client/static/examples/kivo.webp';
-import messync from '../client/static/examples/messync.webp';
-import microinfluencerClub from '../client/static/examples/microinfluencers.webp';
-import promptpanda from '../client/static/examples/promptpanda.webp';
-import reviewradar from '../client/static/examples/reviewradar.webp';
-import scribeist from '../client/static/examples/scribeist.webp';
-import searchcraft from '../client/static/examples/searchcraft.webp';
-import { BlogUrl, DocsUrl } from '../shared/common';
-import type { GridFeature } from './components/FeaturesGrid';
+export const navigation = [
+  { name: 'Features', href: '#features' },
+  { name: 'Assessments', href: '/assessments' },
+  { name: 'Projects', href: '/projects' },
+];
 
-export const features: GridFeature[] = [
+export const features = [
   {
-    name: 'Cool Feature 1',
-    description: 'Your feature',
-    emoji: '🤝',
-    href: DocsUrl,
-    size: 'small',
+    name: 'Climate Action Assessment',
+    description: 'Comprehensive assessment tools for tracking Indigenous community climate initiatives and measuring impact.',
+    icon: '📊',
+    href: '/assessments',
   },
   {
-    name: 'Cool Feature 2',
-    description: 'Feature description',
-    emoji: '🔐',
-    href: DocsUrl,
-    size: 'small',
+    name: 'Project Management',
+    description: 'Track and manage climate action projects from planning through completion with milestone tracking.',
+    icon: '🌱',
+    href: '/projects',
   },
   {
-    name: 'Cool Feature 3',
-    description: 'Describe your cool feature here',
-    emoji: '🥞',
-    href: DocsUrl,
-    size: 'medium',
+    name: 'Funding Coordination',
+    description: 'Coordinate funding sources, track budgets, and monitor financial progress for climate initiatives.',
+    icon: '💰',
+    href: '#',
   },
   {
-    name: 'Cool Feature 4',
-    description: 'Describe your cool feature here',
-    emoji: '💸',
-    href: DocsUrl,
-    size: 'large',
+    name: 'Community Dashboard',
+    description: 'Visualize climate action progress across Indigenous communities with customizable dashboards.',
+    icon: '📈',
+    href: '/admin',
   },
   {
-    name: 'Cool Feature 5',
-    description: 'Describe your cool feature here',
-    emoji: '💼',
-    href: DocsUrl,
-    size: 'large',
+    name: 'Data Analytics',
+    description: 'Advanced analytics for GHG reduction tracking, energy efficiency, and environmental impact measurement.',
+    icon: '📉',
+    href: '#',
   },
   {
-    name: 'Cool Feature 6',
-    description: 'It is cool',
-    emoji: '📈',
-    href: DocsUrl,
-    size: 'small',
-  },
-  {
-    name: 'Cool Feature 7',
-    description: 'Cool feature',
-    emoji: '📧',
-    href: DocsUrl,
-    size: 'small',
-  },
-  {
-    name: 'Cool Feature 8',
-    description: 'Describe your cool feature here',
-    emoji: '🤖',
-    href: DocsUrl,
-    size: 'medium',
-  },
-  {
-    name: 'Cool Feature 9',
-    description: 'Describe your cool feature here',
-    emoji: '🚀',
-    href: DocsUrl,
-    size: 'medium',
+    name: 'Secure & Compliant',
+    description: 'Built with Indigenous data sovereignty principles and secure authentication for community data protection.',
+    icon: '🔒',
+    href: '#',
   },
 ];
 
 export const testimonials = [
   {
-    name: 'Da Boi',
-    role: 'Wasp Mascot',
-    avatarSrc: daBoiAvatar,
-    socialUrl: 'https://twitter.com/wasplang',
-    quote: "I don't even know how to code. I'm just a plushie.",
-  },
-  {
-    name: 'Mr. Foobar',
-    role: 'Founder @ Cool Startup',
-    avatarSrc: daBoiAvatar,
+    name: 'Community Climate Leader',
+    role: 'Indigenous Climate Initiative',
+    avatarSrc: '',
     socialUrl: '',
-    quote: 'This product makes me cooler than I already am.',
+    quote: 'Quest Canada has transformed how we track and report on our climate action progress. The assessment tools help us demonstrate impact to funders.',
   },
   {
-    name: 'Jamie',
-    role: 'Happy Customer',
-    avatarSrc: daBoiAvatar,
-    socialUrl: '#',
-    quote: 'My cats love it!',
+    name: 'Project Coordinator',
+    role: 'Northern Community',
+    avatarSrc: '',
+    socialUrl: '',
+    quote: 'Managing multiple climate projects across our community is now streamlined. We can track milestones, funding, and outcomes all in one place.',
+  },
+  {
+    name: 'Environmental Director',
+    role: 'First Nation',
+    avatarSrc: '',
+    socialUrl: '',
+    quote: 'The data visualization helps our leadership make informed decisions about climate priorities and resource allocation.',
   },
 ];
 
 export const faqs = [
   {
     id: 1,
-    question: 'Whats the meaning of life?',
-    answer: '42.',
-    href: 'https://en.wikipedia.org/wiki/42_(number)',
-  },
-];
-
-export const footerNavigation = {
-  app: [
-    { name: 'Documentation', href: DocsUrl },
-    { name: 'Blog', href: BlogUrl },
-  ],
-  company: [
-    { name: 'About', href: 'https://wasp.sh' },
-    { name: 'Privacy', href: '#' },
-    { name: 'Terms of Service', href: '#' },
-  ],
-};
-
-export const examples = [
-  {
-    name: 'Example #1',
-    description: 'Describe your example here.',
-    imageSrc: kivo,
-    href: '#',
+    question: 'What is Quest Canada?',
+    answer:
+      'Quest Canada is a climate action tracking platform designed specifically for Indigenous communities. It helps communities assess, plan, track, and report on climate initiatives while maintaining data sovereignty.',
   },
   {
-    name: 'Example #2',
-    description: 'Describe your example here.',
-    imageSrc: messync,
-    href: '#',
+    id: 2,
+    question: 'How does the assessment tool work?',
+    answer:
+      'The assessment tool guides communities through evaluating climate action readiness across multiple sectors including energy, waste, transportation, and buildings. It generates actionable recommendations and tracks progress over time.',
   },
   {
-    name: 'Example #3',
-    description: 'Describe your example here.',
-    imageSrc: microinfluencerClub,
-    href: '#',
+    id: 3,
+    question: 'Can we track multiple communities?',
+    answer:
+      'Yes, the platform supports tracking climate action across multiple Indigenous communities, with role-based access control to ensure data privacy and sovereignty.',
   },
   {
-    name: 'Example #4',
-    description: 'Describe your example here.',
-    imageSrc: promptpanda,
-    href: '#',
+    id: 4,
+    question: 'How is our data protected?',
+    answer:
+      'We follow Indigenous data sovereignty principles (OCAP®). All data is encrypted, access-controlled, and communities retain ownership and control of their climate action data.',
   },
   {
-    name: 'Example #5',
-    description: 'Describe your example here.',
-    imageSrc: reviewradar,
-    href: '#',
+    id: 5,
+    question: 'What kind of reports can we generate?',
+    answer:
+      'Generate comprehensive reports on GHG reduction, energy efficiency, funding status, project progress, and climate action outcomes. Reports are customizable for different stakeholders including funders, leadership, and community members.',
   },
   {
-    name: 'Example #6',
-    description: 'Describe your example here.',
-    imageSrc: scribeist,
-    href: '#',
-  },
-  {
-    name: 'Example #7',
-    description: 'Describe your example here.',
-    imageSrc: searchcraft,
-    href: '#',
+    id: 6,
+    question: 'Is training provided?',
+    answer:
+      'Yes, we provide comprehensive onboarding and training for community staff, with ongoing support to ensure successful platform adoption.',
   },
 ];

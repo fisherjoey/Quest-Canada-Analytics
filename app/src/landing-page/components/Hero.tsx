@@ -1,6 +1,6 @@
 import { Link as WaspRouterLink, routes } from 'wasp/client/router';
-import openSaasBannerDark from '../../client/static/open-saas-banner-dark.png';
-import openSaasBannerLight from '../../client/static/open-saas-banner-light.png';
+import openSaasBannerDark from '../../client/static/quest-canada-banner-dark.png';
+import openSaasBannerLight from '../../client/static/quest-canada-banner-light.png';
 import { Button } from '../../components/ui/button';
 
 export default function Hero() {
@@ -12,15 +12,16 @@ export default function Hero() {
         <div className='mx-auto max-w-8xl px-6 lg:px-8'>
           <div className='lg:mb-18 mx-auto max-w-3xl text-center'>
             <h1 className='text-5xl font-bold text-foreground sm:text-6xl'>
-              Some <span className='italic'>cool</span> words about{' '}
-              <span className='text-gradient-primary'>your product</span>
+              Indigenous-led <span className='italic'>Climate Action</span>{' '}
+              <span className='text-gradient-primary'>Tracking & Assessment</span>
             </h1>
             <p className='mt-6 mx-auto max-w-2xl text-lg leading-8 text-muted-foreground'>
-              With some more exciting words about your product!
+              Empowering Indigenous communities to track, measure, and report climate action initiatives 
+              with tools built on data sovereignty principles.
             </p>
             <div className='mt-10 flex items-center justify-center gap-x-6'>
               <Button size='lg' variant='outline' asChild>
-                <WaspRouterLink to={routes.PricingPageRoute.to}>Learn More</WaspRouterLink>
+                <WaspRouterLink to={routes.AssessmentsRoute.to}>View Assessments</WaspRouterLink>
               </Button>
               <Button size='lg' variant='default' asChild>
                 <WaspRouterLink to={routes.SignupRoute.to}>
@@ -33,7 +34,7 @@ export default function Hero() {
             <div className='hidden md:flex m-2 justify-center rounded-xl lg:-m-4 lg:rounded-2xl lg:p-4'>
               <img
                 src={openSaasBannerLight}
-                alt='App screenshot'
+                alt='Quest Canada Platform Screenshot'
                 width={1000}
                 height={530}
                 loading='lazy'
@@ -41,7 +42,7 @@ export default function Hero() {
               />
               <img
                 src={openSaasBannerDark}
-                alt='App screenshot'
+                alt='Quest Canada Platform Screenshot'
                 width={1000}
                 height={530}
                 loading='lazy'
@@ -58,13 +59,14 @@ export default function Hero() {
 function TopGradient() {
   return (
     <div
-      className='absolute top-0 right-0 -z-10 transform-gpu overflow-hidden w-full blur-3xl sm:top-0'
+      className='absolute inset-x-0 -top-40 -z-10 transform-gpu overflow-hidden blur-3xl sm:-top-80'
       aria-hidden='true'
     >
       <div
-        className='aspect-[1020/880] w-[70rem] flex-none sm:right-1/4 sm:translate-x-1/2 dark:hidden bg-gradient-to-tr from-amber-400 to-purple-300 opacity-10'
+        className='relative left-[calc(50%-11rem)] aspect-[1155/678] w-[36.125rem] -translate-x-1/2 rotate-[30deg] bg-gradient-to-tr from-secondary to-primary opacity-30 sm:left-[calc(50%-30rem)] sm:w-[72.1875rem]'
         style={{
-          clipPath: 'polygon(80% 20%, 90% 55%, 50% 100%, 70% 30%, 20% 50%, 50% 0)',
+          clipPath:
+            'polygon(74.1% 44.1%, 100% 61.6%, 97.5% 26.9%, 85.5% 0.1%, 80.7% 2%, 72.5% 32.5%, 60.2% 62.4%, 52.4% 68.1%, 47.5% 58.3%, 45.2% 34.5%, 27.5% 76.7%, 0.1% 64.9%, 17.9% 100%, 27.6% 76.8%, 76.1% 97.7%, 74.1% 44.1%)',
         }}
       />
     </div>
@@ -74,13 +76,14 @@ function TopGradient() {
 function BottomGradient() {
   return (
     <div
-      className='absolute inset-x-0 top-[calc(100%-40rem)] sm:top-[calc(100%-65rem)] -z-10 transform-gpu overflow-hidden blur-3xl'
+      className='absolute inset-x-0 top-[calc(100%-13rem)] -z-10 transform-gpu overflow-hidden blur-3xl sm:top-[calc(100%-30rem)]'
       aria-hidden='true'
     >
       <div
-        className='relative aspect-[1020/880] sm:-left-3/4 sm:translate-x-1/4 dark:hidden bg-gradient-to-br from-amber-400 to-purple-300 opacity-10 w-[90rem]'
+        className='relative left-[calc(50%+3rem)] aspect-[1155/678] w-[36.125rem] -translate-x-1/2 bg-gradient-to-tr from-secondary to-primary opacity-30 sm:left-[calc(50%+36rem)] sm:w-[72.1875rem]'
         style={{
-          clipPath: 'ellipse(80% 30% at 80% 50%)',
+          clipPath:
+            'polygon(74.1% 44.1%, 100% 61.6%, 97.5% 26.9%, 85.5% 0.1%, 80.7% 2%, 72.5% 32.5%, 60.2% 62.4%, 52.4% 68.1%, 47.5% 58.3%, 45.2% 34.5%, 27.5% 76.7%, 0.1% 64.9%, 17.9% 100%, 27.6% 76.8%, 76.1% 97.7%, 74.1% 44.1%)',
         }}
       />
     </div>
