@@ -10,36 +10,63 @@ export const features = [
     description: 'Comprehensive assessment tools for tracking Indigenous community climate initiatives and measuring impact.',
     icon: '📊',
     href: '/assessments',
+    size: 'medium' as const,
   },
   {
     name: 'Project Management',
     description: 'Track and manage climate action projects from planning through completion with milestone tracking.',
     icon: '🌱',
     href: '/projects',
+    size: 'medium' as const,
   },
   {
     name: 'Funding Coordination',
     description: 'Coordinate funding sources, track budgets, and monitor financial progress for climate initiatives.',
     icon: '💰',
     href: '#',
+    size: 'medium' as const,
   },
   {
     name: 'Community Dashboard',
     description: 'Visualize climate action progress across Indigenous communities with customizable dashboards.',
     icon: '📈',
     href: '/admin',
+    size: 'medium' as const,
   },
   {
     name: 'Data Analytics',
     description: 'Advanced analytics for GHG reduction tracking, energy efficiency, and environmental impact measurement.',
     icon: '📉',
     href: '#',
+    size: 'medium' as const,
   },
   {
     name: 'Secure & Compliant',
     description: 'Built with Indigenous data sovereignty principles and secure authentication for community data protection.',
     icon: '🔒',
     href: '#',
+    size: 'medium' as const,
+  },
+];
+
+export const examples = [
+  {
+    name: 'Climate Assessment Tools',
+    description: 'Comprehensive assessment framework for evaluating community climate action readiness',
+    imageSrc: '',
+    href: '/assessments',
+  },
+  {
+    name: 'Project Tracking',
+    description: 'Track project progress, milestones, and outcomes in real-time',
+    imageSrc: '',
+    href: '/projects',
+  },
+  {
+    name: 'Impact Reporting',
+    description: 'Generate detailed reports on GHG reductions and environmental impact',
+    imageSrc: '',
+    href: '/admin',
   },
 ];
 
@@ -105,3 +132,15 @@ export const faqs = [
       'Yes, we provide comprehensive onboarding and training for community staff, with ongoing support to ensure successful platform adoption.',
   },
 ];
+
+export const footerNavigation = {
+  app: [
+    { name: 'Features', href: '/#features' },
+    { name: 'Assessments', href: '/assessments' },
+    { name: 'Projects', href: '/projects' },
+  ],
+  company: [
+    { name: 'About Quest Canada', href: '#' },
+    { name: 'Contact', href: '#' },
+  ],
+};
