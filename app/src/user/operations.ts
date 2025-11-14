@@ -1,9 +1,10 @@
+import { SubscriptionStatus } from '../payment/plans';
 import { type Prisma } from '@prisma/client';
 import { type User } from 'wasp/entities';
 import { HttpError, prisma } from 'wasp/server';
 import { type GetPaginatedUsers, type UpdateIsUserAdminById } from 'wasp/server/operations';
 import * as z from 'zod';
-import { SubscriptionStatus } from '../payment/plans';
+
 import { ensureArgsSchemaOrThrowHttpError } from '../server/validation';
 
 const updateUserAdminByIdInputSchema = z.object({

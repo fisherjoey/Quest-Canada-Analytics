@@ -142,7 +142,73 @@ action updateIsUserAdminById {
 }
 //#endregion
 
+//#region Demo AI App
+route DemoAppRoute { path: "/demo-app", to: DemoAppPage }
+page DemoAppPage {
+  authRequired: true,
+  component: import DemoAppPage from "@src/demo-ai-app/DemoAppPage"
+}
 
+action generateGptResponse {
+  fn: import { generateGptResponse } from "@src/demo-ai-app/operations",
+  entities: [User, Task, GptResponse]
+}
+
+action createTask {
+  fn: import { createTask } from "@src/demo-ai-app/operations",
+  entities: [Task]
+}
+
+action deleteTask {
+  fn: import { deleteTask } from "@src/demo-ai-app/operations",
+  entities: [Task]
+}
+
+action updateTask {
+  fn: import { updateTask } from "@src/demo-ai-app/operations",
+  entities: [Task]
+}
+
+query getGptResponses {
+  fn: import { getGptResponses } from "@src/demo-ai-app/operations",
+  entities: [User, GptResponse]
+}
+
+query getAllTasksByUser {
+  fn: import { getAllTasksByUser } from "@src/demo-ai-app/operations",
+  entities: [Task]
+}
+//#endregion
+
+//#region Payment
+route PricingPageRoute { path: "/pricing", to: PricingPage }
+page PricingPage {
+  component: import PricingPage from "@src/payment/PricingPage"
+}
+
+route CheckoutRoute { path: "/checkout", to: CheckoutPage }
+page CheckoutPage {
+  authRequired: true,
+  component: import Checkout from "@src/payment/CheckoutPage"
+}
+
+query getCustomerPortalUrl {
+  fn: import { getCustomerPortalUrl } from  "@src/payment/operations",
+  entities: [User]
+}
+
+action generateCheckoutSession {
+  fn: import { generateCheckoutSession } from "@src/payment/operations",
+  entities: [User]
+}
+
+api paymentsWebhook {
+  fn: import { paymentsWebhook } from "@src/payment/webhook",
+  entities: [User],
+  middlewareConfigFn: import { paymentsMiddlewareConfigFn } from "@src/payment/webhook",
+  httpRoute: (POST, "/payments-webhook")
+}
+//#endregion
 
 //#region File Upload
 route FileUploadRoute { path: "/file-upload", to: FileUploadPage }
@@ -335,39 +401,4 @@ page ProjectFormPage {
   authRequired: true,
   component: import ProjectFormPage from "@src/projects/pages/ProjectFormPage"
 }
-//#endregion
-
-//#region Dashboards & Analytics
-// Grafana Dashboard Embedding
-
-route DashboardsRoute { path: "/dashboards", to: DashboardsPage }
-page DashboardsPage {
-  authRequired: false,
-  component: import DashboardsPage from "@src/dashboards/DashboardsPage"
-}
-//#endregion
-
-//#region AI-Powered Assessment Import
-
-action extractAssessmentFromPDF {
-  fn: import { extractAssessmentFromPDF } from "@src/assessments/aiExtraction",
-  entities: [User, AiExtractionLog]
-}
-
-action importExtractedAssessment {
-  fn: import { importExtractedAssessment } from "@src/assessments/aiExtraction",
-  entities: [Assessment, Community, IndicatorScore, Strength, Recommendation, User, AiExtractionLog]
-}
-
-route AssessmentImportRoute { path: "/assessments/import", to: AssessmentImportPage }
-page AssessmentImportPage {
-  authRequired: true,
-  component: import AssessmentImportPage from "@src/assessments/pages/AssessmentImportPage"
-}
-
-query getExtractionLogs {
-  fn: import { getExtractionLogs } from "@src/assessments/extractionLogs",
-  entities: [AiExtractionLog, User]
-}
-
 //#endregion

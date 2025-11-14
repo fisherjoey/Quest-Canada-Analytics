@@ -1,0 +1,293 @@
+/**
+ * AI-Powered PDF Assessment Extraction
+ * Uses DeepSeek API to extract structured data from Quest Canada benchmark assessment PDFs
+ */
+
+import type { ExtractAssessmentFromPDF, ImportExtractedAssessment } from 'wasp/server/operations';
+import { HttpError } from 'wasp/server';
+import { readFile } from 'fs/promises';
+import { join } from 'path';
+import OpenAI from 'openai';
+
+// Types for extracted data matching the system prompt output format
+export interface ExtractedAssessmentData {
+  documentType: 'benchmark_assessment';
+  extractedAt: string;
+  assessment: {
+    community_name: string;
+    assessment_year: number;
+    assessment_date: string | null;
+    assessor_name: string | null;
+    assessor_organization: string;
+    overall_score: number;
+    overall_points_earned: number;
+    overall_points_possible: number;
+  };
+  scores: Array<{
+    indicator_id: number;
+    indicator_name: string;
+    indicator_points_earned: number;
+    indicator_points_possible: number;
+    indicator_percentage: number;
+  }>;
+  strengths: Array<{
+    indicator_id: number;
+    strength_text: string;
+    strength_category: string;
+    display_order: number;
+  }>;
+  recommendations: Array<{
+    indicator_id: number;
+    recommendation_text: string;
+    lead_party: string;
+    priority_level: string;
+    estimated_timeframe: string;
+    display_order: number;
+  }>;
+  _confidence: {
+    overall: number;
+    fields: Record<string, any>;
+  };
+  _extraction_notes: {
+    total_pages_analyzed: number;
+    ambiguous_fields: string[];
+    missing_data: string[];
+    warnings: string[];
+  };
+}
+
+/**
+ * Extract text from PDF using pdf-parse
+ */
+async function extractTextFromPDF(pdfBase64: string): Promise<string> {
+  const pdfParse = require('pdf-parse');
+  const pdfBuffer = Buffer.from(pdfBase64, 'base64');
+
+  try {
+    const data = await pdfParse(pdfBuffer);
+    return data.text;
+  } catch (error: any) {
+    throw new Error(`Failed to parse PDF: ${error.message}`);
+  }
+}
+
+export const extractAssessmentFromPDF: ExtractAssessmentFromPDF<
+  { pdfBase64: string; fileName: string },
+  any
+> = async (args, context) => {
+  const startTime = Date.now();
+
+  try {
+    if (!context.user) throw new HttpError(401, 'Unauthorized');
+
+    const apiKey = process.env.DEEPSEEK_API_KEY || 'sk-6e01db9835c14e02b9be1952f3f5ae56';
+    const deepseek = new OpenAI({ baseURL: 'https://api.deepseek.com', apiKey });
+
+    const promptPath = join(process.cwd(), 'prompts', 'benchmark-assessment-system.txt');
+    const systemPrompt = await readFile(promptPath, 'utf-8');
+
+    console.log(`Extracting text from PDF: ${args.fileName}`);
+    const pdfText = await extractTextFromPDF(args.pdfBase64);
+
+    if (!pdfText || pdfText.length < 100) {
+      throw new HttpError(400, 'PDF appears to be empty or unreadable');
+    }
+
+    console.log(`Starting AI extraction for ${args.fileName} (${pdfText.length} characters)`);
+
+    const completion = await deepseek.chat.completions.create({
+      model: 'deepseek-chat',
+      messages: [
+        { role: 'system', content: systemPrompt },
+        { role: 'user', content: `Please extract all assessment data from this PDF text following the system prompt instructions. Return only valid JSON output.\n\nPDF Content:\n${pdfText}` }
+      ],
+      temperature: 0.1,
+      max_tokens: 16000,
+    });
+
+    const responseText = completion.choices[0]?.message?.content || '';
+    if (!responseText) throw new HttpError(500, 'Empty response from AI');
+
+    const jsonMatch = responseText.match(/```json\n?([\s\S]*?)\n?```/) || responseText.match(/{[\s\S]*}/);
+    const jsonText = jsonMatch ? (jsonMatch[1] || jsonMatch[0]) : responseText;
+    const extractedData: ExtractedAssessmentData = JSON.parse(jsonText);
+
+    const processingTime = Date.now() - startTime;
+
+    const extractionLog = await context.entities.AiExtractionLog.create({
+      data: {
+        userId: context.user!.id,
+        documentType: 'assessment',
+        fileName: args.fileName,
+        fileSize: Buffer.from(args.pdfBase64, 'base64').length,
+        status: 'COMPLETED',
+        extractedData: extractedData as any,
+        confidenceScores: extractedData._confidence as any,
+        processingTimeMs: processingTime,
+        tokensUsed: completion.usage?.total_tokens || 0,
+        costUsd: (completion.usage?.prompt_tokens || 0) / 1000000 * 0.14 + (completion.usage?.completion_tokens || 0) / 1000000 * 0.28,
+        completedAt: new Date(),
+      },
+    });
+
+    console.log(`Extraction completed in ${processingTime}ms. Confidence: ${extractedData._confidence.overall}`);
+
+    return {
+      success: true,
+      extractionLogId: extractionLog.id,
+      data: extractedData,
+      metadata: {
+        processingTimeMs: processingTime,
+        tokensUsed: completion.usage?.total_tokens || 0,
+        confidenceScore: extractedData._confidence.overall,
+      },
+    };
+
+  } catch (error: any) {
+    const processingTime = Date.now() - startTime;
+    try {
+      await context.entities.AiExtractionLog.create({
+        data: {
+          userId: context.user!.id,
+          documentType: 'assessment',
+          fileName: args.fileName,
+          fileSize: Buffer.from(args.pdfBase64, 'base64').length,
+          status: 'ERROR',
+          errorMessage: error.message || 'Unknown error',
+          errorStack: error.stack,
+          processingTimeMs: processingTime,
+        },
+      });
+    } catch (logError) {
+      console.error('Failed to log error:', logError);
+    }
+    console.error('AI extraction failed:', error);
+    throw new HttpError(500, `AI extraction failed: ${error.message}`);
+  }
+};
+
+export const importExtractedAssessment: ImportExtractedAssessment<any, any> = async (args: {
+  extractionLogId: string;
+  extractedData: ExtractedAssessmentData;
+  overrides?: Partial<ExtractedAssessmentData['assessment']>;
+}, context) => {
+  try {
+    if (!context.user) throw new HttpError(401, 'Unauthorized');
+
+    const data = args.extractedData;
+    const assessmentData = { ...data.assessment, ...args.overrides };
+
+    let community = await context.entities.Community.findFirst({
+      where: { name: assessmentData.community_name },
+    });
+
+    if (!community) {
+      const provinceMatch = assessmentData.community_name.match(/,\s*([A-Z]{2})$/);
+      const province = provinceMatch ? provinceMatch[1] : 'ON';
+
+      community = await context.entities.Community.create({
+        data: {
+          name: assessmentData.community_name,
+          province: province as any,
+          isActive: true,
+        },
+      });
+    }
+
+    const assessment = await context.entities.Assessment.create({
+      data: {
+        communityId: community.id,
+        assessmentDate: assessmentData.assessment_date
+          ? new Date(assessmentData.assessment_date)
+          : new Date(`${assessmentData.assessment_year}-01-01`),
+        assessmentYear: assessmentData.assessment_year,
+        assessorName: assessmentData.assessor_name || 'Unknown',
+        assessorOrganization: assessmentData.assessor_organization,
+        status: 'DRAFT',
+        overallScore: assessmentData.overall_score,
+        maxPossibleScore: assessmentData.overall_points_possible,
+        createdBy: context.user.id,
+      },
+    });
+
+    const mapping: Record<number, string> = {
+      1: 'GOVERNANCE', 2: 'CAPACITY', 3: 'PLANNING', 4: 'PLANNING', 5: 'PLANNING',
+      6: 'PLANNING', 7: 'INFRASTRUCTURE', 8: 'OPERATIONS', 9: 'TRANSPORTATION', 10: 'BUILDINGS',
+    };
+
+    const mapPriority = (p: string) => {
+      const n = p.toLowerCase();
+      return n.includes('high') || n.includes('immediate') ? 'HIGH' : n.includes('low') ? 'LOW' : 'MEDIUM';
+    };
+
+    const indicatorScores = await Promise.all(
+      data.scores.map((score) =>
+        context.entities.IndicatorScore.create({
+          data: {
+            assessmentId: assessment.id,
+            indicatorNumber: score.indicator_id,
+            indicatorName: score.indicator_name,
+            category: (mapping[score.indicator_id] || 'OTHER') as any,
+            pointsEarned: score.indicator_points_earned,
+            pointsPossible: score.indicator_points_possible,
+            percentageScore: score.indicator_percentage,
+          },
+        })
+      )
+    );
+
+    const strengths = await Promise.all(
+      data.strengths.map((strength) =>
+        context.entities.Strength.create({
+          data: {
+            assessmentId: assessment.id,
+            category: (mapping[strength.indicator_id] || 'OTHER') as any,
+            title: strength.strength_category,
+            description: strength.strength_text,
+          },
+        })
+      )
+    );
+
+    const recommendations = await Promise.all(
+      data.recommendations.map((rec) =>
+        context.entities.Recommendation.create({
+          data: {
+            assessmentId: assessment.id,
+            indicatorNumber: rec.indicator_id,
+            recommendationText: rec.recommendation_text,
+            priorityLevel: mapPriority(rec.priority_level),
+            responsibleParty: rec.lead_party,
+            implementationStatus: 'PLANNED',
+          },
+        })
+      )
+    );
+
+    await context.entities.AiExtractionLog.update({
+      where: { id: args.extractionLogId },
+      data: {
+        insertedRecordIds: {
+          assessmentId: assessment.id,
+          indicatorScoreIds: indicatorScores.map((s) => s.id),
+          strengthIds: strengths.map((s) => s.id),
+          recommendationIds: recommendations.map((r) => r.id),
+        } as any,
+      },
+    });
+
+    return {
+      success: true,
+      assessmentId: assessment.id,
+      counts: {
+        indicatorScores: indicatorScores.length,
+        strengths: strengths.length,
+        recommendations: recommendations.length,
+      },
+    };
+
+  } catch (error: any) {
+    console.error('Failed to import assessment:', error);
+    throw new HttpError(500, `Failed to import assessment: ${error.message}`);
+  }
+};

@@ -9,9 +9,9 @@ import { throttleWithTrailingInvocation } from '../../../shared/utils';
 import { UserDropdown } from '../../../user/UserDropdown';
 import { UserMenuItems } from '../../../user/UserMenuItems';
 import { useIsLandingPage } from '../../hooks/useIsLandingPage';
-import logo from '../../static/logo.webp';
+const logo = 'https://questcanada.org/wp-content/uploads/2018/08/QUEST-Logo.png';
 import DarkModeSwitcher from '../DarkModeSwitcher';
-import { Announcement } from './Announcement';
+// Removed: import { Announcement } from './Announcement';
 
 export interface NavigationItem {
   name: string;
@@ -37,7 +37,7 @@ export default function NavBar({ navigationItems }: { navigationItems: Navigatio
 
   return (
     <>
-      {isLandingPage && <Announcement />}
+      {/* Removed announcement banner */}
       <header className={cn('sticky top-0 z-50 transition-all duration-300', isScrolled && 'top-4')}>
         <div
           className={cn('transition-all duration-300', {
