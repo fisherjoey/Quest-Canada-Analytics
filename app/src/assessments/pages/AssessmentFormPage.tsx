@@ -2,12 +2,14 @@ import React, { useState, useEffect } from "react";
 import { useQuery } from "wasp/client/operations";
 import { getAssessment, createAssessment, updateAssessment } from "wasp/client/operations";
 import { Link } from "wasp/client/router";
+import { useParams, useNavigate } from "react-router-dom";
 
-export default function AssessmentFormPage({ match, history }: any) {
-  const id = match?.params?.id;
+export default function AssessmentFormPage() {
+  const navigate = useNavigate();
+  const { id } = useParams();
   const isEditing = !!id;
 
-  const { data: assessment, isLoading } = useQuery(getAssessment, { id: id || "" }, { enabled: isEditing });
+  const { data: assessment, isLoading } = useQuery(getAssessment, { id: id! }, { enabled: !!id });
 
   const [formData, setFormData] = useState({
     communityId: "",
@@ -43,7 +45,7 @@ export default function AssessmentFormPage({ match, history }: any) {
       
       // Navigate to assessments list
       if (history) {
-        history.push("/assessments");
+        navigate("/assessments");
       } else {
         window.location.href = "/assessments";
       }
@@ -53,7 +55,7 @@ export default function AssessmentFormPage({ match, history }: any) {
     }
   };
 
-  if (isLoading) {
+  if (isLoading && id) {
     return <div className="p-8">Loading...</div>;
   }
 
@@ -73,15 +75,19 @@ export default function AssessmentFormPage({ match, history }: any) {
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
             <label className="block text-sm font-medium mb-2">
-              Community ID *
+              Community *
             </label>
-            <input
-              type="text"
+            <select
               value={formData.communityId}
               onChange={(e) => setFormData({ ...formData, communityId: e.target.value })}
               className="w-full px-3 py-2 border rounded focus:ring-2 focus:ring-blue-500"
               required
-            />
+            >
+              <option value="">Select a community...</option>
+              <option value="comm-calgary">Calgary</option>
+              <option value="comm-edmonton">Edmonton</option>
+              <option value="comm-vancouver">Vancouver</option>
+            </select>
           </div>
 
           <div>
