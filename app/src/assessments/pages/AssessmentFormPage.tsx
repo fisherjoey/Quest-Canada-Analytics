@@ -120,12 +120,13 @@ export default function AssessmentFormPage() {
     }
   }, [assessment]);
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent, status: string = "COMPLETED") => {
     e.preventDefault();
 
     try {
       const payload = {
         ...formData,
+        status,  // Add status to payload
         indicators: indicators.map(ind => ({
           ...ind,
           pointsEarned: parseFloat(ind.pointsEarned.toString()),
@@ -152,6 +153,13 @@ export default function AssessmentFormPage() {
       console.error("Error saving assessment:", error);
       alert("Error saving assessment: " + error.message);
     }
+  };
+
+  const handleSaveAsDraft = async (e: React.MouseEvent) => {
+    e.preventDefault();
+    const formEvent = new Event('submit') as any;
+    formEvent.preventDefault = () => {};
+    await handleSubmit(formEvent as React.FormEvent, "DRAFT");
   };
 
   if (isLoading && id) {
@@ -573,7 +581,14 @@ export default function AssessmentFormPage() {
               type="submit"
               className="bg-blue-600 text-white px-8 py-3 rounded hover:bg-blue-700 font-semibold"
             >
-              {isEditing ? "Update" : "Create"} Assessment
+              {isEditing ? "Update" : "Submit"} Assessment
+            </button>
+            <button
+              type="button"
+              onClick={handleSaveAsDraft}
+              className="bg-gray-600 text-white px-8 py-3 rounded hover:bg-gray-700 font-semibold"
+            >
+              Save as Draft
             </button>
             <Link
               to="/assessments"
