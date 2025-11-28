@@ -7,8 +7,11 @@ export function PasswordResetPage() {
     <AuthPageLayout>
       <ResetPasswordForm />
       <br />
-      <span className='text-sm font-medium text-gray-900'>
-        If everything is okay, <WaspRouterLink to={routes.LoginRoute.to}>go to login</WaspRouterLink>
+      <span className='text-sm font-medium text-foreground'>
+        If everything is okay,{' '}
+        <WaspRouterLink to={routes.LoginRoute.to} className='underline text-primary hover:text-primary/80'>
+          go to login
+        </WaspRouterLink>
       </span>
     </AuthPageLayout>
   );

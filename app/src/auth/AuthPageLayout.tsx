@@ -1,14 +1,29 @@
 import { ReactNode } from 'react';
+import { Link as WaspRouterLink, routes } from 'wasp/client/router';
+import PoweredByInitium from '../client/components/PoweredByInitium';
+
+const logo = '/quest-logo-transparent.png';
 
 export function AuthPageLayout({children} : {children: ReactNode }) {
   return (
-    <div className='flex min-h-full flex-col justify-center pt-10 sm:px-6 lg:px-8'>
+    <div className='flex min-h-screen flex-col justify-center py-12 sm:px-6 lg:px-8 bg-background'>
       <div className='sm:mx-auto sm:w-full sm:max-w-md'>
+        {/* Logo */}
+        <WaspRouterLink to={routes.LandingPageRoute.to} className='flex justify-center mb-6'>
+          <img
+            src={logo}
+            alt='Quest Canada'
+            className='h-16 w-auto'
+          />
+        </WaspRouterLink>
+
+        {/* Auth Card */}
         <div className='bg-card text-card-foreground py-8 px-4 shadow-xl ring-1 ring-border sm:rounded-lg sm:px-10'>
-          <div className='-mt-8'>
-            { children }
-          </div>
+          { children }
         </div>
+
+        {/* Powered By Footer */}
+        <PoweredByInitium className='mt-6' />
       </div>
     </div>
   );
