@@ -1,6 +1,6 @@
 import * as React from 'react';
-import { cn } from '@src/lib/utils';
-import { type Status, getStatusClasses } from '@src/lib/style-utils';
+import { cn } from '../../lib/utils';
+import { type Status, getStatusClasses } from '../../lib/style-utils';
 
 export interface StatusBadgeProps extends React.HTMLAttributes<HTMLSpanElement> {
   status: Status;

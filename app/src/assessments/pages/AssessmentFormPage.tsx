@@ -3,7 +3,7 @@ import { useQuery } from "wasp/client/operations";
 import { getAssessment, createAssessment, updateAssessment } from "wasp/client/operations";
 import { Link } from "wasp/client/router";
 import { useParams, useNavigate } from "react-router-dom";
-import { Button } from "@src/components/ui/button";
+import { Button } from "../../components/ui/button";
 
 // Define the 10 Quest Canada indicators
 const INDICATORS = [

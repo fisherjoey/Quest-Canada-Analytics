@@ -4,7 +4,7 @@
  * Uses CSS filter to invert the white logo for light mode
  */
 
-import { cn } from '@src/lib/utils';
+import { cn } from '../../lib/utils';
 
 interface QuestLogoProps {
   className?: string;

@@ -7,8 +7,8 @@
 
 import React, { useState, useMemo } from 'react';
 import { Search, ChevronDown, ChevronRight, Check } from 'lucide-react';
-import { cn } from '@src/lib/utils';
-import { getScoreLevel } from '@src/lib/style-utils';
+import { cn } from '../../lib/utils';
+import { getScoreLevel } from '../../lib/style-utils';
 
 interface AssessmentOption {
   id: string;

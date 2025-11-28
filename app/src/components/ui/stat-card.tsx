@@ -1,6 +1,6 @@
 import * as React from 'react';
-import { cn } from '@src/lib/utils';
-import { type IconColor, getKpiIconClass } from '@src/lib/style-utils';
+import { cn } from '../../lib/utils';
+import { type IconColor, getKpiIconClass } from '../../lib/style-utils';
 import { TrendingUp, TrendingDown } from 'lucide-react';
 
 export interface StatCardProps extends React.HTMLAttributes<HTMLDivElement> {

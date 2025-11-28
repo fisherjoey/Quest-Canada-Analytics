@@ -7,8 +7,8 @@
 
 import React, { useMemo } from 'react';
 import { Award, TrendingUp, CheckCircle, AlertCircle, Target, FileText } from 'lucide-react';
-import { StatCard } from '@src/components/ui/stat-card';
-import { getScoreLevel, type IconColor } from '@src/lib/style-utils';
+import { StatCard } from '../../components/ui/stat-card';
+import { getScoreLevel, type IconColor } from '../../lib/style-utils';
 
 interface KPICardsProps {
   assessments: any[];

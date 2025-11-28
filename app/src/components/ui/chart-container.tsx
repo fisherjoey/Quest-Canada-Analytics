@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { cn } from '@src/lib/utils';
+import { cn } from '../../lib/utils';
 import { BarChart3 } from 'lucide-react';
 
 export interface ChartContainerProps extends React.HTMLAttributes<HTMLDivElement> {

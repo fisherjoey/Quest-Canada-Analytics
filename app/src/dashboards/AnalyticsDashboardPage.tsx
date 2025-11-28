@@ -23,11 +23,11 @@ import { RecommendationsPieChart } from './components/RecommendationsPieChart';
 import { KPICards } from './components/KPICards';
 import { IndicatorHeatmap } from './components/IndicatorHeatmap';
 import { LayoutGrid, TrendingUp, Target, BarChart3, Filter, X, Lock, Unlock, RotateCcw } from 'lucide-react';
-import { cn } from '@src/lib/utils';
-import { Button } from '@src/components/ui/button';
-import { PageHeader } from '@src/components/ui/page-header';
-import { DashboardTab } from '@src/components/ui/dashboard-tab';
-import { CHART_COLOR_PALETTE } from '@src/lib/style-utils';
+import { cn } from '../lib/utils';
+import { Button } from '../components/ui/button';
+import { PageHeader } from '../components/ui/page-header';
+import { DashboardTab } from '../components/ui/dashboard-tab';
+import { CHART_COLOR_PALETTE } from '../lib/style-utils';
 import 'react-grid-layout/css/styles.css';
 import 'react-resizable/css/styles.css';
 

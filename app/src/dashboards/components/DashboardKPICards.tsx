@@ -5,8 +5,8 @@
 
 import React, { useMemo } from 'react';
 import { TrendingUp, TrendingDown, Minus, DollarSign, Target, Users, FolderKanban, CheckCircle2, Clock, AlertTriangle } from 'lucide-react';
-import { StatCard } from '@src/components/ui/stat-card';
-import { cn } from '@src/lib/utils';
+import { StatCard } from '../../components/ui/stat-card';
+import { cn } from '../../lib/utils';
 
 interface DashboardKPICardsProps {
   projects?: any[];

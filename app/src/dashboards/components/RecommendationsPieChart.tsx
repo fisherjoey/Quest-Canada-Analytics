@@ -8,8 +8,8 @@
 import React, { useMemo, useState } from 'react';
 import ReactApexChart from 'react-apexcharts';
 import { ApexOptions } from 'apexcharts';
-import { cn } from '@src/lib/utils';
-import { CHART_COLORS, PRIORITY_CHART_COLORS, STATUS_CHART_COLORS } from '@src/lib/style-utils';
+import { cn } from '../../lib/utils';
+import { CHART_COLORS, PRIORITY_CHART_COLORS, STATUS_CHART_COLORS } from '../../lib/style-utils';
 
 interface RecommendationsPieChartProps {
   assessments: any[];

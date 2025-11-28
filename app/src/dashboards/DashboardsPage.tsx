@@ -10,10 +10,10 @@ import { useQuery } from 'wasp/client/operations';
 import { getProjects, getAssessments } from 'wasp/client/operations';
 import GridLayout, { Layout } from 'react-grid-layout';
 import { LayoutGrid, DollarSign, CheckCircle2, Users, BarChart3, Building, Lock, Unlock, RotateCcw } from 'lucide-react';
-import { cn } from '@src/lib/utils';
-import { DashboardTab as DashboardTabComponent } from '@src/components/ui/dashboard-tab';
-import { PageHeader } from '@src/components/ui/page-header';
-import { Button } from '@src/components/ui/button';
+import { cn } from '../lib/utils';
+import { DashboardTab as DashboardTabComponent } from '../components/ui/dashboard-tab';
+import { PageHeader } from '../components/ui/page-header';
+import { Button } from '../components/ui/button';
 import 'react-grid-layout/css/styles.css';
 import 'react-resizable/css/styles.css';
 

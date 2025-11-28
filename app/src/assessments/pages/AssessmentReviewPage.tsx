@@ -7,8 +7,8 @@ import React, { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { getExtractionStatus, importExtractedAssessment } from 'wasp/client/operations';
 import { useQuery } from '@tanstack/react-query';
-import { Button } from '@src/components/ui/button';
-import { cn } from '@src/lib/utils';
+import { Button } from '../../components/ui/button';
+import { cn } from '../../lib/utils';
 
 interface ExtractedAssessmentData {
   documentType: string;

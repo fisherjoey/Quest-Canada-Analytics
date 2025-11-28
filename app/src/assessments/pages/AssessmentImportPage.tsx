@@ -6,7 +6,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { extractAssessmentFromPDF, getExtractionStatus } from 'wasp/client/operations';
-import { Button } from '@src/components/ui/button';
+import { Button } from '../../components/ui/button';
 
 export default function AssessmentImportPage() {
   const navigate = useNavigate();

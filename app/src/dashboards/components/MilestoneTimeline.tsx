@@ -6,7 +6,7 @@
 import React, { useMemo } from 'react';
 import ReactApexChart from 'react-apexcharts';
 import { ApexOptions } from 'apexcharts';
-import { CHART_COLORS } from '@src/lib/style-utils';
+import { CHART_COLORS } from '../../lib/style-utils';
 
 interface MilestoneTimelineProps {
   projects: any[];
