@@ -9,7 +9,7 @@ import { throttleWithTrailingInvocation } from '../../../shared/utils';
 import { UserDropdown } from '../../../user/UserDropdown';
 import { UserMenuItems } from '../../../user/UserMenuItems';
 import { useIsLandingPage } from '../../hooks/useIsLandingPage';
-const logo = '/quest-logo-transparent.png';
+import { QuestLogo } from '../QuestLogo';
 import DarkModeSwitcher from '../DarkModeSwitcher';
 import { HelpDialog } from '../HelpDialog';
 
@@ -206,12 +206,11 @@ function renderNavigationItems(
 }
 
 const NavLogo = ({ isScrolled }: { isScrolled: boolean }) => (
-  <img
+  <QuestLogo
     className={cn('transition-all duration-500 w-auto', {
       'h-10': !isScrolled,
       'h-8': isScrolled,
     })}
-    src={logo}
     alt='Quest Canada'
   />
 );

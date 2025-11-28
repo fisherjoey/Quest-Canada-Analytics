@@ -10,8 +10,7 @@ import {
 } from 'lucide-react';
 import React, { useEffect, useRef, useState } from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
-// Logo now served from public directory
-const Logo = '/quest-logo-transparent.png';
+import { QuestLogo } from '../../client/components/QuestLogo';
 import { cn } from '../../lib/utils';
 import SidebarLinkGroup from './SidebarLinkGroup';
 
@@ -76,7 +75,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
       {/* <!-- SIDEBAR HEADER --> */}
       <div className='flex items-center justify-between gap-2 px-6 py-5.5 lg:py-6.5'>
         <NavLink to='/'>
-          <img src={Logo} alt='Logo' width={50} />
+          <QuestLogo width={50} />
         </NavLink>
 
         <button
