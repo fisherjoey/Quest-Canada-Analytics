@@ -5,11 +5,15 @@
  * Features drag-and-drop layouts, PDF export, and comprehensive analytics
  */
 
-import React, { useState, useRef, useMemo, useCallback } from 'react';
+import React, { useState, useRef, useMemo, useCallback, useEffect } from 'react';
 import { useQuery } from 'wasp/client/operations';
 import { getProjects, getAssessments } from 'wasp/client/operations';
 import GridLayout, { Layout } from 'react-grid-layout';
 import { LayoutGrid, DollarSign, CheckCircle2, Users, BarChart3, Building, Lock, Unlock, RotateCcw } from 'lucide-react';
+import { cn } from '@src/lib/utils';
+import { DashboardTab as DashboardTabComponent } from '@src/components/ui/dashboard-tab';
+import { PageHeader } from '@src/components/ui/page-header';
+import { Button } from '@src/components/ui/button';
 import 'react-grid-layout/css/styles.css';
 import 'react-resizable/css/styles.css';
 
@@ -126,6 +130,23 @@ export function DashboardsPage() {
   const [activeTab, setActiveTab] = useState<DashboardTab>('overview');
   const [isLayoutLocked, setIsLayoutLocked] = useState(false);
   const contentRef = useRef<HTMLDivElement>(null);
+  const gridContainerRef = useRef<HTMLDivElement>(null);
+  const [gridWidth, setGridWidth] = useState(1200);
+
+  // Track container width for responsive grid
+  useEffect(() => {
+    const updateWidth = () => {
+      if (gridContainerRef.current) {
+        // Subtract padding (40px = 20px on each side)
+        const containerWidth = gridContainerRef.current.offsetWidth - 40;
+        setGridWidth(Math.max(containerWidth, 600));
+      }
+    };
+
+    updateWidth();
+    window.addEventListener('resize', updateWidth);
+    return () => window.removeEventListener('resize', updateWidth);
+  }, []);
 
   // Load layouts from localStorage
   const [layouts, setLayouts] = useState<Record<DashboardTab, Layout[]>>(() => {
@@ -368,67 +389,71 @@ export function DashboardsPage() {
 
   if (isLoading) {
     return (
-      <div className="dashboards-page loading">
-        <div className="loading-spinner">Loading dashboard data...</div>
+      <div className="page-container flex items-center justify-center min-h-[400px]">
+        <div className="text-muted-foreground text-lg">Loading dashboard data...</div>
       </div>
     );
   }
 
   return (
-    <div className="dashboards-page">
+    <div className="w-full px-4 sm:px-6 lg:px-8 py-5">
       {/* Page Header */}
-      <div className="page-header">
-        <div className="header-content">
-          <h1>Quest Canada Dashboards</h1>
-          <p>Visual analytics and reporting for climate action tracking</p>
-        </div>
-        <div className="header-actions">
-          <PDFExport
-            contentRef={contentRef}
-            filename={`quest-${activeTab}-dashboard`}
-            title={`Quest Canada - ${activeDashboard?.label}`}
-            subtitle={activeDashboard?.description}
-          />
-          <button
-            className={`layout-btn ${isLayoutLocked ? 'locked' : ''}`}
-            onClick={() => setIsLayoutLocked(!isLayoutLocked)}
-            title={isLayoutLocked ? 'Unlock layout' : 'Lock layout'}
-          >
-            {isLayoutLocked ? <Lock size={18} /> : <Unlock size={18} />}
-            {isLayoutLocked ? 'Locked' : 'Unlocked'}
-          </button>
-          <button className="reset-btn" onClick={handleResetLayout} title="Reset layout">
-            <RotateCcw size={18} />
-            Reset
-          </button>
-        </div>
-      </div>
+      <PageHeader
+        title="Quest Canada Dashboards"
+        description="Visual analytics and reporting for climate action tracking"
+        actions={
+          <div className="flex gap-2 flex-wrap">
+            <PDFExport
+              contentRef={contentRef}
+              filename={`quest-${activeTab}-dashboard`}
+              title={`Quest Canada - ${activeDashboard?.label}`}
+              subtitle={activeDashboard?.description}
+            />
+            <Button
+              variant={isLayoutLocked ? 'secondary' : 'outline'}
+              onClick={() => setIsLayoutLocked(!isLayoutLocked)}
+              title={isLayoutLocked ? 'Unlock layout' : 'Lock layout'}
+              className="gap-2"
+            >
+              {isLayoutLocked ? <Lock size={18} /> : <Unlock size={18} />}
+              {isLayoutLocked ? 'Locked' : 'Unlocked'}
+            </Button>
+            <Button variant="outline" onClick={handleResetLayout} title="Reset layout" className="gap-2">
+              <RotateCcw size={18} />
+              Reset
+            </Button>
+          </div>
+        }
+      />
 
       {/* Dashboard Tabs */}
-      <div className="dashboard-tabs">
+      <div className="flex gap-2 mb-6 overflow-x-auto py-2 border-b-2 border-border">
         {dashboards.map(dashboard => (
-          <button
+          <DashboardTabComponent
             key={dashboard.id}
-            className={`tab ${activeTab === dashboard.id ? 'active' : ''}`}
+            label={dashboard.label}
+            icon={dashboard.icon}
+            isActive={activeTab === dashboard.id}
             onClick={() => setActiveTab(dashboard.id)}
-          >
-            {dashboard.icon}
-            <span className="tab-label">{dashboard.label}</span>
-          </button>
+          />
         ))}
       </div>
 
       {/* Dashboard Description */}
       {activeDashboard && (
-        <div className="dashboard-description">
-          <h2>{activeDashboard.label}</h2>
-          <p>{activeDashboard.description}</p>
-          {!isLayoutLocked && <span className="drag-hint">Drag widgets to reposition, drag corners to resize</span>}
+        <div className="flex flex-col gap-1 bg-card p-4 rounded-lg mb-6 border-l-4 border-quest-teal shadow-sm border border-border">
+          <h2 className="text-xl font-semibold text-foreground m-0">{activeDashboard.label}</h2>
+          <p className="text-sm text-muted-foreground m-0">{activeDashboard.description}</p>
+          {!isLayoutLocked && (
+            <span className="text-xs text-muted-foreground italic mt-1">
+              Drag widgets to reposition, drag corners to resize
+            </span>
+          )}
         </div>
       )}
 
       {/* Dashboard Content */}
-      <div ref={contentRef} className="dashboard-content">
+      <div ref={contentRef} className="bg-card rounded-xl p-5 shadow-sm border border-border">
         {/* KPI Cards */}
         <DashboardKPICards
           projects={projects || []}
@@ -436,233 +461,38 @@ export function DashboardsPage() {
           type={activeTab === 'assessments' ? 'assessments' : activeTab === 'overview' || activeTab === 'community' ? 'combined' : 'projects'}
         />
 
-        {/* Grid Layout */}
-        <GridLayout
-          className="grid-layout"
-          layout={layouts[activeTab]}
-          cols={12}
-          rowHeight={30}
-          width={1400}
-          onLayoutChange={handleLayoutChange}
-          isDraggable={!isLayoutLocked}
-          isResizable={!isLayoutLocked}
-          draggableHandle=".widget-drag-handle"
-          margin={[16, 16]}
-        >
-          {layouts[activeTab].map(item => (
-            <div key={item.i} className="grid-widget">
-              <div className="widget-drag-handle" />
-              {renderWidget(item.i)}
-            </div>
-          ))}
-        </GridLayout>
+        {/* Grid Layout Container */}
+        <div ref={gridContainerRef} className="mt-4 w-full">
+          <GridLayout
+            layout={layouts[activeTab]}
+            cols={12}
+            rowHeight={30}
+            width={gridWidth}
+            onLayoutChange={handleLayoutChange}
+            isDraggable={!isLayoutLocked}
+            isResizable={!isLayoutLocked}
+            draggableHandle=".widget-drag-handle"
+            margin={[16, 16]}
+          >
+            {layouts[activeTab].map(item => (
+              <div key={item.i} className="dashboard-widget">
+                <div className="widget-drag-handle h-2 bg-[repeating-linear-gradient(90deg,hsl(var(--border))_0px,hsl(var(--border))_2px,transparent_2px,transparent_4px)] cursor-move rounded-t-xl" />
+                {renderWidget(item.i)}
+              </div>
+            ))}
+          </GridLayout>
+        </div>
       </div>
 
-      <style>{dashboardStyles}</style>
+      <style>{gridStyles}</style>
     </div>
   );
 }
 
-const dashboardStyles = `
-  .dashboards-page {
-    max-width: 1800px;
-    margin: 0 auto;
-    padding: 20px;
-    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-  }
-
-  .dashboards-page.loading {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    min-height: 400px;
-  }
-
-  .loading-spinner {
-    color: #666;
-    font-size: 18px;
-  }
-
-  .page-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-    margin-bottom: 24px;
-    padding-bottom: 20px;
-    border-bottom: 2px solid #e0e0e0;
-    flex-wrap: wrap;
-    gap: 16px;
-  }
-
-  .header-content h1 {
-    font-size: 32px;
-    color: #333;
-    margin: 0 0 8px 0;
-  }
-
-  .header-content p {
-    color: #666;
-    font-size: 16px;
-    margin: 0;
-  }
-
-  .header-actions {
-    display: flex;
-    gap: 8px;
-    flex-wrap: wrap;
-  }
-
-  .layout-btn, .reset-btn {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    padding: 10px 16px;
-    background: white;
-    border: 2px solid #e0e0e0;
-    border-radius: 8px;
-    font-weight: 500;
-    cursor: pointer;
-    transition: all 0.2s;
-    font-size: 14px;
-  }
-
-  .layout-btn:hover, .reset-btn:hover {
-    border-color: #666;
-  }
-
-  .layout-btn.locked {
-    background: #f0f0f0;
-    border-color: #999;
-  }
-
-  .dashboard-tabs {
-    display: flex;
-    gap: 8px;
-    margin-bottom: 24px;
-    overflow-x: auto;
-    padding: 8px 0;
-    border-bottom: 2px solid #e0e0e0;
-  }
-
-  .tab {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    padding: 12px 20px;
-    background: white;
-    border: 2px solid #e0e0e0;
-    border-radius: 8px 8px 0 0;
-    cursor: pointer;
-    transition: all 0.2s;
-    white-space: nowrap;
-    font-size: 14px;
-    font-weight: 500;
-    color: #666;
-  }
-
-  .tab:hover {
-    background: #f5f5f5;
-    border-color: #00a9a6;
-    color: #00a9a6;
-  }
-
-  .tab.active {
-    background: #00a9a6;
-    color: white;
-    border-color: #00a9a6;
-    font-weight: 600;
-  }
-
-  .tab-label {
-    font-size: 14px;
-  }
-
-  .dashboard-description {
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-    background: #f8f9fa;
-    padding: 16px 20px;
-    border-radius: 8px;
-    margin-bottom: 24px;
-    border-left: 4px solid #00a9a6;
-  }
-
-  .dashboard-description h2 {
-    margin: 0;
-    font-size: 20px;
-    color: #333;
-  }
-
-  .dashboard-description p {
-    margin: 0;
-    color: #666;
-    font-size: 14px;
-  }
-
-  .drag-hint {
-    font-size: 12px;
-    color: #999;
-    font-style: italic;
-    margin-top: 4px;
-  }
-
-  .dashboard-content {
-    background: #f5f5f5;
-    border-radius: 12px;
-    padding: 20px;
-  }
-
-  .grid-layout {
-    margin-top: 16px;
-  }
-
-  .grid-widget {
-    background: white;
-    border-radius: 12px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
-    overflow: hidden;
-    display: flex;
-    flex-direction: column;
-  }
-
-  .widget-drag-handle {
-    height: 8px;
-    background: linear-gradient(90deg, #e0e0e0 25%, transparent 25%, transparent 50%, #e0e0e0 50%, #e0e0e0 75%, transparent 75%);
-    background-size: 8px 8px;
-    cursor: move;
-    border-radius: 12px 12px 0 0;
-  }
-
-  .widget-drag-handle:hover {
-    background-color: #f0f0f0;
-  }
-
-  .widget-content {
-    flex: 1;
-    padding: 16px;
-    overflow: auto;
-  }
-
-  .widget-content h3 {
-    margin: 0 0 12px 0;
-    font-size: 15px;
-    color: #333;
-    font-weight: 600;
-  }
-
-  .chart-placeholder {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    height: 200px;
-    color: #999;
-    background: #f9f9f9;
-    border-radius: 8px;
-  }
-
+// Minimal styles only for react-grid-layout overrides that can't be done with Tailwind
+const gridStyles = `
   .react-grid-item.react-grid-placeholder {
-    background: #00a9a6 !important;
+    background: hsl(var(--quest-teal)) !important;
     opacity: 0.2;
     border-radius: 12px;
   }
@@ -680,34 +510,25 @@ const dashboardStyles = `
     bottom: 4px;
     width: 8px;
     height: 8px;
-    border-right: 2px solid #ccc;
-    border-bottom: 2px solid #ccc;
+    border-right: 2px solid hsl(var(--border));
+    border-bottom: 2px solid hsl(var(--border));
   }
 
   .react-grid-item:hover .react-resizable-handle::after {
-    border-color: #00a9a6;
+    border-color: hsl(var(--quest-teal));
   }
 
-  @media (max-width: 1200px) {
-    .dashboard-tabs {
-      flex-wrap: wrap;
-    }
+  .widget-content {
+    flex: 1;
+    padding: 16px;
+    overflow: auto;
   }
 
-  @media (max-width: 768px) {
-    .dashboard-tabs {
-      flex-direction: column;
-    }
-
-    .tab {
-      width: 100%;
-      justify-content: center;
-    }
-
-    .header-actions {
-      width: 100%;
-      justify-content: flex-start;
-    }
+  .widget-content h3 {
+    margin: 0 0 12px 0;
+    font-size: 15px;
+    color: hsl(var(--foreground));
+    font-weight: 600;
   }
 `;
 
