@@ -59,14 +59,6 @@ export default function NavBar({ navigationItems }: { navigationItems: Navigatio
                 className='flex items-center text-foreground duration-300 ease-in-out hover:text-primary transition-colors'
               >
                 <NavLogo isScrolled={isScrolled} />
-                <span
-                  className={cn('font-semibold leading-6 text-foreground transition-all duration-300', {
-                    'ml-2 text-sm': !isScrolled,
-                    'ml-2 text-xs': isScrolled,
-                  })}
-                >
-                  Quest Canada
-                </span>
               </WaspRouterLink>
 
               <ul className='hidden lg:flex items-center gap-6 ml-4'>
@@ -215,11 +207,11 @@ function renderNavigationItems(
 
 const NavLogo = ({ isScrolled }: { isScrolled: boolean }) => (
   <img
-    className={cn('transition-all duration-500', {
-      'size-8': !isScrolled,
-      'size-7': isScrolled,
+    className={cn('transition-all duration-500 w-auto', {
+      'h-10': !isScrolled,
+      'h-8': isScrolled,
     })}
     src={logo}
-    alt='Quest Canada App'
+    alt='Quest Canada'
   />
 );
