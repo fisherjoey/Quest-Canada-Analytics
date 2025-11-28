@@ -3,15 +3,18 @@
  *
  * Interactive Tableau-style dashboard for comparing assessments
  * Features:
+ * - Drag and drop widget positioning
+ * - Resizable chart panels
+ * - Layout persistence to localStorage
  * - Multi-community comparison
  * - Year-over-year progress tracking
  * - Indicator deep-dive analysis
- * - Cross-filtering between charts
  */
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useCallback } from 'react';
 import { useQuery } from 'wasp/client/operations';
 import { getAssessments } from 'wasp/client/operations';
+import GridLayout, { Layout } from 'react-grid-layout';
 import { AssessmentSelector } from './components/AssessmentSelector';
 import { RadarComparisonChart } from './components/RadarComparisonChart';
 import { BarComparisonChart } from './components/BarComparisonChart';
@@ -19,7 +22,9 @@ import { TrendLineChart } from './components/TrendLineChart';
 import { RecommendationsPieChart } from './components/RecommendationsPieChart';
 import { KPICards } from './components/KPICards';
 import { IndicatorHeatmap } from './components/IndicatorHeatmap';
-import { LayoutGrid, TrendingUp, Target, BarChart3, Filter, X } from 'lucide-react';
+import { LayoutGrid, TrendingUp, Target, BarChart3, Filter, X, Lock, Unlock, RotateCcw } from 'lucide-react';
+import 'react-grid-layout/css/styles.css';
+import 'react-resizable/css/styles.css';
 
 // Dashboard template types
 type DashboardTemplate = 'community-comparison' | 'year-over-year' | 'indicator-deep-dive';
@@ -43,6 +48,31 @@ const COMPARISON_COLORS = [
   '#795548', // Brown
 ];
 
+// Default layouts for each template
+const DEFAULT_LAYOUTS: Record<DashboardTemplate, Layout[]> = {
+  'community-comparison': [
+    { i: 'radar', x: 0, y: 0, w: 12, h: 14, minW: 6, minH: 10 },
+    { i: 'bar', x: 0, y: 14, w: 6, h: 10, minW: 4, minH: 8 },
+    { i: 'pie', x: 6, y: 14, w: 6, h: 10, minW: 4, minH: 8 },
+    { i: 'heatmap', x: 0, y: 24, w: 12, h: 12, minW: 6, minH: 10 },
+  ],
+  'year-over-year': [
+    { i: 'trend-overall', x: 0, y: 0, w: 12, h: 12, minW: 6, minH: 10 },
+    { i: 'trend-governance', x: 0, y: 12, w: 6, h: 10, minW: 4, minH: 8 },
+    { i: 'trend-capacity', x: 6, y: 12, w: 6, h: 10, minW: 4, minH: 8 },
+    { i: 'yoy-change', x: 0, y: 22, w: 12, h: 10, minW: 6, minH: 8 },
+  ],
+  'indicator-deep-dive': [
+    { i: 'indicator-selector', x: 0, y: 0, w: 12, h: 5, minW: 8, minH: 4 },
+    { i: 'indicator-bar', x: 0, y: 5, w: 6, h: 10, minW: 4, minH: 8 },
+    { i: 'indicator-notes', x: 6, y: 5, w: 6, h: 10, minW: 4, minH: 8 },
+    { i: 'indicator-recs', x: 0, y: 15, w: 12, h: 12, minW: 6, minH: 8 },
+  ],
+};
+
+// LocalStorage keys for layouts
+const getLayoutKey = (template: DashboardTemplate) => `quest-dashboard-layout-${template}`;
+
 export function AnalyticsDashboardPage() {
   const { data: assessments, isLoading, error } = useQuery(getAssessments);
 
@@ -51,6 +81,44 @@ export function AnalyticsDashboardPage() {
   const [selectedAssessments, setSelectedAssessments] = useState<SelectedAssessment[]>([]);
   const [selectedIndicator, setSelectedIndicator] = useState<number | null>(null);
   const [showSelector, setShowSelector] = useState(true);
+  const [isLayoutLocked, setIsLayoutLocked] = useState(false);
+
+  // Load layout from localStorage or use default
+  const [layouts, setLayouts] = useState<Record<DashboardTemplate, Layout[]>>(() => {
+    const saved: Record<string, Layout[]> = {};
+    (['community-comparison', 'year-over-year', 'indicator-deep-dive'] as DashboardTemplate[]).forEach(template => {
+      const stored = localStorage.getItem(getLayoutKey(template));
+      if (stored) {
+        try {
+          saved[template] = JSON.parse(stored);
+        } catch {
+          saved[template] = DEFAULT_LAYOUTS[template];
+        }
+      } else {
+        saved[template] = DEFAULT_LAYOUTS[template];
+      }
+    });
+    return saved as Record<DashboardTemplate, Layout[]>;
+  });
+
+  // Save layout to localStorage
+  const handleLayoutChange = useCallback((newLayout: Layout[]) => {
+    if (isLayoutLocked) return;
+    setLayouts(prev => ({
+      ...prev,
+      [activeTemplate]: newLayout,
+    }));
+    localStorage.setItem(getLayoutKey(activeTemplate), JSON.stringify(newLayout));
+  }, [activeTemplate, isLayoutLocked]);
+
+  // Reset layout to default
+  const handleResetLayout = useCallback(() => {
+    setLayouts(prev => ({
+      ...prev,
+      [activeTemplate]: DEFAULT_LAYOUTS[activeTemplate],
+    }));
+    localStorage.removeItem(getLayoutKey(activeTemplate));
+  }, [activeTemplate]);
 
   // Process assessments for selection
   const assessmentOptions = useMemo(() => {
@@ -75,13 +143,29 @@ export function AnalyticsDashboardPage() {
       .filter(Boolean);
   }, [assessments, selectedAssessments]);
 
+  // Community trends for year-over-year
+  const communityTrends = useMemo(() => {
+    if (!assessments || selectedAssessmentData.length === 0) return [];
+    const communities = [...new Set(selectedAssessmentData.map((a: any) => a.community?.id))];
+    return communities.map(communityId => {
+      const communityAssessments = assessments
+        .filter((a: any) => a.community?.id === communityId)
+        .sort((a: any, b: any) => a.assessmentYear - b.assessmentYear);
+      const selected = selectedAssessmentData.find((a: any) => a.community?.id === communityId);
+      return {
+        communityId,
+        communityName: selected?.community?.name || 'Unknown',
+        color: selected?.color || '#999',
+        assessments: communityAssessments,
+      };
+    });
+  }, [assessments, selectedAssessmentData]);
+
   // Handle assessment selection
   const handleSelectAssessment = (assessment: any) => {
     if (selectedAssessments.find(s => s.id === assessment.id)) {
-      // Already selected - remove it
       setSelectedAssessments(prev => prev.filter(s => s.id !== assessment.id));
     } else if (selectedAssessments.length < 8) {
-      // Add new selection
       const nextColor = COMPARISON_COLORS[selectedAssessments.length % COMPARISON_COLORS.length];
       setSelectedAssessments(prev => [
         ...prev,
@@ -121,6 +205,14 @@ export function AnalyticsDashboardPage() {
     },
   ];
 
+  const indicatorNames = [
+    'Governance', 'Capacity', 'Planning', 'Infrastructure', 'Operations',
+    'Buildings', 'Transportation', 'Waste', 'Energy', 'Other'
+  ];
+
+  // Calculate grid width based on selector visibility
+  const gridWidth = showSelector ? 1100 : 1400;
+
   if (isLoading) {
     return (
       <div className="analytics-dashboard loading">
@@ -137,6 +229,157 @@ export function AnalyticsDashboardPage() {
     );
   }
 
+  // Render widget content based on widget ID
+  const renderWidget = (widgetId: string) => {
+    switch (widgetId) {
+      // Community Comparison widgets
+      case 'radar':
+        return (
+          <div className="widget-content">
+            <h3>Indicator Comparison (Radar)</h3>
+            <RadarComparisonChart assessments={selectedAssessmentData} onIndicatorClick={setSelectedIndicator} />
+          </div>
+        );
+      case 'bar':
+        return (
+          <div className="widget-content">
+            <h3>Overall Scores</h3>
+            <BarComparisonChart assessments={selectedAssessmentData} dataKey="overallScore" label="Overall Score" />
+          </div>
+        );
+      case 'pie':
+        return (
+          <div className="widget-content">
+            <h3>Recommendations by Priority</h3>
+            <RecommendationsPieChart assessments={selectedAssessmentData} />
+          </div>
+        );
+      case 'heatmap':
+        return (
+          <div className="widget-content">
+            <h3>Indicator Performance Heatmap</h3>
+            <IndicatorHeatmap assessments={selectedAssessmentData} selectedIndicator={selectedIndicator} onIndicatorClick={setSelectedIndicator} />
+          </div>
+        );
+
+      // Year-over-Year widgets
+      case 'trend-overall':
+        return (
+          <div className="widget-content">
+            <h3>Overall Score Trends</h3>
+            <TrendLineChart communityTrends={communityTrends} dataKey="overallScore" label="Overall Score" />
+          </div>
+        );
+      case 'trend-governance':
+        return (
+          <div className="widget-content">
+            <h3>Governance Indicator Trend</h3>
+            <TrendLineChart communityTrends={communityTrends} indicatorNumber={1} label="Governance Score" />
+          </div>
+        );
+      case 'trend-capacity':
+        return (
+          <div className="widget-content">
+            <h3>Capacity Indicator Trend</h3>
+            <TrendLineChart communityTrends={communityTrends} indicatorNumber={2} label="Capacity Score" />
+          </div>
+        );
+      case 'yoy-change':
+        return (
+          <div className="widget-content">
+            <h3>Year-over-Year Change</h3>
+            <BarComparisonChart assessments={selectedAssessmentData} dataKey="yearOverYearChange" label="Score Change (%)" showChange={true} />
+          </div>
+        );
+
+      // Indicator Deep-Dive widgets
+      case 'indicator-selector':
+        return (
+          <div className="widget-content indicator-selector-widget">
+            <h3>Select an Indicator to Analyze</h3>
+            <div className="indicator-buttons">
+              {indicatorNames.map((name, idx) => (
+                <button
+                  key={idx}
+                  className={`indicator-btn ${selectedIndicator === idx + 1 ? 'active' : ''}`}
+                  onClick={() => setSelectedIndicator(selectedIndicator === idx + 1 ? null : idx + 1)}
+                >
+                  <span className="indicator-num">{idx + 1}</span>
+                  <span className="indicator-name">{name}</span>
+                </button>
+              ))}
+            </div>
+          </div>
+        );
+      case 'indicator-bar':
+        return (
+          <div className="widget-content">
+            <h3>{selectedIndicator ? `${indicatorNames[selectedIndicator - 1]} Scores` : 'Select an Indicator'}</h3>
+            {selectedIndicator ? (
+              <BarComparisonChart assessments={selectedAssessmentData} indicatorNumber={selectedIndicator} label={indicatorNames[selectedIndicator - 1]} />
+            ) : (
+              <div className="empty-widget"><Target size={32} /><p>Select an indicator above</p></div>
+            )}
+          </div>
+        );
+      case 'indicator-notes':
+        return (
+          <div className="widget-content">
+            <h3>Indicator Notes & Evidence</h3>
+            {selectedIndicator ? (
+              <div className="indicator-details">
+                {selectedAssessmentData.map((assessment: any) => {
+                  const indicator = assessment.indicators?.find((i: any) => i.indicatorNumber === selectedIndicator);
+                  return (
+                    <div key={assessment.id} className="indicator-detail-item" style={{ borderLeftColor: assessment.color }}>
+                      <div className="detail-header">
+                        <span className="community-name">{assessment.community?.name}</span>
+                        <span className="score-badge">{indicator?.pointsEarned || 0} / {indicator?.pointsPossible || 10} pts</span>
+                      </div>
+                      {indicator?.notes && <p className="detail-notes">{indicator.notes}</p>}
+                    </div>
+                  );
+                })}
+              </div>
+            ) : (
+              <div className="empty-widget"><Target size={32} /><p>Select an indicator above</p></div>
+            )}
+          </div>
+        );
+      case 'indicator-recs':
+        return (
+          <div className="widget-content">
+            <h3>{selectedIndicator ? `Recommendations (Indicator ${selectedIndicator})` : 'Related Recommendations'}</h3>
+            {selectedIndicator ? (
+              <div className="recommendations-list">
+                {selectedAssessmentData.flatMap((assessment: any) =>
+                  (assessment.recommendations || [])
+                    .filter((r: any) => r.indicatorNumber === selectedIndicator)
+                    .map((rec: any) => (
+                      <div key={rec.id} className="recommendation-item" style={{ borderLeftColor: assessment.color }}>
+                        <div className="rec-header">
+                          <span className="community-badge" style={{ backgroundColor: assessment.color }}>{assessment.community?.name}</span>
+                          <span className={`priority-badge priority-${rec.priorityLevel?.toLowerCase()}`}>{rec.priorityLevel}</span>
+                          <span className={`status-badge status-${rec.implementationStatus?.toLowerCase()?.replace('_', '-')}`}>{rec.implementationStatus?.replace('_', ' ')}</span>
+                        </div>
+                        <p className="rec-text">{rec.recommendationText}</p>
+                      </div>
+                    ))
+                )}
+                {selectedAssessmentData.every((a: any) => !(a.recommendations || []).some((r: any) => r.indicatorNumber === selectedIndicator)) && (
+                  <p className="no-data">No recommendations found for this indicator</p>
+                )}
+              </div>
+            ) : (
+              <div className="empty-widget"><Target size={32} /><p>Select an indicator above</p></div>
+            )}
+          </div>
+        );
+      default:
+        return <div className="widget-content">Unknown widget</div>;
+    }
+  };
+
   return (
     <div className="analytics-dashboard">
       {/* Page Header */}
@@ -148,13 +391,24 @@ export function AnalyticsDashboardPage() {
           </h1>
           <p>Compare assessments, track progress, and analyze indicator performance</p>
         </div>
-        <button
-          className="toggle-selector-btn"
-          onClick={() => setShowSelector(!showSelector)}
-        >
-          <Filter size={18} />
-          {showSelector ? 'Hide' : 'Show'} Selector
-        </button>
+        <div className="header-actions">
+          <button
+            className={`layout-btn ${isLayoutLocked ? 'locked' : ''}`}
+            onClick={() => setIsLayoutLocked(!isLayoutLocked)}
+            title={isLayoutLocked ? 'Unlock layout to drag/resize' : 'Lock layout'}
+          >
+            {isLayoutLocked ? <Lock size={18} /> : <Unlock size={18} />}
+            {isLayoutLocked ? 'Locked' : 'Unlocked'}
+          </button>
+          <button className="reset-btn" onClick={handleResetLayout} title="Reset to default layout">
+            <RotateCcw size={18} />
+            Reset
+          </button>
+          <button className="toggle-selector-btn" onClick={() => setShowSelector(!showSelector)}>
+            <Filter size={18} />
+            {showSelector ? 'Hide' : 'Show'} Selector
+          </button>
+        </div>
       </div>
 
       {/* Template Tabs */}
@@ -174,6 +428,7 @@ export function AnalyticsDashboardPage() {
       {/* Template Description */}
       <div className="template-description">
         <p>{templates.find(t => t.id === activeTemplate)?.description}</p>
+        {!isLayoutLocked && <span className="drag-hint">Drag widgets to reposition, drag corners to resize</span>}
       </div>
 
       <div className="dashboard-layout">
@@ -190,20 +445,13 @@ export function AnalyticsDashboardPage() {
               )}
             </div>
 
-            {/* Selected Assessments Chips */}
             {selectedAssessments.length > 0 && (
               <div className="selected-chips">
                 {selectedAssessments.map(sel => (
-                  <div
-                    key={sel.id}
-                    className="selected-chip"
-                    style={{ borderColor: sel.color, backgroundColor: `${sel.color}15` }}
-                  >
+                  <div key={sel.id} className="selected-chip" style={{ borderColor: sel.color, backgroundColor: `${sel.color}15` }}>
                     <span className="color-dot" style={{ backgroundColor: sel.color }} />
                     <span>{sel.communityName} ({sel.year})</span>
-                    <button onClick={() => handleSelectAssessment(sel)}>
-                      <X size={12} />
-                    </button>
+                    <button onClick={() => handleSelectAssessment(sel)}><X size={12} /></button>
                   </div>
                 ))}
               </div>
@@ -218,7 +466,7 @@ export function AnalyticsDashboardPage() {
           </div>
         )}
 
-        {/* Dashboard Content */}
+        {/* Dashboard Content with Grid Layout */}
         <div className={`dashboard-content ${!showSelector ? 'full-width' : ''}`}>
           {selectedAssessmentData.length === 0 ? (
             <div className="empty-state">
@@ -231,289 +479,32 @@ export function AnalyticsDashboardPage() {
               {/* KPI Summary Cards */}
               <KPICards assessments={selectedAssessmentData} />
 
-              {/* Dashboard Template Content */}
-              {activeTemplate === 'community-comparison' && (
-                <CommunityComparisonDashboard
-                  assessments={selectedAssessmentData}
-                  selectedIndicator={selectedIndicator}
-                  onIndicatorSelect={setSelectedIndicator}
-                />
-              )}
-
-              {activeTemplate === 'year-over-year' && (
-                <YearOverYearDashboard
-                  assessments={selectedAssessmentData}
-                  allAssessments={assessments || []}
-                />
-              )}
-
-              {activeTemplate === 'indicator-deep-dive' && (
-                <IndicatorDeepDiveDashboard
-                  assessments={selectedAssessmentData}
-                  selectedIndicator={selectedIndicator}
-                  onIndicatorSelect={setSelectedIndicator}
-                />
-              )}
+              {/* Draggable Grid Layout */}
+              <GridLayout
+                className="grid-layout"
+                layout={layouts[activeTemplate]}
+                cols={12}
+                rowHeight={30}
+                width={gridWidth}
+                onLayoutChange={handleLayoutChange}
+                isDraggable={!isLayoutLocked}
+                isResizable={!isLayoutLocked}
+                draggableHandle=".widget-drag-handle"
+                margin={[16, 16]}
+              >
+                {layouts[activeTemplate].map(item => (
+                  <div key={item.i} className="grid-widget">
+                    <div className="widget-drag-handle" />
+                    {renderWidget(item.i)}
+                  </div>
+                ))}
+              </GridLayout>
             </>
           )}
         </div>
       </div>
 
       <style>{analyticsStyles}</style>
-    </div>
-  );
-}
-
-// Community Comparison Dashboard Template
-function CommunityComparisonDashboard({
-  assessments,
-  selectedIndicator,
-  onIndicatorSelect
-}: {
-  assessments: any[];
-  selectedIndicator: number | null;
-  onIndicatorSelect: (indicator: number | null) => void;
-}) {
-  return (
-    <div className="dashboard-grid community-comparison">
-      {/* Radar Chart - Full width */}
-      <div className="chart-card span-full">
-        <h3>Indicator Comparison (Radar)</h3>
-        <RadarComparisonChart
-          assessments={assessments}
-          onIndicatorClick={onIndicatorSelect}
-        />
-      </div>
-
-      {/* Bar Chart - Half width */}
-      <div className="chart-card span-half">
-        <h3>Overall Scores</h3>
-        <BarComparisonChart
-          assessments={assessments}
-          dataKey="overallScore"
-          label="Overall Score"
-        />
-      </div>
-
-      {/* Recommendations Pie - Half width */}
-      <div className="chart-card span-half">
-        <h3>Recommendations by Priority</h3>
-        <RecommendationsPieChart assessments={assessments} />
-      </div>
-
-      {/* Indicator Heatmap - Full width */}
-      <div className="chart-card span-full">
-        <h3>Indicator Performance Heatmap</h3>
-        <IndicatorHeatmap
-          assessments={assessments}
-          selectedIndicator={selectedIndicator}
-          onIndicatorClick={onIndicatorSelect}
-        />
-      </div>
-    </div>
-  );
-}
-
-// Year-over-Year Dashboard Template
-function YearOverYearDashboard({
-  assessments,
-  allAssessments
-}: {
-  assessments: any[];
-  allAssessments: any[];
-}) {
-  // Group assessments by community for trend analysis
-  const communityTrends = useMemo(() => {
-    const communities = [...new Set(assessments.map(a => a.community?.id))];
-
-    return communities.map(communityId => {
-      const communityAssessments = allAssessments
-        .filter((a: any) => a.community?.id === communityId)
-        .sort((a: any, b: any) => a.assessmentYear - b.assessmentYear);
-
-      const selected = assessments.find(a => a.community?.id === communityId);
-
-      return {
-        communityId,
-        communityName: selected?.community?.name || 'Unknown',
-        color: selected?.color || '#999',
-        assessments: communityAssessments,
-      };
-    });
-  }, [assessments, allAssessments]);
-
-  return (
-    <div className="dashboard-grid year-over-year">
-      {/* Trend Line Chart - Full width */}
-      <div className="chart-card span-full">
-        <h3>Overall Score Trends</h3>
-        <TrendLineChart
-          communityTrends={communityTrends}
-          dataKey="overallScore"
-          label="Overall Score"
-        />
-      </div>
-
-      {/* Individual Indicator Trends */}
-      <div className="chart-card span-half">
-        <h3>Governance Indicator Trend</h3>
-        <TrendLineChart
-          communityTrends={communityTrends}
-          indicatorNumber={1}
-          label="Governance Score"
-        />
-      </div>
-
-      <div className="chart-card span-half">
-        <h3>Capacity Indicator Trend</h3>
-        <TrendLineChart
-          communityTrends={communityTrends}
-          indicatorNumber={2}
-          label="Capacity Score"
-        />
-      </div>
-
-      {/* Progress Summary */}
-      <div className="chart-card span-full">
-        <h3>Year-over-Year Change</h3>
-        <BarComparisonChart
-          assessments={assessments}
-          dataKey="yearOverYearChange"
-          label="Score Change (%)"
-          showChange={true}
-        />
-      </div>
-    </div>
-  );
-}
-
-// Indicator Deep-Dive Dashboard Template
-function IndicatorDeepDiveDashboard({
-  assessments,
-  selectedIndicator,
-  onIndicatorSelect
-}: {
-  assessments: any[];
-  selectedIndicator: number | null;
-  onIndicatorSelect: (indicator: number | null) => void;
-}) {
-  const indicatorNames = [
-    'Governance',
-    'Capacity',
-    'Planning',
-    'Infrastructure',
-    'Operations',
-    'Buildings',
-    'Transportation',
-    'Waste',
-    'Energy',
-    'Other'
-  ];
-
-  return (
-    <div className="dashboard-grid indicator-deep-dive">
-      {/* Indicator Selector */}
-      <div className="chart-card span-full indicator-selector-card">
-        <h3>Select an Indicator to Analyze</h3>
-        <div className="indicator-buttons">
-          {indicatorNames.map((name, idx) => (
-            <button
-              key={idx}
-              className={`indicator-btn ${selectedIndicator === idx + 1 ? 'active' : ''}`}
-              onClick={() => onIndicatorSelect(selectedIndicator === idx + 1 ? null : idx + 1)}
-            >
-              <span className="indicator-num">{idx + 1}</span>
-              <span className="indicator-name">{name}</span>
-            </button>
-          ))}
-        </div>
-      </div>
-
-      {selectedIndicator ? (
-        <>
-          {/* Selected Indicator Bar Chart */}
-          <div className="chart-card span-half">
-            <h3>Indicator {selectedIndicator}: {indicatorNames[selectedIndicator - 1]} Scores</h3>
-            <BarComparisonChart
-              assessments={assessments}
-              indicatorNumber={selectedIndicator}
-              label={indicatorNames[selectedIndicator - 1]}
-            />
-          </div>
-
-          {/* Indicator Details */}
-          <div className="chart-card span-half">
-            <h3>Indicator Notes & Evidence</h3>
-            <div className="indicator-details">
-              {assessments.map((assessment: any) => {
-                const indicator = assessment.indicators?.find(
-                  (i: any) => i.indicatorNumber === selectedIndicator
-                );
-                return (
-                  <div
-                    key={assessment.id}
-                    className="indicator-detail-item"
-                    style={{ borderLeftColor: assessment.color }}
-                  >
-                    <div className="detail-header">
-                      <span className="community-name">{assessment.community?.name}</span>
-                      <span className="score-badge">
-                        {indicator?.pointsEarned || 0} / {indicator?.pointsPossible || 10} pts
-                      </span>
-                    </div>
-                    {indicator?.notes && (
-                      <p className="detail-notes">{indicator.notes}</p>
-                    )}
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-
-          {/* Related Recommendations */}
-          <div className="chart-card span-full">
-            <h3>Related Recommendations (Indicator {selectedIndicator})</h3>
-            <div className="recommendations-list">
-              {assessments.flatMap((assessment: any) =>
-                (assessment.recommendations || [])
-                  .filter((r: any) => r.indicatorNumber === selectedIndicator)
-                  .map((rec: any) => (
-                    <div
-                      key={rec.id}
-                      className="recommendation-item"
-                      style={{ borderLeftColor: assessment.color }}
-                    >
-                      <div className="rec-header">
-                        <span className="community-badge" style={{ backgroundColor: assessment.color }}>
-                          {assessment.community?.name}
-                        </span>
-                        <span className={`priority-badge priority-${rec.priorityLevel?.toLowerCase()}`}>
-                          {rec.priorityLevel}
-                        </span>
-                        <span className={`status-badge status-${rec.implementationStatus?.toLowerCase()?.replace('_', '-')}`}>
-                          {rec.implementationStatus?.replace('_', ' ')}
-                        </span>
-                      </div>
-                      <p className="rec-text">{rec.recommendationText}</p>
-                    </div>
-                  ))
-              )}
-              {assessments.every((a: any) =>
-                !(a.recommendations || []).some((r: any) => r.indicatorNumber === selectedIndicator)
-              ) && (
-                <p className="no-data">No recommendations found for this indicator</p>
-              )}
-            </div>
-          </div>
-        </>
-      ) : (
-        <div className="chart-card span-full">
-          <div className="empty-indicator-state">
-            <Target size={48} />
-            <p>Select an indicator above to see detailed analysis</p>
-          </div>
-        </div>
-      )}
     </div>
   );
 }
@@ -535,15 +526,8 @@ const analyticsStyles = `
     min-height: 400px;
   }
 
-  .loading-spinner {
-    color: #666;
-    font-size: 18px;
-  }
-
-  .error-message {
-    color: #e74c3c;
-    font-size: 16px;
-  }
+  .loading-spinner { color: #666; font-size: 18px; }
+  .error-message { color: #e74c3c; font-size: 16px; }
 
   /* Header */
   .dashboard-header {
@@ -553,6 +537,8 @@ const analyticsStyles = `
     margin-bottom: 24px;
     padding-bottom: 20px;
     border-bottom: 2px solid #e0e0e0;
+    flex-wrap: wrap;
+    gap: 16px;
   }
 
   .header-content h1 {
@@ -564,24 +550,34 @@ const analyticsStyles = `
     margin: 0 0 8px 0;
   }
 
-  .header-content p {
-    color: #666;
-    font-size: 16px;
-    margin: 0;
+  .header-content p { color: #666; font-size: 16px; margin: 0; }
+
+  .header-actions {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
   }
 
-  .toggle-selector-btn {
+  .layout-btn, .reset-btn, .toggle-selector-btn {
     display: flex;
     align-items: center;
     gap: 8px;
     padding: 10px 16px;
     background: white;
-    border: 2px solid #00a9a6;
+    border: 2px solid #e0e0e0;
     border-radius: 8px;
-    color: #00a9a6;
     font-weight: 500;
     cursor: pointer;
     transition: all 0.2s;
+    font-size: 14px;
+  }
+
+  .layout-btn:hover, .reset-btn:hover { border-color: #666; }
+  .layout-btn.locked { background: #f0f0f0; border-color: #999; }
+
+  .toggle-selector-btn {
+    border-color: #00a9a6;
+    color: #00a9a6;
   }
 
   .toggle-selector-btn:hover {
@@ -594,6 +590,7 @@ const analyticsStyles = `
     display: flex;
     gap: 8px;
     margin-bottom: 16px;
+    flex-wrap: wrap;
   }
 
   .template-tab {
@@ -611,18 +608,13 @@ const analyticsStyles = `
     color: #666;
   }
 
-  .template-tab:hover {
-    border-color: #00a9a6;
-    color: #00a9a6;
-  }
-
-  .template-tab.active {
-    background: #00a9a6;
-    border-color: #00a9a6;
-    color: white;
-  }
+  .template-tab:hover { border-color: #00a9a6; color: #00a9a6; }
+  .template-tab.active { background: #00a9a6; border-color: #00a9a6; color: white; }
 
   .template-description {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
     margin-bottom: 20px;
     padding: 12px 16px;
     background: #f8f9fa;
@@ -630,16 +622,11 @@ const analyticsStyles = `
     border-radius: 0 8px 8px 0;
   }
 
-  .template-description p {
-    margin: 0;
-    color: #666;
-  }
+  .template-description p { margin: 0; color: #666; }
+  .drag-hint { font-size: 12px; color: #999; font-style: italic; }
 
   /* Layout */
-  .dashboard-layout {
-    display: flex;
-    gap: 24px;
-  }
+  .dashboard-layout { display: flex; gap: 24px; }
 
   .selector-panel {
     width: 320px;
@@ -659,11 +646,7 @@ const analyticsStyles = `
     margin-bottom: 16px;
   }
 
-  .selector-header h3 {
-    margin: 0;
-    font-size: 16px;
-    color: #333;
-  }
+  .selector-header h3 { margin: 0; font-size: 16px; color: #333; }
 
   .clear-btn {
     display: flex;
@@ -676,12 +659,9 @@ const analyticsStyles = `
     color: #e74c3c;
     font-size: 12px;
     cursor: pointer;
-    transition: background 0.2s;
   }
 
-  .clear-btn:hover {
-    background: #fdd;
-  }
+  .clear-btn:hover { background: #fdd; }
 
   .selected-chips {
     display: flex;
@@ -702,34 +682,13 @@ const analyticsStyles = `
     font-size: 12px;
   }
 
-  .selected-chip .color-dot {
-    width: 8px;
-    height: 8px;
-    border-radius: 50%;
-  }
-
-  .selected-chip button {
-    background: none;
-    border: none;
-    padding: 0;
-    cursor: pointer;
-    opacity: 0.6;
-    display: flex;
-  }
-
-  .selected-chip button:hover {
-    opacity: 1;
-  }
+  .selected-chip .color-dot { width: 8px; height: 8px; border-radius: 50%; }
+  .selected-chip button { background: none; border: none; padding: 0; cursor: pointer; opacity: 0.6; display: flex; }
+  .selected-chip button:hover { opacity: 1; }
 
   /* Dashboard Content */
-  .dashboard-content {
-    flex: 1;
-    min-width: 0;
-  }
-
-  .dashboard-content.full-width {
-    width: 100%;
-  }
+  .dashboard-content { flex: 1; min-width: 0; }
+  .dashboard-content.full-width { width: 100%; }
 
   .empty-state {
     display: flex;
@@ -743,272 +702,223 @@ const analyticsStyles = `
     color: #999;
   }
 
-  .empty-state h2 {
-    margin: 20px 0 8px 0;
-    color: #666;
-  }
+  .empty-state h2 { margin: 20px 0 8px 0; color: #666; }
+  .empty-state p { margin: 0; }
 
-  .empty-state p {
-    margin: 0;
-  }
+  /* Grid Layout Widgets */
+  .grid-layout { margin-top: 20px; }
 
-  /* Dashboard Grid */
-  .dashboard-grid {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 20px;
-  }
-
-  .chart-card {
+  .grid-widget {
     background: white;
     border-radius: 12px;
-    padding: 20px;
     box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
   }
 
-  .chart-card h3 {
-    margin: 0 0 16px 0;
-    font-size: 16px;
+  .widget-drag-handle {
+    height: 8px;
+    background: linear-gradient(90deg, #e0e0e0 25%, transparent 25%, transparent 50%, #e0e0e0 50%, #e0e0e0 75%, transparent 75%);
+    background-size: 8px 8px;
+    cursor: move;
+    border-radius: 12px 12px 0 0;
+  }
+
+  .widget-drag-handle:hover { background-color: #f0f0f0; }
+
+  .widget-content {
+    flex: 1;
+    padding: 16px;
+    overflow: auto;
+  }
+
+  .widget-content h3 {
+    margin: 0 0 12px 0;
+    font-size: 15px;
     color: #333;
+    font-weight: 600;
   }
 
-  .chart-card.span-full {
-    grid-column: 1 / -1;
+  .empty-widget {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 200px;
+    color: #999;
   }
 
-  .chart-card.span-half {
-    grid-column: span 1;
-  }
+  .empty-widget p { margin: 12px 0 0 0; }
 
-  /* Indicator Selector */
-  .indicator-selector-card {
-    padding: 24px;
-  }
-
-  .indicator-buttons {
+  /* Indicator Selector Widget */
+  .indicator-selector-widget .indicator-buttons {
     display: flex;
     flex-wrap: wrap;
-    gap: 10px;
+    gap: 8px;
   }
 
   .indicator-btn {
     display: flex;
     align-items: center;
-    gap: 8px;
-    padding: 10px 16px;
+    gap: 6px;
+    padding: 8px 12px;
     background: #f5f5f5;
     border: 2px solid transparent;
-    border-radius: 8px;
+    border-radius: 6px;
     cursor: pointer;
     transition: all 0.2s;
+    font-size: 13px;
   }
 
-  .indicator-btn:hover {
-    background: #eef;
-    border-color: #00a9a6;
-  }
-
-  .indicator-btn.active {
-    background: #00a9a6;
-    border-color: #00a9a6;
-    color: white;
-  }
+  .indicator-btn:hover { background: #eef; border-color: #00a9a6; }
+  .indicator-btn.active { background: #00a9a6; border-color: #00a9a6; color: white; }
 
   .indicator-btn .indicator-num {
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 24px;
-    height: 24px;
+    width: 20px;
+    height: 20px;
     background: rgba(0,0,0,0.1);
     border-radius: 50%;
     font-weight: 600;
-    font-size: 12px;
+    font-size: 11px;
   }
 
-  .indicator-btn.active .indicator-num {
-    background: rgba(255,255,255,0.3);
-  }
-
-  .indicator-btn .indicator-name {
-    font-size: 14px;
-    font-weight: 500;
-  }
+  .indicator-btn.active .indicator-num { background: rgba(255,255,255,0.3); }
+  .indicator-btn .indicator-name { font-weight: 500; }
 
   /* Indicator Details */
   .indicator-details {
     display: flex;
     flex-direction: column;
-    gap: 12px;
-    max-height: 400px;
+    gap: 10px;
+    max-height: 300px;
     overflow-y: auto;
   }
 
   .indicator-detail-item {
-    padding: 12px 16px;
+    padding: 10px 14px;
     border-left: 4px solid #ccc;
     background: #f9f9f9;
-    border-radius: 0 8px 8px 0;
+    border-radius: 0 6px 6px 0;
   }
 
   .detail-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 8px;
+    margin-bottom: 6px;
   }
 
-  .community-name {
-    font-weight: 600;
-    color: #333;
-  }
+  .community-name { font-weight: 600; color: #333; font-size: 13px; }
 
   .score-badge {
-    padding: 4px 10px;
+    padding: 3px 8px;
     background: #e8f5f5;
-    border-radius: 12px;
-    font-size: 12px;
+    border-radius: 10px;
+    font-size: 11px;
     font-weight: 600;
     color: #00a9a6;
   }
 
-  .detail-notes {
-    margin: 0;
-    font-size: 14px;
-    color: #666;
-    line-height: 1.5;
-  }
+  .detail-notes { margin: 0; font-size: 13px; color: #666; line-height: 1.4; }
 
   /* Recommendations List */
   .recommendations-list {
     display: flex;
     flex-direction: column;
-    gap: 12px;
-    max-height: 400px;
+    gap: 10px;
+    max-height: 300px;
     overflow-y: auto;
   }
 
   .recommendation-item {
-    padding: 16px;
+    padding: 12px;
     border-left: 4px solid #ccc;
     background: #f9f9f9;
-    border-radius: 0 8px 8px 0;
+    border-radius: 0 6px 6px 0;
   }
 
   .rec-header {
     display: flex;
     flex-wrap: wrap;
-    gap: 8px;
-    margin-bottom: 10px;
+    gap: 6px;
+    margin-bottom: 8px;
   }
 
   .community-badge {
-    padding: 4px 10px;
-    border-radius: 12px;
-    font-size: 12px;
+    padding: 3px 8px;
+    border-radius: 10px;
+    font-size: 11px;
     font-weight: 500;
     color: white;
   }
 
   .priority-badge {
-    padding: 4px 10px;
-    border-radius: 12px;
-    font-size: 12px;
+    padding: 3px 8px;
+    border-radius: 10px;
+    font-size: 11px;
     font-weight: 500;
   }
 
-  .priority-badge.priority-high {
-    background: #fee;
-    color: #e74c3c;
-  }
-
-  .priority-badge.priority-medium {
-    background: #fef6e6;
-    color: #f39c12;
-  }
-
-  .priority-badge.priority-low {
-    background: #e8f5e9;
-    color: #27ae60;
-  }
+  .priority-badge.priority-high { background: #fee; color: #e74c3c; }
+  .priority-badge.priority-medium { background: #fef6e6; color: #f39c12; }
+  .priority-badge.priority-low { background: #e8f5e9; color: #27ae60; }
 
   .status-badge {
-    padding: 4px 10px;
-    border-radius: 12px;
-    font-size: 12px;
+    padding: 3px 8px;
+    border-radius: 10px;
+    font-size: 11px;
     font-weight: 500;
     background: #f0f0f0;
     color: #666;
   }
 
-  .status-badge.status-completed {
-    background: #e8f5e9;
-    color: #27ae60;
+  .status-badge.status-completed { background: #e8f5e9; color: #27ae60; }
+  .status-badge.status-in-progress { background: #e3f2fd; color: #2196f3; }
+
+  .rec-text { margin: 0; font-size: 13px; color: #333; line-height: 1.4; }
+  .no-data { text-align: center; color: #999; padding: 30px; }
+
+  /* React Grid Layout overrides */
+  .react-grid-item.react-grid-placeholder {
+    background: #00a9a6 !important;
+    opacity: 0.2;
+    border-radius: 12px;
   }
 
-  .status-badge.status-in-progress {
-    background: #e3f2fd;
-    color: #2196f3;
+  .react-resizable-handle {
+    background: none !important;
+    width: 20px !important;
+    height: 20px !important;
   }
 
-  .rec-text {
-    margin: 0;
-    font-size: 14px;
-    color: #333;
-    line-height: 1.5;
+  .react-resizable-handle::after {
+    content: '';
+    position: absolute;
+    right: 4px;
+    bottom: 4px;
+    width: 8px;
+    height: 8px;
+    border-right: 2px solid #ccc;
+    border-bottom: 2px solid #ccc;
   }
 
-  .no-data {
-    text-align: center;
-    color: #999;
-    padding: 40px;
-  }
-
-  .empty-indicator-state {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    padding: 60px;
-    color: #999;
-  }
-
-  .empty-indicator-state p {
-    margin: 16px 0 0 0;
+  .react-grid-item:hover .react-resizable-handle::after {
+    border-color: #00a9a6;
   }
 
   /* Responsive */
   @media (max-width: 1200px) {
-    .dashboard-layout {
-      flex-direction: column;
-    }
-
-    .selector-panel {
-      width: 100%;
-      max-height: none;
-    }
-
-    .dashboard-grid {
-      grid-template-columns: 1fr;
-    }
-
-    .chart-card.span-half {
-      grid-column: span 1;
-    }
+    .dashboard-layout { flex-direction: column; }
+    .selector-panel { width: 100%; max-height: none; }
   }
 
   @media (max-width: 768px) {
-    .template-tabs {
-      flex-direction: column;
-    }
-
-    .indicator-buttons {
-      flex-direction: column;
-    }
-
-    .indicator-btn {
-      width: 100%;
-    }
+    .template-tabs { flex-direction: column; }
+    .header-actions { width: 100%; justify-content: flex-start; }
   }
 `;
 

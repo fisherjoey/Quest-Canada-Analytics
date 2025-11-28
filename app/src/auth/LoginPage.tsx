@@ -7,17 +7,17 @@ export default function Login() {
     <AuthPageLayout>
       <LoginForm />
       <br />
-      <span className='text-sm font-medium text-gray-900 dark:text-gray-900'>
+      <span className='text-sm font-medium text-foreground'>
         Don't have an account yet?{' '}
-        <WaspRouterLink to={routes.SignupRoute.to} className='underline'>
+        <WaspRouterLink to={routes.SignupRoute.to} className='underline text-primary hover:text-primary/80'>
           go to signup
         </WaspRouterLink>
         .
       </span>
       <br />
-      <span className='text-sm font-medium text-gray-900'>
+      <span className='text-sm font-medium text-foreground'>
         Forgot your password?{' '}
-        <WaspRouterLink to={routes.RequestPasswordResetRoute.to} className='underline'>
+        <WaspRouterLink to={routes.RequestPasswordResetRoute.to} className='underline text-primary hover:text-primary/80'>
           reset it
         </WaspRouterLink>
         .

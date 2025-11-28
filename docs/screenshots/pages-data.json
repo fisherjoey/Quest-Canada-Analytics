@@ -1,5 +1,5 @@
 {
-  "capturedAt": "2025-11-28T07:31:17.545Z",
+  "capturedAt": "2025-11-28T07:44:42.345Z",
   "baseUrl": "http://cpsc405.joeyfishertech.com",
   "pages": [
     {
@@ -41,7 +41,7 @@
       "path": "/assessments/new",
       "name": "assessment-new",
       "title": "Create New Assessment",
-      "description": "Create a new benchmark assessment for a community.",
+      "description": "Create a new benchmark assessment for a community using the comprehensive 10-indicator form.",
       "screenshot": "assessment-new.png"
     },
     {
@@ -62,7 +62,7 @@
       "path": "/projects/new",
       "name": "project-new",
       "title": "Create New Project",
-      "description": "Create a new climate action project.",
+      "description": "Create a new climate action project with funding and milestone tracking.",
       "screenshot": "project-new.png"
     },
     {

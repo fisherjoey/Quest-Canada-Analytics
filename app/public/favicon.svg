@@ -1,12 +1,18 @@
 <svg width="64" height="64" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
-  <!-- Teal maple leaf on white background -->
-  <rect width="64" height="64" fill="white"/>
-  <!-- Maple leaf path (simplified Canadian maple leaf) -->
-  <path d="M32 4 
+  <!-- Quest green maple leaf favicon -->
+  <defs>
+    <linearGradient id="questGreen" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#2d7a4f"/>
+      <stop offset="100%" style="stop-color:#4a9d6f"/>
+    </linearGradient>
+  </defs>
+  <!-- Maple leaf path (Canadian maple leaf) -->
+  <path d="M32 4
            L34 12 L42 8 L38 16 L48 18 L40 22 L46 30 L36 28 L38 38 L32 32 L26 38 L28 28 L18 30 L24 22 L16 18 L26 16 L22 8 L30 12 Z
            M32 38 L32 60"
-        fill="#008080" 
-        stroke="#008080"
-        stroke-width="3"
-        stroke-linecap="round"/>
+        fill="url(#questGreen)"
+        stroke="#2d7a4f"
+        stroke-width="2"
+        stroke-linecap="round"
+        stroke-linejoin="round"/>
 </svg>

@@ -64,27 +64,27 @@ export default function AssessmentsPage() {
   };
 
   if (isLoading) {
-    return <div className="p-8">Loading assessments...</div>;
+    return <div className="p-8 text-foreground">Loading assessments...</div>;
   }
 
   if (error) {
-    return <div className="p-8 text-red-600">Error loading assessments: {error.message}</div>;
+    return <div className="p-8 text-destructive">Error loading assessments: {error.message}</div>;
   }
 
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="flex justify-between items-center mb-6">
-        <h1 className="text-3xl font-bold">Community Assessments</h1>
+        <h1 className="text-3xl font-bold text-foreground">Community Assessments</h1>
         <div className="flex gap-3">
           <Link
             to="/assessments/import"
-            className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700"
+            className="bg-success text-success-foreground px-4 py-2 rounded hover:bg-success/90 transition-colors"
           >
             Import PDF
           </Link>
           <Link
             to="/assessments/new"
-            className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+            className="bg-primary text-primary-foreground px-4 py-2 rounded hover:bg-primary/90 transition-colors"
           >
             New Assessment
           </Link>
@@ -95,18 +95,18 @@ export default function AssessmentsPage() {
         <div className="flex gap-2 mb-4">
           <button
             onClick={expandAll}
-            className="text-sm text-blue-600 hover:text-blue-800"
+            className="text-sm text-primary hover:text-primary/80 transition-colors"
           >
             Expand All
           </button>
-          <span className="text-gray-400">|</span>
+          <span className="text-muted-foreground">|</span>
           <button
             onClick={collapseAll}
-            className="text-sm text-blue-600 hover:text-blue-800"
+            className="text-sm text-primary hover:text-primary/80 transition-colors"
           >
             Collapse All
           </button>
-          <span className="text-gray-400 ml-4">
+          <span className="text-muted-foreground ml-4">
             {communityNames.length} {communityNames.length === 1 ? 'community' : 'communities'}, {assessments?.length || 0} assessments
           </span>
         </div>
@@ -120,15 +120,15 @@ export default function AssessmentsPage() {
             const latestAssessment = communityAssessments[0];
 
             return (
-              <div key={communityName} className="bg-white rounded-lg shadow overflow-hidden">
+              <div key={communityName} className="bg-card rounded-lg shadow overflow-hidden border border-border">
                 {/* Accordion Header */}
                 <button
                   onClick={() => toggleCommunity(communityName)}
-                  className="w-full px-6 py-4 flex items-center justify-between hover:bg-gray-50 transition"
+                  className="w-full px-6 py-4 flex items-center justify-between hover:bg-muted transition-colors"
                 >
                   <div className="flex items-center gap-4">
                     <svg
-                      className={`w-5 h-5 text-gray-500 transition-transform ${isExpanded ? 'rotate-90' : ''}`}
+                      className={`w-5 h-5 text-muted-foreground transition-transform ${isExpanded ? 'rotate-90' : ''}`}
                       fill="none"
                       stroke="currentColor"
                       viewBox="0 0 24 24"
@@ -136,19 +136,19 @@ export default function AssessmentsPage() {
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7" />
                     </svg>
                     <div className="text-left">
-                      <h2 className="text-xl font-semibold text-gray-900">{communityName}</h2>
-                      <p className="text-sm text-gray-500">
+                      <h2 className="text-xl font-semibold text-foreground">{communityName}</h2>
+                      <p className="text-sm text-muted-foreground">
                         {communityAssessments.length} {communityAssessments.length === 1 ? 'assessment' : 'assessments'}
                         {latestAssessment.overallScore !== undefined && (
                           <span className="ml-2">
-                            • Latest score: <span className="font-medium text-blue-600">{latestAssessment.overallScore}%</span>
+                            • Latest score: <span className="font-medium text-primary">{latestAssessment.overallScore}%</span>
                           </span>
                         )}
                       </p>
                     </div>
                   </div>
                   <div className="flex items-center gap-3">
-                    <span className="text-sm text-gray-500">
+                    <span className="text-sm text-muted-foreground">
                       Latest: {latestAssessment.assessmentYear}
                     </span>
                   </div>
@@ -156,42 +156,42 @@ export default function AssessmentsPage() {
 
                 {/* Accordion Content */}
                 {isExpanded && (
-                  <div className="border-t border-gray-200 bg-gray-50">
+                  <div className="border-t border-border bg-muted/50">
                     {communityAssessments.map((assessment) => {
                       const detailLink = `/assessments/${assessment.id}`;
                       return (
                         <Link
                           key={assessment.id}
                           to={detailLink as any}
-                          className="block px-6 py-4 border-b border-gray-200 last:border-b-0 hover:bg-gray-100 transition"
+                          className="block px-6 py-4 border-b border-border last:border-b-0 hover:bg-accent transition-colors"
                         >
                           <div className="flex justify-between items-center ml-9">
                             <div>
-                              <span className="font-medium text-gray-900">
+                              <span className="font-medium text-foreground">
                                 {assessment.assessmentYear} Assessment
                               </span>
-                              <span className="text-gray-500 ml-3">
+                              <span className="text-muted-foreground ml-3">
                                 Created {new Date(assessment.createdAt).toLocaleDateString()}
                               </span>
                             </div>
                             <div className="flex items-center gap-4">
                               {assessment.overallScore !== undefined && (
                                 <span className={`px-3 py-1 rounded-full text-sm font-medium ${
-                                  assessment.overallScore >= 70 ? 'bg-green-100 text-green-800' :
-                                  assessment.overallScore >= 50 ? 'bg-yellow-100 text-yellow-800' :
-                                  'bg-red-100 text-red-800'
+                                  assessment.overallScore >= 70 ? 'bg-success/20 text-success dark:bg-success/30' :
+                                  assessment.overallScore >= 50 ? 'bg-warning/20 text-warning dark:bg-warning/30' :
+                                  'bg-destructive/20 text-destructive dark:bg-destructive/30'
                                 }`}>
                                   {assessment.overallScore}%
                                 </span>
                               )}
                               <span className={`px-2 py-1 rounded text-xs font-medium ${
-                                assessment.status === 'COMPLETED' ? 'bg-green-100 text-green-700' :
-                                assessment.status === 'IN_REVIEW' ? 'bg-blue-100 text-blue-700' :
-                                'bg-gray-100 text-gray-600'
+                                assessment.status === 'COMPLETED' ? 'bg-success/20 text-success dark:bg-success/30' :
+                                assessment.status === 'IN_REVIEW' ? 'bg-primary/20 text-primary dark:bg-primary/30' :
+                                'bg-muted text-muted-foreground'
                               }`}>
                                 {assessment.status}
                               </span>
-                              <span className="text-blue-600 hover:text-blue-800">View →</span>
+                              <span className="text-primary hover:text-primary/80">View →</span>
                             </div>
                           </div>
                         </Link>
@@ -203,7 +203,7 @@ export default function AssessmentsPage() {
             );
           })
         ) : (
-          <div className="text-center py-12 text-gray-500 bg-white rounded-lg shadow">
+          <div className="text-center py-12 text-muted-foreground bg-card rounded-lg shadow border border-border">
             No assessments found. Create your first assessment to get started.
           </div>
         )}

@@ -11,7 +11,7 @@ import { UserMenuItems } from '../../../user/UserMenuItems';
 import { useIsLandingPage } from '../../hooks/useIsLandingPage';
 const logo = '/quest-logo-transparent.png';
 import DarkModeSwitcher from '../DarkModeSwitcher';
-// Removed: import { Announcement } from './Announcement';
+import { HelpDialog } from '../HelpDialog';
 
 export interface NavigationItem {
   name: string;
@@ -88,6 +88,7 @@ function NavBarDesktopUserDropdown({ isScrolled }: { isScrolled: boolean }) {
   return (
     <div className='hidden lg:flex lg:flex-1 gap-3 justify-end items-center'>
       <ul className='flex justify-center items-center gap-2 sm:gap-4'>
+        <HelpDialog iconOnly />
         <DarkModeSwitcher />
       </ul>
       {isUserLoading ? null : !user ? (
@@ -173,7 +174,8 @@ function NavBarMobileMenu({
                   </ul>
                 )}
               </div>
-              <div className='py-6'>
+              <div className='py-6 flex items-center gap-4'>
+                <HelpDialog />
                 <DarkModeSwitcher />
               </div>
             </div>

@@ -45,7 +45,7 @@ export default function ProjectFormPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
-    
+
     try {
       const projectData = {
         communityId: formData.communityId,
@@ -63,7 +63,7 @@ export default function ProjectFormPage() {
       } else {
         await createProjectFn(projectData);
       }
-      
+
       if (history) {
         navigate("/projects");
       } else {
@@ -75,46 +75,46 @@ export default function ProjectFormPage() {
   };
 
   if (isLoading && id) {
-    return <div className="p-8">Loading...</div>;
+    return <div className="p-8 text-foreground">Loading...</div>;
   }
 
   return (
     <div className="container mx-auto px-4 py-8 max-w-4xl">
       <div className="flex justify-between items-center mb-6">
-        <h1 className="text-3xl font-bold">
+        <h1 className="text-3xl font-bold text-foreground">
           {isEditing ? "Edit Project" : "Create New Project"}
         </h1>
-        <Link to="/projects" className="text-blue-600 hover:underline">
+        <Link to="/projects" className="text-primary hover:text-primary/80 transition-colors">
           Back to Projects
         </Link>
       </div>
 
       {error && (
-        <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+        <div className="bg-destructive/20 border border-destructive text-destructive px-4 py-3 rounded mb-4">
           {error}
         </div>
       )}
 
-      <form onSubmit={handleSubmit} className="space-y-6 bg-white p-6 rounded-lg shadow">
+      <form onSubmit={handleSubmit} className="space-y-6 bg-card p-6 rounded-lg shadow border border-border">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
-            <label className="block text-sm font-medium mb-1">Project Code *</label>
+            <label className="block text-sm font-medium text-foreground mb-1">Project Code *</label>
             <input
               type="text"
               required
               value={formData.projectCode}
               onChange={(e) => setFormData({ ...formData, projectCode: e.target.value })}
-              className="w-full px-3 py-2 border rounded"
+              className="w-full px-3 py-2 border border-input rounded bg-background text-foreground focus:ring-2 focus:ring-ring focus:border-ring"
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium mb-1">Community *</label>
+            <label className="block text-sm font-medium text-foreground mb-1">Community *</label>
             <select
               required
               value={formData.communityId}
               onChange={(e) => setFormData({ ...formData, communityId: e.target.value })}
-              className="w-full px-3 py-2 border rounded"
+              className="w-full px-3 py-2 border border-input rounded bg-background text-foreground focus:ring-2 focus:ring-ring focus:border-ring"
             >
               <option value="">Select a community...</option>
               <option value="comm-calgary">Calgary</option>
@@ -125,45 +125,45 @@ export default function ProjectFormPage() {
         </div>
 
         <div>
-          <label className="block text-sm font-medium mb-1">Project Name *</label>
+          <label className="block text-sm font-medium text-foreground mb-1">Project Name *</label>
           <input
             type="text"
             required
             value={formData.projectName}
             onChange={(e) => setFormData({ ...formData, projectName: e.target.value })}
-            className="w-full px-3 py-2 border rounded"
+            className="w-full px-3 py-2 border border-input rounded bg-background text-foreground focus:ring-2 focus:ring-ring focus:border-ring"
           />
         </div>
 
         <div>
-          <label className="block text-sm font-medium mb-1">Description</label>
+          <label className="block text-sm font-medium text-foreground mb-1">Description</label>
           <textarea
             value={formData.description}
             onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-            className="w-full px-3 py-2 border rounded"
+            className="w-full px-3 py-2 border border-input rounded bg-background text-foreground focus:ring-2 focus:ring-ring focus:border-ring"
             rows={4}
           />
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
-            <label className="block text-sm font-medium mb-1">Project Type *</label>
+            <label className="block text-sm font-medium text-foreground mb-1">Project Type *</label>
             <input
               type="text"
               required
               value={formData.projectType}
               onChange={(e) => setFormData({ ...formData, projectType: e.target.value })}
-              className="w-full px-3 py-2 border rounded"
+              className="w-full px-3 py-2 border border-input rounded bg-background text-foreground focus:ring-2 focus:ring-ring focus:border-ring"
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium mb-1">Sector *</label>
+            <label className="block text-sm font-medium text-foreground mb-1">Sector *</label>
             <select
               required
               value={formData.sector}
               onChange={(e) => setFormData({ ...formData, sector: e.target.value })}
-              className="w-full px-3 py-2 border rounded"
+              className="w-full px-3 py-2 border border-input rounded bg-background text-foreground focus:ring-2 focus:ring-ring focus:border-ring"
             >
               <option value="ENERGY">Energy</option>
               <option value="WASTE">Waste</option>
@@ -175,12 +175,12 @@ export default function ProjectFormPage() {
           </div>
 
           <div>
-            <label className="block text-sm font-medium mb-1">Status *</label>
+            <label className="block text-sm font-medium text-foreground mb-1">Status *</label>
             <select
               required
               value={formData.status}
               onChange={(e) => setFormData({ ...formData, status: e.target.value })}
-              className="w-full px-3 py-2 border rounded"
+              className="w-full px-3 py-2 border border-input rounded bg-background text-foreground focus:ring-2 focus:ring-ring focus:border-ring"
             >
               <option value="PLANNED">Planned</option>
               <option value="IN_PROGRESS">In Progress</option>
@@ -191,12 +191,12 @@ export default function ProjectFormPage() {
           </div>
 
           <div>
-            <label className="block text-sm font-medium mb-1">Priority Level *</label>
+            <label className="block text-sm font-medium text-foreground mb-1">Priority Level *</label>
             <select
               required
               value={formData.priorityLevel}
               onChange={(e) => setFormData({ ...formData, priorityLevel: e.target.value })}
-              className="w-full px-3 py-2 border rounded"
+              className="w-full px-3 py-2 border border-input rounded bg-background text-foreground focus:ring-2 focus:ring-ring focus:border-ring"
             >
               <option value="LOW">Low</option>
               <option value="MEDIUM">Medium</option>
@@ -209,13 +209,13 @@ export default function ProjectFormPage() {
         <div className="flex justify-end space-x-3">
           <Link
             to="/projects"
-            className="px-6 py-2 border border-gray-300 rounded hover:bg-gray-50"
+            className="px-6 py-2 border border-border rounded hover:bg-muted text-foreground transition-colors"
           >
             Cancel
           </Link>
           <button
             type="submit"
-            className="px-6 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+            className="px-6 py-2 bg-primary text-primary-foreground rounded hover:bg-primary/90 transition-colors"
           >
             {isEditing ? "Save Changes" : "Create Project"}
           </button>
