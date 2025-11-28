@@ -1,0 +1,4 @@
+# Local only - not synced to repo
+.claude/
+CLAUDE.md
+client-communications/
