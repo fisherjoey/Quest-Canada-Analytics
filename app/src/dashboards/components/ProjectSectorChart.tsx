@@ -6,6 +6,7 @@
 import React, { useMemo } from 'react';
 import ReactApexChart from 'react-apexcharts';
 import { ApexOptions } from 'apexcharts';
+import { CHART_COLORS } from '@src/lib/style-utils';
 
 interface ProjectSectorChartProps {
   projects: any[];
@@ -13,14 +14,14 @@ interface ProjectSectorChartProps {
 }
 
 const SECTOR_COLORS: Record<string, string> = {
-  BUILDINGS: '#e74c3c',
-  TRANSPORTATION: '#3498db',
-  WASTE_MANAGEMENT: '#9b59b6',
-  RENEWABLE_ENERGY: '#27ae60',
-  ENERGY_EFFICIENCY: '#f39c12',
-  LAND_USE: '#1abc9c',
-  WATER: '#00bcd4',
-  OTHER: '#95a5a6',
+  BUILDINGS: CHART_COLORS.destructive,
+  TRANSPORTATION: CHART_COLORS.info,
+  WASTE_MANAGEMENT: CHART_COLORS.purple,
+  RENEWABLE_ENERGY: CHART_COLORS.success,
+  ENERGY_EFFICIENCY: CHART_COLORS.warning,
+  LAND_USE: CHART_COLORS.questTeal,
+  WATER: 'hsl(187, 100%, 37%)',
+  OTHER: 'hsl(140, 10%, 60%)',
 };
 
 const SECTOR_LABELS: Record<string, string> = {
@@ -49,7 +50,7 @@ export function ProjectSectorChart({ projects, showGhgImpact = false }: ProjectS
     });
 
     const categories = Object.keys(sectorData).map(s => SECTOR_LABELS[s] || s);
-    const colors = Object.keys(sectorData).map(s => SECTOR_COLORS[s] || '#999');
+    const colors = Object.keys(sectorData).map(s => SECTOR_COLORS[s] || 'hsl(var(--muted-foreground))');
 
     const chartSeries = showGhgImpact
       ? [
@@ -99,7 +100,7 @@ export function ProjectSectorChart({ projects, showGhgImpact = false }: ProjectS
         },
       },
       grid: {
-        borderColor: '#e8e8e8',
+        borderColor: 'hsl(var(--border))',
         xaxis: { lines: { show: true } },
         yaxis: { lines: { show: false } },
       },
@@ -110,7 +111,7 @@ export function ProjectSectorChart({ projects, showGhgImpact = false }: ProjectS
 
   if (projects.length === 0) {
     return (
-      <div className="chart-placeholder">
+      <div className="flex items-center justify-center h-[280px] text-muted-foreground bg-muted rounded-lg">
         <p>No projects to display</p>
       </div>
     );

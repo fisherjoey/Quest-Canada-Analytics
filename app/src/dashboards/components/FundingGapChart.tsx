@@ -6,6 +6,7 @@
 import React, { useMemo } from 'react';
 import ReactApexChart from 'react-apexcharts';
 import { ApexOptions } from 'apexcharts';
+import { CHART_COLORS } from '@src/lib/style-utils';
 
 interface FundingGapChartProps {
   projects: any[];
@@ -47,7 +48,7 @@ export function FundingGapChart({ projects }: FundingGapChartProps) {
           barHeight: '70%',
         },
       },
-      colors: ['#27ae60', '#e74c3c'],
+      colors: [CHART_COLORS.success, CHART_COLORS.destructive],
       xaxis: {
         categories,
         labels: {
@@ -78,7 +79,7 @@ export function FundingGapChart({ projects }: FundingGapChartProps) {
         },
       },
       grid: {
-        borderColor: '#e8e8e8',
+        borderColor: 'hsl(var(--border))',
         xaxis: { lines: { show: true } },
       },
     };
@@ -95,18 +96,18 @@ export function FundingGapChart({ projects }: FundingGapChartProps) {
 
   if (projects.length === 0) {
     return (
-      <div className="chart-placeholder">
+      <div className="flex items-center justify-center h-[250px] text-muted-foreground bg-muted rounded-lg">
         <p>No funding data to display</p>
       </div>
     );
   }
 
   return (
-    <div className="funding-gap-chart">
+    <div className="w-full">
       {totalGap > 0 && (
-        <div className="total-gap-banner">
-          <span className="gap-label">Total Funding Gap:</span>
-          <span className="gap-amount">${totalGap.toLocaleString()}</span>
+        <div className="flex justify-center items-center gap-3 p-3 bg-destructive-muted rounded-lg mb-4">
+          <span className="text-sm text-muted-foreground">Total Funding Gap:</span>
+          <span className="text-xl font-bold text-destructive">${totalGap.toLocaleString()}</span>
         </div>
       )}
 
@@ -116,38 +117,6 @@ export function FundingGapChart({ projects }: FundingGapChartProps) {
         type="bar"
         height={Math.max(250, projects.length * 40)}
       />
-
-      <style>{`
-        .funding-gap-chart { width: 100%; }
-        .chart-placeholder {
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          height: 250px;
-          color: #999;
-          background: #f9f9f9;
-          border-radius: 8px;
-        }
-        .total-gap-banner {
-          display: flex;
-          justify-content: center;
-          align-items: center;
-          gap: 12px;
-          padding: 12px;
-          background: #fee;
-          border-radius: 8px;
-          margin-bottom: 16px;
-        }
-        .gap-label {
-          font-size: 14px;
-          color: #666;
-        }
-        .gap-amount {
-          font-size: 20px;
-          font-weight: 700;
-          color: #e74c3c;
-        }
-      `}</style>
     </div>
   );
 }

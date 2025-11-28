@@ -8,6 +8,7 @@
 import React, { useMemo } from 'react';
 import ReactApexChart from 'react-apexcharts';
 import { ApexOptions } from 'apexcharts';
+import { CHART_COLORS } from '@src/lib/style-utils';
 
 interface RadarComparisonChartProps {
   assessments: any[];
@@ -69,7 +70,7 @@ export function RadarComparisonChart({ assessments, onIndicatorClick }: RadarCom
           }
         }
       },
-      colors: assessments.map(a => a.color || '#00a9a6'),
+      colors: assessments.map(a => a.color || CHART_COLORS.questTeal),
       stroke: {
         width: 2
       },
@@ -86,7 +87,7 @@ export function RadarComparisonChart({ assessments, onIndicatorClick }: RadarCom
         categories: INDICATOR_NAMES,
         labels: {
           style: {
-            colors: Array(10).fill('#333'),
+            colors: Array(10).fill('hsl(var(--foreground))'),
             fontSize: '12px',
             fontWeight: 500
           }
@@ -127,10 +128,10 @@ export function RadarComparisonChart({ assessments, onIndicatorClick }: RadarCom
         radar: {
           size: 180,
           polygons: {
-            strokeColors: '#e8e8e8',
-            connectorColors: '#e8e8e8',
+            strokeColors: 'hsl(var(--border))',
+            connectorColors: 'hsl(var(--border))',
             fill: {
-              colors: ['#f8f8f8', '#fff']
+              colors: ['hsl(var(--muted))', 'hsl(var(--background))']
             }
           }
         }
@@ -142,14 +143,14 @@ export function RadarComparisonChart({ assessments, onIndicatorClick }: RadarCom
 
   if (assessments.length === 0) {
     return (
-      <div className="chart-placeholder">
+      <div className="flex items-center justify-center h-[400px] text-muted-foreground bg-muted rounded-lg">
         <p>Select assessments to view radar comparison</p>
       </div>
     );
   }
 
   return (
-    <div className="radar-chart-container">
+    <div className="w-full">
       <ReactApexChart
         options={options}
         series={series}
@@ -157,34 +158,10 @@ export function RadarComparisonChart({ assessments, onIndicatorClick }: RadarCom
         height={450}
       />
       {onIndicatorClick && (
-        <p className="chart-hint">Click on an indicator point to view details</p>
+        <p className="text-center text-xs text-muted-foreground mt-2 mb-0">Click on an indicator point to view details</p>
       )}
-      <style>{radarStyles}</style>
     </div>
   );
 }
-
-const radarStyles = `
-  .radar-chart-container {
-    width: 100%;
-  }
-
-  .chart-placeholder {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    height: 400px;
-    color: #999;
-    background: #f9f9f9;
-    border-radius: 8px;
-  }
-
-  .chart-hint {
-    text-align: center;
-    font-size: 12px;
-    color: #999;
-    margin: 8px 0 0 0;
-  }
-`;
 
 export default RadarComparisonChart;

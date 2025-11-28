@@ -6,6 +6,7 @@
 import React, { useMemo } from 'react';
 import ReactApexChart from 'react-apexcharts';
 import { ApexOptions } from 'apexcharts';
+import { CHART_COLORS, getScoreChartColor } from '@src/lib/style-utils';
 
 interface CommunityComparisonBarProps {
   assessments: any[];
@@ -75,12 +76,7 @@ export function CommunityComparisonBar({
           dataLabels: { position: 'top' },
         },
       },
-      colors: data.map(score => {
-        if (score >= 80) return '#27ae60';
-        if (score >= 60) return '#3498db';
-        if (score >= 40) return '#f39c12';
-        return '#e74c3c';
-      }),
+      colors: data.map(score => getScoreChartColor(score)),
       xaxis: {
         categories,
         min: 0,
@@ -100,14 +96,14 @@ export function CommunityComparisonBar({
       dataLabels: {
         enabled: true,
         formatter: (val: number) => `${val}%`,
-        style: { fontSize: '11px', fontWeight: 600, colors: ['#333'] },
+        style: { fontSize: '11px', fontWeight: 600, colors: ['hsl(var(--foreground))'] },
         offsetX: 30,
       },
       tooltip: {
         y: { formatter: (val: number) => `${val}%` },
       },
       grid: {
-        borderColor: '#e8e8e8',
+        borderColor: 'hsl(var(--border))',
         xaxis: { lines: { show: true } },
         yaxis: { lines: { show: false } },
       },
@@ -121,7 +117,7 @@ export function CommunityComparisonBar({
 
   if (assessments.length === 0) {
     return (
-      <div className="chart-placeholder">
+      <div className="flex items-center justify-center h-[280px] text-muted-foreground bg-muted rounded-lg">
         <p>No assessments to compare</p>
       </div>
     );

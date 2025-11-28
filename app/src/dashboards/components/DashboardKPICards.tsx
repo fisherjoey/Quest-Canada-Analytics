@@ -5,6 +5,8 @@
 
 import React, { useMemo } from 'react';
 import { TrendingUp, TrendingDown, Minus, DollarSign, Target, Users, FolderKanban, CheckCircle2, Clock, AlertTriangle } from 'lucide-react';
+import { StatCard } from '@src/components/ui/stat-card';
+import { cn } from '@src/lib/utils';
 
 interface DashboardKPICardsProps {
   projects?: any[];
@@ -61,208 +63,95 @@ export function DashboardKPICards({ projects = [], assessments = [], type = 'com
 
   const renderProjectCards = () => (
     <>
-      <div className="kpi-card">
-        <div className="kpi-icon" style={{ background: '#e3f2fd' }}>
-          <FolderKanban size={24} color="#2196f3" />
-        </div>
-        <div className="kpi-content">
-          <span className="kpi-value">{metrics.totalProjects}</span>
-          <span className="kpi-label">Total Projects</span>
-          <span className="kpi-detail">{metrics.activeProjects} active</span>
-        </div>
-      </div>
+      <StatCard
+        title="Total Projects"
+        value={metrics.totalProjects}
+        icon={<FolderKanban className="w-6 h-6" />}
+        iconColor="info"
+        description={`${metrics.activeProjects} active`}
+      />
 
-      <div className="kpi-card">
-        <div className="kpi-icon" style={{ background: '#e8f5e9' }}>
-          <CheckCircle2 size={24} color="#4caf50" />
-        </div>
-        <div className="kpi-content">
-          <span className="kpi-value">{metrics.completedProjects}</span>
-          <span className="kpi-label">Completed</span>
-          <span className="kpi-detail">
-            {metrics.totalProjects > 0
-              ? `${Math.round((metrics.completedProjects / metrics.totalProjects) * 100)}%`
-              : '0%'} completion rate
-          </span>
-        </div>
-      </div>
+      <StatCard
+        title="Completed"
+        value={metrics.completedProjects}
+        icon={<CheckCircle2 className="w-6 h-6" />}
+        iconColor="success"
+        description={`${metrics.totalProjects > 0 ? Math.round((metrics.completedProjects / metrics.totalProjects) * 100) : 0}% completion rate`}
+      />
 
-      <div className="kpi-card">
-        <div className="kpi-icon" style={{ background: '#fff3e0' }}>
-          <DollarSign size={24} color="#ff9800" />
-        </div>
-        <div className="kpi-content">
-          <span className="kpi-value">${(metrics.totalSecuredFunding / 1000000).toFixed(1)}M</span>
-          <span className="kpi-label">Secured Funding</span>
-          <span className="kpi-detail">{fundingPercentage}% of ${(metrics.totalBudget / 1000000).toFixed(1)}M budget</span>
-        </div>
-      </div>
+      <StatCard
+        title="Secured Funding"
+        value={`$${(metrics.totalSecuredFunding / 1000000).toFixed(1)}M`}
+        icon={<DollarSign className="w-6 h-6" />}
+        iconColor="warning"
+        description={`${fundingPercentage}% of $${(metrics.totalBudget / 1000000).toFixed(1)}M budget`}
+      />
 
-      <div className="kpi-card">
-        <div className="kpi-icon" style={{ background: fundingGap > 0 ? '#ffebee' : '#e8f5e9' }}>
-          {fundingGap > 0 ? <TrendingDown size={24} color="#e74c3c" /> : <TrendingUp size={24} color="#4caf50" />}
-        </div>
-        <div className="kpi-content">
-          <span className="kpi-value" style={{ color: fundingGap > 0 ? '#e74c3c' : '#4caf50' }}>
-            ${Math.abs(fundingGap / 1000000).toFixed(1)}M
-          </span>
-          <span className="kpi-label">{fundingGap > 0 ? 'Funding Gap' : 'Surplus'}</span>
-        </div>
-      </div>
+      <StatCard
+        title={fundingGap > 0 ? 'Funding Gap' : 'Surplus'}
+        value={`$${Math.abs(fundingGap / 1000000).toFixed(1)}M`}
+        icon={fundingGap > 0 ? <TrendingDown className="w-6 h-6" /> : <TrendingUp className="w-6 h-6" />}
+        iconColor={fundingGap > 0 ? 'destructive' : 'success'}
+      />
 
-      <div className="kpi-card">
-        <div className="kpi-icon" style={{ background: '#e8f5e9' }}>
-          <Target size={24} color="#27ae60" />
-        </div>
-        <div className="kpi-content">
-          <span className="kpi-value">{metrics.totalGhgReduction.toLocaleString()}</span>
-          <span className="kpi-label">tCO2e Reduction</span>
-          <span className="kpi-detail">Estimated annual impact</span>
-        </div>
-      </div>
+      <StatCard
+        title="tCO2e Reduction"
+        value={metrics.totalGhgReduction.toLocaleString()}
+        icon={<Target className="w-6 h-6" />}
+        iconColor="success"
+        description="Estimated annual impact"
+      />
 
-      <div className="kpi-card">
-        <div className="kpi-icon" style={{ background: metrics.delayedMilestones > 0 ? '#fff3e0' : '#e3f2fd' }}>
-          {metrics.delayedMilestones > 0 ? <AlertTriangle size={24} color="#ff9800" /> : <Clock size={24} color="#2196f3" />}
-        </div>
-        <div className="kpi-content">
-          <span className="kpi-value">{metrics.milestonesCompleted}/{metrics.milestonesTotal}</span>
-          <span className="kpi-label">Milestones</span>
-          {metrics.delayedMilestones > 0 && (
-            <span className="kpi-detail warning">{metrics.delayedMilestones} delayed</span>
-          )}
-        </div>
-      </div>
+      <StatCard
+        title="Milestones"
+        value={`${metrics.milestonesCompleted}/${metrics.milestonesTotal}`}
+        icon={metrics.delayedMilestones > 0 ? <AlertTriangle className="w-6 h-6" /> : <Clock className="w-6 h-6" />}
+        iconColor={metrics.delayedMilestones > 0 ? 'warning' : 'info'}
+        description={metrics.delayedMilestones > 0 ? `${metrics.delayedMilestones} delayed` : undefined}
+      />
     </>
   );
 
   const renderAssessmentCards = () => (
     <>
-      <div className="kpi-card">
-        <div className="kpi-icon" style={{ background: '#e3f2fd' }}>
-          <Users size={24} color="#2196f3" />
-        </div>
-        <div className="kpi-content">
-          <span className="kpi-value">{metrics.uniqueCommunities}</span>
-          <span className="kpi-label">Communities</span>
-          <span className="kpi-detail">{metrics.totalAssessments} assessments</span>
-        </div>
-      </div>
+      <StatCard
+        title="Communities"
+        value={metrics.uniqueCommunities}
+        icon={<Users className="w-6 h-6" />}
+        iconColor="info"
+        description={`${metrics.totalAssessments} assessments`}
+      />
 
-      <div className="kpi-card">
-        <div className="kpi-icon" style={{ background: metrics.avgOverallScore >= 60 ? '#e8f5e9' : '#fff3e0' }}>
-          {metrics.avgOverallScore >= 60 ? <TrendingUp size={24} color="#4caf50" /> : <Minus size={24} color="#ff9800" />}
-        </div>
-        <div className="kpi-content">
-          <span className="kpi-value">{Math.round(metrics.avgOverallScore)}%</span>
-          <span className="kpi-label">Avg. Score</span>
-          <span className="kpi-detail">Across all assessments</span>
-        </div>
-      </div>
+      <StatCard
+        title="Avg. Score"
+        value={`${Math.round(metrics.avgOverallScore)}%`}
+        icon={metrics.avgOverallScore >= 60 ? <TrendingUp className="w-6 h-6" /> : <Minus className="w-6 h-6" />}
+        iconColor={metrics.avgOverallScore >= 60 ? 'success' : 'warning'}
+        description="Across all assessments"
+      />
 
-      <div className="kpi-card">
-        <div className="kpi-icon" style={{ background: '#fff3e0' }}>
-          <AlertTriangle size={24} color="#ff9800" />
-        </div>
-        <div className="kpi-content">
-          <span className="kpi-value">{metrics.highPriorityRecs}</span>
-          <span className="kpi-label">High Priority</span>
-          <span className="kpi-detail">of {metrics.totalRecommendations} recommendations</span>
-        </div>
-      </div>
+      <StatCard
+        title="High Priority"
+        value={metrics.highPriorityRecs}
+        icon={<AlertTriangle className="w-6 h-6" />}
+        iconColor="warning"
+        description={`of ${metrics.totalRecommendations} recommendations`}
+      />
 
-      <div className="kpi-card">
-        <div className="kpi-icon" style={{ background: '#e8f5e9' }}>
-          <CheckCircle2 size={24} color="#4caf50" />
-        </div>
-        <div className="kpi-content">
-          <span className="kpi-value">{metrics.completedRecs}</span>
-          <span className="kpi-label">Completed Recs</span>
-          <span className="kpi-detail">
-            {metrics.totalRecommendations > 0
-              ? `${Math.round((metrics.completedRecs / metrics.totalRecommendations) * 100)}%`
-              : '0%'} implementation
-          </span>
-        </div>
-      </div>
+      <StatCard
+        title="Completed Recs"
+        value={metrics.completedRecs}
+        icon={<CheckCircle2 className="w-6 h-6" />}
+        iconColor="success"
+        description={`${metrics.totalRecommendations > 0 ? Math.round((metrics.completedRecs / metrics.totalRecommendations) * 100) : 0}% implementation`}
+      />
     </>
   );
 
   return (
-    <div className="dashboard-kpi-cards">
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-6 gap-4 mb-6">
       {(type === 'projects' || type === 'combined') && renderProjectCards()}
       {(type === 'assessments' || type === 'combined') && renderAssessmentCards()}
-
-      <style>{`
-        .dashboard-kpi-cards {
-          display: grid;
-          grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-          gap: 16px;
-          margin-bottom: 24px;
-        }
-
-        .kpi-card {
-          display: flex;
-          align-items: center;
-          gap: 16px;
-          padding: 20px;
-          background: white;
-          border-radius: 12px;
-          box-shadow: 0 2px 8px rgba(0,0,0,0.06);
-        }
-
-        .kpi-icon {
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          width: 52px;
-          height: 52px;
-          border-radius: 12px;
-          flex-shrink: 0;
-        }
-
-        .kpi-content {
-          display: flex;
-          flex-direction: column;
-          min-width: 0;
-        }
-
-        .kpi-value {
-          font-size: 24px;
-          font-weight: 700;
-          color: #333;
-          line-height: 1.2;
-        }
-
-        .kpi-label {
-          font-size: 13px;
-          color: #666;
-          margin-top: 2px;
-        }
-
-        .kpi-detail {
-          font-size: 11px;
-          color: #999;
-          margin-top: 4px;
-        }
-
-        .kpi-detail.warning {
-          color: #ff9800;
-          font-weight: 500;
-        }
-
-        @media (max-width: 768px) {
-          .dashboard-kpi-cards {
-            grid-template-columns: repeat(2, 1fr);
-          }
-        }
-
-        @media (max-width: 480px) {
-          .dashboard-kpi-cards {
-            grid-template-columns: 1fr;
-          }
-        }
-      `}</style>
     </div>
   );
 }

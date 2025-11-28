@@ -7,6 +7,8 @@
 
 import React, { useMemo } from 'react';
 import { Award, TrendingUp, CheckCircle, AlertCircle, Target, FileText } from 'lucide-react';
+import { StatCard } from '@src/components/ui/stat-card';
+import { getScoreLevel, type IconColor } from '@src/lib/style-utils';
 
 interface KPICardsProps {
   assessments: any[];
@@ -79,190 +81,78 @@ export function KPICards({ assessments }: KPICardsProps) {
 
   if (!stats) return null;
 
-  const getScoreColor = (score: number) => {
-    if (score >= 80) return '#27ae60';
-    if (score >= 60) return '#f39c12';
-    return '#e74c3c';
+  // Map score level to icon color
+  const getScoreIconColor = (score: number): IconColor => {
+    const level = getScoreLevel(score);
+    switch (level) {
+      case 'excellent':
+      case 'good':
+        return 'success';
+      case 'fair':
+        return 'warning';
+      default:
+        return 'destructive';
+    }
   };
 
   return (
-    <div className="kpi-cards">
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4 mb-6">
       {/* Average Score Card */}
-      <div className="kpi-card highlight">
-        <div className="kpi-icon" style={{ background: getScoreColor(stats.avgScore) }}>
-          <Award size={24} />
-        </div>
-        <div className="kpi-content">
-          <div className="kpi-value" style={{ color: getScoreColor(stats.avgScore) }}>
-            {stats.avgScore.toFixed(1)}%
-          </div>
-          <div className="kpi-label">Average Score</div>
-          <div className="kpi-sublabel">
-            Range: {stats.minScore.toFixed(0)}% - {stats.maxScore.toFixed(0)}%
-          </div>
-        </div>
-      </div>
+      <StatCard
+        title="Average Score"
+        value={`${stats.avgScore.toFixed(1)}%`}
+        icon={<Award className="w-6 h-6" />}
+        iconColor={getScoreIconColor(stats.avgScore)}
+        description={`Range: ${stats.minScore.toFixed(0)}% - ${stats.maxScore.toFixed(0)}%`}
+        className="border-2 border-quest-teal"
+      />
 
       {/* Assessments Count */}
-      <div className="kpi-card">
-        <div className="kpi-icon" style={{ background: '#3498db' }}>
-          <FileText size={24} />
-        </div>
-        <div className="kpi-content">
-          <div className="kpi-value">{stats.totalAssessments}</div>
-          <div className="kpi-label">Assessments Selected</div>
-          <div className="kpi-sublabel">
-            {stats.uniqueCommunities} {stats.uniqueCommunities === 1 ? 'community' : 'communities'}
-          </div>
-        </div>
-      </div>
+      <StatCard
+        title="Assessments Selected"
+        value={stats.totalAssessments}
+        icon={<FileText className="w-6 h-6" />}
+        iconColor="info"
+        description={`${stats.uniqueCommunities} ${stats.uniqueCommunities === 1 ? 'community' : 'communities'}`}
+      />
 
       {/* Indicator Performance */}
-      <div className="kpi-card">
-        <div className="kpi-icon" style={{ background: getScoreColor(stats.avgIndicatorScore) }}>
-          <Target size={24} />
-        </div>
-        <div className="kpi-content">
-          <div className="kpi-value" style={{ color: getScoreColor(stats.avgIndicatorScore) }}>
-            {stats.avgIndicatorScore.toFixed(1)}%
-          </div>
-          <div className="kpi-label">Avg Indicator Score</div>
-          <div className="kpi-sublabel">{stats.totalIndicators} total indicators</div>
-        </div>
-      </div>
+      <StatCard
+        title="Avg Indicator Score"
+        value={`${stats.avgIndicatorScore.toFixed(1)}%`}
+        icon={<Target className="w-6 h-6" />}
+        iconColor={getScoreIconColor(stats.avgIndicatorScore)}
+        description={`${stats.totalIndicators} total indicators`}
+      />
 
       {/* Recommendations */}
-      <div className="kpi-card">
-        <div className="kpi-icon" style={{ background: stats.highPriorityRecs > 0 ? '#e74c3c' : '#95a5a6' }}>
-          <AlertCircle size={24} />
-        </div>
-        <div className="kpi-content">
-          <div className="kpi-value">{stats.totalRecommendations}</div>
-          <div className="kpi-label">Recommendations</div>
-          <div className="kpi-sublabel">
-            {stats.highPriorityRecs} high priority
-          </div>
-        </div>
-      </div>
+      <StatCard
+        title="Recommendations"
+        value={stats.totalRecommendations}
+        icon={<AlertCircle className="w-6 h-6" />}
+        iconColor={stats.highPriorityRecs > 0 ? 'destructive' : 'primary'}
+        description={`${stats.highPriorityRecs} high priority`}
+      />
 
       {/* Completion Rate */}
-      <div className="kpi-card">
-        <div className="kpi-icon" style={{ background: '#27ae60' }}>
-          <CheckCircle size={24} />
-        </div>
-        <div className="kpi-content">
-          <div className="kpi-value">{stats.completionRate.toFixed(0)}%</div>
-          <div className="kpi-label">Rec. Completion Rate</div>
-          <div className="kpi-sublabel">
-            {stats.completedRecs} of {stats.totalRecommendations} completed
-          </div>
-        </div>
-      </div>
+      <StatCard
+        title="Rec. Completion Rate"
+        value={`${stats.completionRate.toFixed(0)}%`}
+        icon={<CheckCircle className="w-6 h-6" />}
+        iconColor="success"
+        description={`${stats.completedRecs} of ${stats.totalRecommendations} completed`}
+      />
 
       {/* Strengths */}
-      <div className="kpi-card">
-        <div className="kpi-icon" style={{ background: '#9b59b6' }}>
-          <TrendingUp size={24} />
-        </div>
-        <div className="kpi-content">
-          <div className="kpi-value">{stats.totalStrengths}</div>
-          <div className="kpi-label">Strengths Identified</div>
-          <div className="kpi-sublabel">
-            Avg {(stats.totalStrengths / stats.totalAssessments).toFixed(1)} per assessment
-          </div>
-        </div>
-      </div>
-
-      <style>{kpiStyles}</style>
+      <StatCard
+        title="Strengths Identified"
+        value={stats.totalStrengths}
+        icon={<TrendingUp className="w-6 h-6" />}
+        iconColor="quest-teal"
+        description={`Avg ${(stats.totalStrengths / stats.totalAssessments).toFixed(1)} per assessment`}
+      />
     </div>
   );
 }
-
-const kpiStyles = `
-  .kpi-cards {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-    gap: 16px;
-    margin-bottom: 24px;
-  }
-
-  .kpi-card {
-    display: flex;
-    align-items: flex-start;
-    gap: 16px;
-    padding: 20px;
-    background: white;
-    border-radius: 12px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-    transition: transform 0.2s, box-shadow 0.2s;
-  }
-
-  .kpi-card:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 16px rgba(0,0,0,0.12);
-  }
-
-  .kpi-card.highlight {
-    background: linear-gradient(135deg, #f8f9fa 0%, #fff 100%);
-    border: 2px solid #00a9a6;
-  }
-
-  .kpi-icon {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 48px;
-    height: 48px;
-    border-radius: 12px;
-    color: white;
-    flex-shrink: 0;
-  }
-
-  .kpi-content {
-    flex: 1;
-    min-width: 0;
-  }
-
-  .kpi-value {
-    font-size: 28px;
-    font-weight: 700;
-    color: #333;
-    line-height: 1.1;
-    margin-bottom: 4px;
-  }
-
-  .kpi-label {
-    font-size: 13px;
-    font-weight: 600;
-    color: #666;
-    margin-bottom: 2px;
-  }
-
-  .kpi-sublabel {
-    font-size: 11px;
-    color: #999;
-  }
-
-  @media (max-width: 768px) {
-    .kpi-cards {
-      grid-template-columns: repeat(2, 1fr);
-    }
-
-    .kpi-card {
-      flex-direction: column;
-      text-align: center;
-    }
-
-    .kpi-icon {
-      margin: 0 auto;
-    }
-  }
-
-  @media (max-width: 480px) {
-    .kpi-cards {
-      grid-template-columns: 1fr;
-    }
-  }
-`;
 
 export default KPICards;

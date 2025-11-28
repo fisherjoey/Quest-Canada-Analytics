@@ -8,6 +8,7 @@
 import React, { useMemo } from 'react';
 import ReactApexChart from 'react-apexcharts';
 import { ApexOptions } from 'apexcharts';
+import { CHART_COLORS } from '@src/lib/style-utils';
 
 interface BarComparisonChartProps {
   assessments: any[];
@@ -55,7 +56,7 @@ export function BarComparisonChart({
       return assessment[dataKey] || 0;
     });
 
-    const colors = assessments.map(a => a.color || '#00a9a6');
+    const colors = assessments.map(a => a.color || CHART_COLORS.questTeal);
 
     const seriesData = [{
       name: label,
@@ -106,7 +107,7 @@ export function BarComparisonChart({
         style: {
           fontSize: '12px',
           fontWeight: 600,
-          colors: ['#333']
+          colors: ['hsl(var(--foreground))']
         }
       },
       xaxis: {
@@ -139,7 +140,7 @@ export function BarComparisonChart({
         }
       },
       grid: {
-        borderColor: '#e8e8e8',
+        borderColor: 'hsl(var(--border))',
         strokeDashArray: 4,
         xaxis: {
           lines: {
@@ -181,13 +182,13 @@ export function BarComparisonChart({
       chartOptions.annotations = {
         yaxis: [{
           y: 0,
-          borderColor: '#999',
+          borderColor: 'hsl(var(--muted-foreground))',
           borderWidth: 2,
           label: {
             text: 'No Change',
             style: {
               fontSize: '11px',
-              color: '#666'
+              color: 'hsl(var(--muted-foreground))'
             }
           }
         }]
@@ -199,39 +200,22 @@ export function BarComparisonChart({
 
   if (assessments.length === 0) {
     return (
-      <div className="chart-placeholder">
+      <div className="flex items-center justify-center h-[300px] text-muted-foreground bg-muted rounded-lg">
         <p>Select assessments to view comparison</p>
       </div>
     );
   }
 
   return (
-    <div className="bar-chart-container">
+    <div className="w-full">
       <ReactApexChart
         options={options}
         series={series}
         type="bar"
         height={300}
       />
-      <style>{barStyles}</style>
     </div>
   );
 }
-
-const barStyles = `
-  .bar-chart-container {
-    width: 100%;
-  }
-
-  .chart-placeholder {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    height: 300px;
-    color: #999;
-    background: #f9f9f9;
-    border-radius: 8px;
-  }
-`;
 
 export default BarComparisonChart;

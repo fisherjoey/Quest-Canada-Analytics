@@ -27,14 +27,29 @@ module.exports = {
         destructive: {
           DEFAULT: "hsl(var(--destructive))",
           foreground: "hsl(var(--destructive-foreground))",
+          muted: "hsl(var(--destructive-muted))",
         },
         success: {
           DEFAULT: "hsl(var(--success))",
           foreground: "hsl(var(--success-foreground))",
+          muted: "hsl(var(--success-muted))",
         },
         warning: {
           DEFAULT: "hsl(var(--warning))",
           foreground: "hsl(var(--warning-foreground))",
+          muted: "hsl(var(--warning-muted))",
+        },
+        // Quest Teal - Dashboard accent color
+        "quest-teal": {
+          DEFAULT: "hsl(var(--quest-teal))",
+          foreground: "hsl(var(--quest-teal-foreground))",
+          muted: "hsl(var(--quest-teal-muted))",
+        },
+        // Info color
+        info: {
+          DEFAULT: "hsl(var(--info))",
+          foreground: "hsl(var(--info-foreground))",
+          muted: "hsl(var(--info-muted))",
         },
         muted: {
           DEFAULT: "hsl(var(--muted))",
@@ -105,11 +120,6 @@ module.exports = {
           DEFAULT: '#EF4444',
           light: '#FEE2E2',
           dark: '#991B1B',
-        },
-        info: {
-          DEFAULT: '#3B82F6',
-          light: '#DBEAFE',
-          dark: '#1E40AF',
         },
       },
 

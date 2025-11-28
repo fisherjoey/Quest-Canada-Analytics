@@ -134,6 +134,21 @@
     --input: 140 20% 89%;
     --ring: 145 65% 35%;
     --radius: 0.5rem;
+
+    /* Quest Brand Colors */
+    --quest-teal: 173 100% 33%;
+    --quest-teal-foreground: 0 0% 98%;
+
+    /* Info color */
+    --info: 211 100% 50%;
+    --info-foreground: 0 0% 98%;
+
+    /* Muted semantic backgrounds */
+    --success-muted: 145 40% 95%;
+    --warning-muted: 38 60% 95%;
+    --destructive-muted: 0 50% 95%;
+    --info-muted: 211 60% 95%;
+    --quest-teal-muted: 173 60% 95%;
   }
 
   .dark {
@@ -166,6 +181,21 @@
     --border: 140 20% 20%;
     --input: 140 20% 20%;
     --ring: 0 0% 83%;
+
+    /* Quest Brand Colors - Dark Mode */
+    --quest-teal: 173 80% 45%;
+    --quest-teal-foreground: 0 0% 98%;
+
+    /* Info color - Dark Mode */
+    --info: 211 80% 60%;
+    --info-foreground: 0 0% 98%;
+
+    /* Muted semantic backgrounds - Dark Mode */
+    --success-muted: 145 30% 20%;
+    --warning-muted: 38 40% 20%;
+    --destructive-muted: 0 40% 20%;
+    --info-muted: 211 40% 20%;
+    --quest-teal-muted: 173 40% 20%;
   }
 }
 
@@ -175,5 +205,264 @@
   }
   body {
     @apply bg-background text-foreground;
+  }
+}
+
+/* ============================================
+   COMPONENT LAYER - Standardized UI Classes
+   ============================================ */
+
+@layer components {
+  /* Dashboard Widgets */
+  .dashboard-widget {
+    @apply bg-card rounded-xl shadow-sm border border-border overflow-hidden flex flex-col;
+  }
+
+  .dashboard-widget-header {
+    @apply p-4 border-b border-border flex items-center justify-between;
+  }
+
+  .dashboard-widget-title {
+    @apply text-base font-semibold text-foreground;
+  }
+
+  .dashboard-widget-content {
+    @apply flex-1 p-4 overflow-auto;
+  }
+
+  /* KPI / Stat Cards */
+  .kpi-card {
+    @apply flex items-start gap-4 p-5 bg-card rounded-xl shadow-sm border border-border transition-all duration-200 hover:shadow-md hover:-translate-y-0.5;
+  }
+
+  .kpi-icon {
+    @apply flex items-center justify-center w-12 h-12 rounded-xl flex-shrink-0;
+  }
+
+  .kpi-icon-success {
+    @apply bg-success text-success-foreground;
+  }
+
+  .kpi-icon-warning {
+    @apply bg-warning text-warning-foreground;
+  }
+
+  .kpi-icon-destructive {
+    @apply bg-destructive text-destructive-foreground;
+  }
+
+  .kpi-icon-info {
+    @apply bg-info text-info-foreground;
+  }
+
+  .kpi-icon-quest-teal {
+    @apply bg-quest-teal text-quest-teal-foreground;
+  }
+
+  .kpi-icon-primary {
+    @apply bg-primary text-primary-foreground;
+  }
+
+  .kpi-value {
+    @apply text-2xl font-bold text-foreground leading-tight;
+  }
+
+  .kpi-label {
+    @apply text-sm font-medium text-muted-foreground mt-1;
+  }
+
+  .kpi-detail {
+    @apply text-xs text-muted-foreground mt-1;
+  }
+
+  .kpi-trend {
+    @apply flex items-center gap-1 text-xs font-medium mt-1;
+  }
+
+  .kpi-trend-up {
+    @apply text-success;
+  }
+
+  .kpi-trend-down {
+    @apply text-destructive;
+  }
+
+  /* Status Badges */
+  .status-badge {
+    @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium;
+  }
+
+  .status-completed {
+    @apply bg-success-muted text-success;
+  }
+
+  .status-in-progress {
+    @apply bg-info-muted text-info;
+  }
+
+  .status-pending {
+    @apply bg-muted text-muted-foreground;
+  }
+
+  .status-delayed {
+    @apply bg-warning-muted text-warning;
+  }
+
+  .status-cancelled {
+    @apply bg-destructive-muted text-destructive;
+  }
+
+  /* Priority Badges */
+  .priority-high {
+    @apply bg-destructive-muted text-destructive;
+  }
+
+  .priority-medium {
+    @apply bg-warning-muted text-warning;
+  }
+
+  .priority-low {
+    @apply bg-success-muted text-success;
+  }
+
+  /* Score Colors */
+  .score-excellent {
+    @apply text-success;
+  }
+
+  .score-good {
+    @apply text-info;
+  }
+
+  .score-fair {
+    @apply text-warning;
+  }
+
+  .score-poor {
+    @apply text-destructive;
+  }
+
+  .score-bg-excellent {
+    @apply bg-success-muted;
+  }
+
+  .score-bg-good {
+    @apply bg-info-muted;
+  }
+
+  .score-bg-fair {
+    @apply bg-warning-muted;
+  }
+
+  .score-bg-poor {
+    @apply bg-destructive-muted;
+  }
+
+  /* Dashboard Tabs */
+  .dashboard-tab {
+    @apply flex items-center gap-2 px-5 py-3 bg-card border-2 border-border rounded-lg text-sm font-medium text-muted-foreground cursor-pointer transition-all duration-200 hover:border-quest-teal hover:text-quest-teal;
+  }
+
+  .dashboard-tab-active {
+    @apply bg-quest-teal border-quest-teal text-white;
+  }
+
+  /* Page Layout */
+  .page-container {
+    @apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6;
+  }
+
+  .page-header {
+    @apply flex flex-wrap justify-between items-start gap-4 pb-5 mb-6 border-b border-border;
+  }
+
+  .page-title {
+    @apply text-3xl font-bold text-foreground;
+  }
+
+  .page-description {
+    @apply text-base text-muted-foreground mt-1;
+  }
+
+  /* Section Layout */
+  .section-title {
+    @apply text-xl font-semibold text-foreground;
+  }
+
+  .section-description {
+    @apply text-sm text-muted-foreground;
+  }
+
+  /* Form Styles */
+  .form-container {
+    @apply space-y-6 bg-card p-6 rounded-lg shadow-sm border border-border;
+  }
+
+  .form-grid {
+    @apply grid grid-cols-1 md:grid-cols-2 gap-4;
+  }
+
+  .form-label {
+    @apply block text-sm font-medium text-foreground mb-1;
+  }
+
+  .form-error {
+    @apply text-destructive text-sm mt-1;
+  }
+
+  /* Chart Container */
+  .chart-container {
+    @apply w-full min-h-[300px];
+  }
+
+  .chart-placeholder {
+    @apply flex items-center justify-center h-[300px] bg-muted rounded-lg text-muted-foreground;
+  }
+
+  /* Empty State */
+  .empty-state {
+    @apply flex flex-col items-center justify-center py-16 px-8 bg-card rounded-xl text-center;
+  }
+
+  .empty-state-icon {
+    @apply w-16 h-16 mb-4 text-muted-foreground;
+  }
+
+  .empty-state-title {
+    @apply text-lg font-semibold text-foreground mb-2;
+  }
+
+  .empty-state-description {
+    @apply text-sm text-muted-foreground max-w-md;
+  }
+
+  /* Selection Items */
+  .selection-item {
+    @apply flex items-center gap-3 p-3 cursor-pointer transition-colors duration-200 hover:bg-muted rounded-md;
+  }
+
+  .selection-item-selected {
+    @apply bg-quest-teal-muted border-quest-teal;
+  }
+
+  /* Data Tables */
+  .data-table {
+    @apply w-full border-collapse;
+  }
+
+  .data-table-header {
+    @apply bg-muted text-left;
+  }
+
+  .data-table-header-cell {
+    @apply px-4 py-3 text-sm font-medium text-muted-foreground;
+  }
+
+  .data-table-row {
+    @apply border-b border-border transition-colors hover:bg-muted/50;
+  }
+
+  .data-table-cell {
+    @apply px-4 py-3 text-sm text-foreground;
   }
 }

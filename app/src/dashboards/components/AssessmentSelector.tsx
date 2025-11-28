@@ -7,6 +7,8 @@
 
 import React, { useState, useMemo } from 'react';
 import { Search, ChevronDown, ChevronRight, Check } from 'lucide-react';
+import { cn } from '@src/lib/utils';
+import { getScoreLevel } from '@src/lib/style-utils';
 
 interface AssessmentOption {
   id: string;
@@ -105,42 +107,49 @@ export function AssessmentSelector({
     });
   };
 
-  const getScoreColor = (score: number | null): string => {
-    if (score === null) return '#999';
-    if (score >= 80) return '#27ae60';
-    if (score >= 60) return '#f39c12';
-    return '#e74c3c';
+  const getScoreColorClass = (score: number | null): string => {
+    if (score === null) return 'text-muted-foreground';
+    const level = getScoreLevel(score);
+    switch (level) {
+      case 'excellent':
+      case 'good':
+        return 'text-success';
+      case 'fair':
+        return 'text-warning';
+      default:
+        return 'text-destructive';
+    }
   };
 
   return (
-    <div className="assessment-selector">
+    <div className="flex flex-col gap-4">
       {/* Search Input */}
-      <div className="search-container">
-        <Search size={16} className="search-icon" />
+      <div className="relative">
+        <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
         <input
           type="text"
           placeholder="Search communities or years..."
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
-          className="search-input"
+          className="w-full py-2.5 px-3 pl-9 border-2 border-border rounded-lg text-sm transition-colors focus:outline-none focus:border-quest-teal"
         />
       </div>
 
       {/* Helper Text */}
-      <div className="helper-text">
+      <div className="p-2.5 px-3 bg-muted rounded-md text-xs text-muted-foreground">
         {template === 'year-over-year' ? (
-          <p>Select assessments from the same community to see trends over time</p>
+          <p className="m-0">Select assessments from the same community to see trends over time</p>
         ) : template === 'community-comparison' ? (
-          <p>Select assessments from different communities to compare</p>
+          <p className="m-0">Select assessments from different communities to compare</p>
         ) : (
-          <p>Select assessments to analyze their indicators</p>
+          <p className="m-0">Select assessments to analyze their indicators</p>
         )}
       </div>
 
       {/* Community Groups */}
-      <div className="community-groups">
+      <div className="flex flex-col gap-2">
         {Object.entries(filteredGroups).length === 0 ? (
-          <div className="no-results">
+          <div className="text-center py-5 text-muted-foreground">
             <p>No assessments found matching "{searchQuery}"</p>
           </div>
         ) : (
@@ -149,26 +158,28 @@ export function AssessmentSelector({
             const selectedCount = items.filter(i => selectedIds.includes(i.id)).length;
 
             return (
-              <div key={community} className="community-group">
+              <div key={community} className="border border-border rounded-lg overflow-hidden">
                 <div
-                  className="community-header"
+                  className="flex justify-between items-center p-3 bg-muted cursor-pointer transition-colors hover:bg-muted/80"
                   onClick={() => toggleCommunity(community)}
                 >
-                  <div className="header-left">
+                  <div className="flex items-center gap-2">
                     {isExpanded ? <ChevronDown size={16} /> : <ChevronRight size={16} />}
-                    <span className="community-name">{community}</span>
-                    <span className="assessment-count">({items.length})</span>
+                    <span className="font-semibold text-foreground">{community}</span>
+                    <span className="text-muted-foreground text-xs">({items.length})</span>
                   </div>
                   {selectedCount > 0 && (
-                    <span className="selected-count">{selectedCount} selected</span>
+                    <span className="text-xs py-0.5 px-2 bg-quest-teal text-white rounded-full">
+                      {selectedCount} selected
+                    </span>
                   )}
                 </div>
 
                 {isExpanded && (
-                  <div className="community-assessments">
+                  <div className="border-t border-border">
                     {items.length > 1 && (
                       <button
-                        className="select-all-btn"
+                        className="w-full py-2 px-3 bg-background border-b border-border text-xs text-quest-teal cursor-pointer text-left transition-colors hover:bg-muted"
                         onClick={(e) => {
                           e.stopPropagation();
                           selectAllFromCommunity(community);
@@ -182,20 +193,23 @@ export function AssessmentSelector({
                       return (
                         <div
                           key={assessment.id}
-                          className={`assessment-item ${isSelected ? 'selected' : ''}`}
+                          className={cn(
+                            "flex items-center gap-3 py-2.5 px-3 cursor-pointer transition-colors border-b border-border/50 last:border-b-0 hover:bg-muted",
+                            isSelected && "bg-quest-teal-muted"
+                          )}
                           onClick={() => onSelect(assessment)}
                         >
-                          <div className="item-checkbox">
+                          <div className={cn(
+                            "w-5 h-5 border-2 border-border rounded flex items-center justify-center flex-shrink-0 transition-all",
+                            isSelected && "bg-quest-teal border-quest-teal text-white"
+                          )}>
                             {isSelected && <Check size={14} />}
                           </div>
-                          <div className="item-content">
-                            <span className="item-year">{assessment.year}</span>
-                            <span className="item-status">{assessment.status}</span>
+                          <div className="flex-1 flex flex-col gap-0.5">
+                            <span className="font-semibold text-foreground">{assessment.year}</span>
+                            <span className="text-[11px] text-muted-foreground uppercase">{assessment.status}</span>
                           </div>
-                          <div
-                            className="item-score"
-                            style={{ color: getScoreColor(assessment.overallScore) }}
-                          >
+                          <div className={cn("font-bold text-sm", getScoreColorClass(assessment.overallScore))}>
                             {assessment.overallScore !== null
                               ? `${assessment.overallScore.toFixed(0)}%`
                               : '-'
@@ -211,196 +225,8 @@ export function AssessmentSelector({
           })
         )}
       </div>
-
-      <style>{selectorStyles}</style>
     </div>
   );
 }
-
-const selectorStyles = `
-  .assessment-selector {
-    display: flex;
-    flex-direction: column;
-    gap: 16px;
-  }
-
-  .search-container {
-    position: relative;
-  }
-
-  .search-icon {
-    position: absolute;
-    left: 12px;
-    top: 50%;
-    transform: translateY(-50%);
-    color: #999;
-  }
-
-  .search-input {
-    width: 100%;
-    padding: 10px 12px 10px 36px;
-    border: 2px solid #e0e0e0;
-    border-radius: 8px;
-    font-size: 14px;
-    transition: border-color 0.2s;
-  }
-
-  .search-input:focus {
-    outline: none;
-    border-color: #00a9a6;
-  }
-
-  .helper-text {
-    padding: 10px 12px;
-    background: #f8f9fa;
-    border-radius: 6px;
-    font-size: 12px;
-    color: #666;
-  }
-
-  .helper-text p {
-    margin: 0;
-  }
-
-  .community-groups {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-  }
-
-  .no-results {
-    text-align: center;
-    padding: 20px;
-    color: #999;
-  }
-
-  .community-group {
-    border: 1px solid #e0e0e0;
-    border-radius: 8px;
-    overflow: hidden;
-  }
-
-  .community-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 12px;
-    background: #f8f9fa;
-    cursor: pointer;
-    transition: background 0.2s;
-  }
-
-  .community-header:hover {
-    background: #f0f0f0;
-  }
-
-  .header-left {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-  }
-
-  .community-name {
-    font-weight: 600;
-    color: #333;
-  }
-
-  .assessment-count {
-    color: #999;
-    font-size: 12px;
-  }
-
-  .selected-count {
-    font-size: 12px;
-    padding: 2px 8px;
-    background: #00a9a6;
-    color: white;
-    border-radius: 10px;
-  }
-
-  .community-assessments {
-    border-top: 1px solid #e0e0e0;
-  }
-
-  .select-all-btn {
-    width: 100%;
-    padding: 8px 12px;
-    background: #fafafa;
-    border: none;
-    border-bottom: 1px solid #e0e0e0;
-    font-size: 12px;
-    color: #00a9a6;
-    cursor: pointer;
-    text-align: left;
-    transition: background 0.2s;
-  }
-
-  .select-all-btn:hover {
-    background: #f0f0f0;
-  }
-
-  .assessment-item {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    padding: 10px 12px;
-    cursor: pointer;
-    transition: background 0.2s;
-    border-bottom: 1px solid #f0f0f0;
-  }
-
-  .assessment-item:last-child {
-    border-bottom: none;
-  }
-
-  .assessment-item:hover {
-    background: #f8f9fa;
-  }
-
-  .assessment-item.selected {
-    background: #e8f5f5;
-  }
-
-  .item-checkbox {
-    width: 20px;
-    height: 20px;
-    border: 2px solid #ccc;
-    border-radius: 4px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-shrink: 0;
-    transition: all 0.2s;
-  }
-
-  .assessment-item.selected .item-checkbox {
-    background: #00a9a6;
-    border-color: #00a9a6;
-    color: white;
-  }
-
-  .item-content {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    gap: 2px;
-  }
-
-  .item-year {
-    font-weight: 600;
-    color: #333;
-  }
-
-  .item-status {
-    font-size: 11px;
-    color: #999;
-    text-transform: uppercase;
-  }
-
-  .item-score {
-    font-weight: 700;
-    font-size: 14px;
-  }
-`;
 
 export default AssessmentSelector;

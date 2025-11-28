@@ -6,27 +6,29 @@
 import React, { useMemo, useState } from 'react';
 import ReactApexChart from 'react-apexcharts';
 import { ApexOptions } from 'apexcharts';
+import { cn } from '@src/lib/utils';
+import { CHART_COLORS } from '@src/lib/style-utils';
 
 interface FundingChartProps {
   projects: any[];
 }
 
 const FUNDER_TYPE_COLORS: Record<string, string> = {
-  FEDERAL: '#2196f3',
-  PROVINCIAL: '#4caf50',
-  MUNICIPAL: '#ff9800',
-  FOUNDATION: '#9c27b0',
-  CORPORATE: '#607d8b',
-  UTILITY: '#00bcd4',
-  OTHER: '#795548',
+  FEDERAL: CHART_COLORS.info,
+  PROVINCIAL: CHART_COLORS.success,
+  MUNICIPAL: CHART_COLORS.warning,
+  FOUNDATION: CHART_COLORS.purple,
+  CORPORATE: 'hsl(200, 12%, 47%)',
+  UTILITY: CHART_COLORS.questTeal,
+  OTHER: 'hsl(16, 25%, 38%)',
 };
 
 const FUNDING_STATUS_COLORS: Record<string, string> = {
-  RECEIVED: '#27ae60',
-  APPROVED: '#3498db',
-  PENDING: '#f39c12',
-  DENIED: '#e74c3c',
-  WITHDRAWN: '#95a5a6',
+  RECEIVED: CHART_COLORS.success,
+  APPROVED: CHART_COLORS.info,
+  PENDING: CHART_COLORS.warning,
+  DENIED: CHART_COLORS.destructive,
+  WITHDRAWN: 'hsl(140, 10%, 60%)',
 };
 
 export function FundingChart({ projects }: FundingChartProps) {
@@ -50,7 +52,7 @@ export function FundingChart({ projects }: FundingChartProps) {
 
     const labels = Object.keys(totals).map(k => k.replace('_', ' '));
     const data = Object.values(totals);
-    const colors = Object.keys(totals).map(k => colorMap[k] || '#999');
+    const colors = Object.keys(totals).map(k => colorMap[k] || 'hsl(var(--muted-foreground))');
     const total = data.reduce((a, b) => a + b, 0);
 
     const chartOptions: ApexOptions = {
@@ -96,7 +98,7 @@ export function FundingChart({ projects }: FundingChartProps) {
           formatter: (val: number) => `$${val.toLocaleString()}`,
         },
       },
-      stroke: { width: 2, colors: ['#fff'] },
+      stroke: { width: 2, colors: ['hsl(var(--background))'] },
     };
 
     return { series: data, options: chartOptions, totalFunding: total };
@@ -104,23 +106,29 @@ export function FundingChart({ projects }: FundingChartProps) {
 
   if (projects.length === 0 || totalFunding === 0) {
     return (
-      <div className="chart-placeholder">
+      <div className="flex items-center justify-center h-[300px] text-muted-foreground bg-muted rounded-lg">
         <p>No funding data to display</p>
       </div>
     );
   }
 
   return (
-    <div className="funding-chart-container">
-      <div className="view-toggle">
+    <div className="w-full">
+      <div className="flex justify-center gap-2 mb-4">
         <button
-          className={viewMode === 'type' ? 'active' : ''}
+          className={cn(
+            "py-1.5 px-3.5 border-2 border-border bg-background rounded-full text-xs font-medium cursor-pointer transition-all hover:border-quest-teal hover:text-quest-teal",
+            viewMode === 'type' && "bg-quest-teal border-quest-teal text-white hover:text-white"
+          )}
           onClick={() => setViewMode('type')}
         >
           By Funder Type
         </button>
         <button
-          className={viewMode === 'status' ? 'active' : ''}
+          className={cn(
+            "py-1.5 px-3.5 border-2 border-border bg-background rounded-full text-xs font-medium cursor-pointer transition-all hover:border-quest-teal hover:text-quest-teal",
+            viewMode === 'status' && "bg-quest-teal border-quest-teal text-white hover:text-white"
+          )}
           onClick={() => setViewMode('status')}
         >
           By Status
@@ -133,41 +141,6 @@ export function FundingChart({ projects }: FundingChartProps) {
         type="donut"
         height={300}
       />
-
-      <style>{`
-        .funding-chart-container { width: 100%; }
-        .view-toggle {
-          display: flex;
-          justify-content: center;
-          gap: 8px;
-          margin-bottom: 16px;
-        }
-        .view-toggle button {
-          padding: 6px 14px;
-          border: 2px solid #e0e0e0;
-          background: white;
-          border-radius: 20px;
-          font-size: 12px;
-          font-weight: 500;
-          cursor: pointer;
-          transition: all 0.2s;
-        }
-        .view-toggle button:hover { border-color: #00a9a6; color: #00a9a6; }
-        .view-toggle button.active {
-          background: #00a9a6;
-          border-color: #00a9a6;
-          color: white;
-        }
-        .chart-placeholder {
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          height: 300px;
-          color: #999;
-          background: #f9f9f9;
-          border-radius: 8px;
-        }
-      `}</style>
     </div>
   );
 }

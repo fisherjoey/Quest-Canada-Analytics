@@ -8,6 +8,8 @@
 import React, { useMemo, useState } from 'react';
 import ReactApexChart from 'react-apexcharts';
 import { ApexOptions } from 'apexcharts';
+import { cn } from '@src/lib/utils';
+import { CHART_COLORS, PRIORITY_CHART_COLORS, STATUS_CHART_COLORS } from '@src/lib/style-utils';
 
 interface RecommendationsPieChartProps {
   assessments: any[];
@@ -15,17 +17,17 @@ interface RecommendationsPieChartProps {
 }
 
 const PRIORITY_COLORS = {
-  HIGH: '#e74c3c',
-  MEDIUM: '#f39c12',
-  LOW: '#27ae60'
+  HIGH: CHART_COLORS.destructive,
+  MEDIUM: CHART_COLORS.warning,
+  LOW: CHART_COLORS.success
 };
 
 const STATUS_COLORS = {
-  PLANNED: '#3498db',
-  IN_PROGRESS: '#f39c12',
-  COMPLETED: '#27ae60',
-  DEFERRED: '#95a5a6',
-  CANCELLED: '#e74c3c'
+  PLANNED: CHART_COLORS.info,
+  IN_PROGRESS: CHART_COLORS.warning,
+  COMPLETED: CHART_COLORS.success,
+  DEFERRED: 'hsl(140, 10%, 60%)',
+  CANCELLED: CHART_COLORS.destructive
 };
 
 export function RecommendationsPieChart({
@@ -55,7 +57,7 @@ export function RecommendationsPieChart({
 
     const labels = Object.keys(counts);
     const data = Object.values(counts);
-    const colors = labels.map(label => (colorMap as any)[label] || '#999');
+    const colors = labels.map(label => (colorMap as any)[label] || 'hsl(var(--muted-foreground))');
 
     const chartOptions: ApexOptions = {
       chart: {
@@ -104,7 +106,7 @@ export function RecommendationsPieChart({
                 label: 'Total',
                 fontSize: '14px',
                 fontWeight: 500,
-                color: '#666',
+                color: 'hsl(var(--muted-foreground))',
                 formatter: (w: any) => {
                   return w.globals.seriesTotals.reduce((a: number, b: number) => a + b, 0);
                 }
@@ -127,7 +129,7 @@ export function RecommendationsPieChart({
       },
       stroke: {
         width: 2,
-        colors: ['#fff']
+        colors: ['hsl(var(--background))']
       },
       responsive: [{
         breakpoint: 480,
@@ -151,24 +153,30 @@ export function RecommendationsPieChart({
 
   if (assessments.length === 0 || totalCount === 0) {
     return (
-      <div className="chart-placeholder">
+      <div className="flex items-center justify-center h-[320px] text-muted-foreground bg-muted rounded-lg">
         <p>No recommendations to display</p>
       </div>
     );
   }
 
   return (
-    <div className="pie-chart-container">
+    <div className="w-full">
       {/* Group By Toggle */}
-      <div className="groupby-toggle">
+      <div className="flex gap-2 mb-4 justify-center">
         <button
-          className={selectedGroupBy === 'priority' ? 'active' : ''}
+          className={cn(
+            "py-1.5 px-4 border-2 border-border bg-background rounded-full text-xs font-medium text-muted-foreground cursor-pointer transition-all hover:border-quest-teal hover:text-quest-teal",
+            selectedGroupBy === 'priority' && "bg-quest-teal border-quest-teal text-white hover:text-white"
+          )}
           onClick={() => setSelectedGroupBy('priority')}
         >
           By Priority
         </button>
         <button
-          className={selectedGroupBy === 'status' ? 'active' : ''}
+          className={cn(
+            "py-1.5 px-4 border-2 border-border bg-background rounded-full text-xs font-medium text-muted-foreground cursor-pointer transition-all hover:border-quest-teal hover:text-quest-teal",
+            selectedGroupBy === 'status' && "bg-quest-teal border-quest-teal text-white hover:text-white"
+          )}
           onClick={() => setSelectedGroupBy('status')}
         >
           By Status
@@ -181,56 +189,8 @@ export function RecommendationsPieChart({
         type="donut"
         height={320}
       />
-
-      <style>{pieStyles}</style>
     </div>
   );
 }
-
-const pieStyles = `
-  .pie-chart-container {
-    width: 100%;
-  }
-
-  .chart-placeholder {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    height: 320px;
-    color: #999;
-    background: #f9f9f9;
-    border-radius: 8px;
-  }
-
-  .groupby-toggle {
-    display: flex;
-    gap: 8px;
-    margin-bottom: 16px;
-    justify-content: center;
-  }
-
-  .groupby-toggle button {
-    padding: 6px 16px;
-    border: 2px solid #e0e0e0;
-    background: white;
-    border-radius: 20px;
-    font-size: 12px;
-    font-weight: 500;
-    color: #666;
-    cursor: pointer;
-    transition: all 0.2s;
-  }
-
-  .groupby-toggle button:hover {
-    border-color: #00a9a6;
-    color: #00a9a6;
-  }
-
-  .groupby-toggle button.active {
-    background: #00a9a6;
-    border-color: #00a9a6;
-    color: white;
-  }
-`;
 
 export default RecommendationsPieChart;

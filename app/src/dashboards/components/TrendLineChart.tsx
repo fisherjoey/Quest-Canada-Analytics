@@ -8,6 +8,7 @@
 import React, { useMemo } from 'react';
 import ReactApexChart from 'react-apexcharts';
 import { ApexOptions } from 'apexcharts';
+import { CHART_COLORS } from '@src/lib/style-utils';
 
 interface CommunityTrend {
   communityId: string;
@@ -95,7 +96,7 @@ export function TrendLineChart({
       markers: {
         size: 6,
         strokeWidth: 2,
-        strokeColors: '#fff',
+        strokeColors: 'hsl(var(--background))',
         hover: {
           size: 8
         }
@@ -133,7 +134,7 @@ export function TrendLineChart({
         }
       },
       grid: {
-        borderColor: '#e8e8e8',
+        borderColor: 'hsl(var(--border))',
         strokeDashArray: 4
       },
       legend: {
@@ -165,7 +166,7 @@ export function TrendLineChart({
         yaxis: [
           {
             y: 80,
-            borderColor: '#27ae60',
+            borderColor: CHART_COLORS.success,
             borderWidth: 1,
             strokeDashArray: 5,
             label: {
@@ -173,14 +174,14 @@ export function TrendLineChart({
               position: 'right',
               style: {
                 fontSize: '10px',
-                color: '#27ae60',
+                color: CHART_COLORS.success,
                 background: 'transparent'
               }
             }
           },
           {
             y: 60,
-            borderColor: '#f39c12',
+            borderColor: CHART_COLORS.warning,
             borderWidth: 1,
             strokeDashArray: 5,
             label: {
@@ -188,7 +189,7 @@ export function TrendLineChart({
               position: 'right',
               style: {
                 fontSize: '10px',
-                color: '#f39c12',
+                color: CHART_COLORS.warning,
                 background: 'transparent'
               }
             }
@@ -202,7 +203,7 @@ export function TrendLineChart({
 
   if (communityTrends.length === 0 || communityTrends.every(t => t.assessments.length === 0)) {
     return (
-      <div className="chart-placeholder">
+      <div className="flex items-center justify-center h-[350px] text-muted-foreground bg-muted rounded-lg">
         <p>Select assessments to view trends over time</p>
       </div>
     );
@@ -212,10 +213,10 @@ export function TrendLineChart({
   const hasMultipleYears = communityTrends.some(t => t.assessments.length > 1);
 
   return (
-    <div className="trend-chart-container">
+    <div className="w-full">
       {!hasMultipleYears && (
-        <div className="single-year-warning">
-          <p>Only one year of data available. Select more assessments from the same community to see trends.</p>
+        <div className="py-3 px-4 bg-warning-muted border-l-4 border-warning rounded-r-lg mb-4">
+          <p className="m-0 text-[13px] text-warning-foreground">Only one year of data available. Select more assessments from the same community to see trends.</p>
         </div>
       )}
       <ReactApexChart
@@ -224,39 +225,8 @@ export function TrendLineChart({
         type="line"
         height={350}
       />
-      <style>{trendStyles}</style>
     </div>
   );
 }
-
-const trendStyles = `
-  .trend-chart-container {
-    width: 100%;
-  }
-
-  .chart-placeholder {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    height: 350px;
-    color: #999;
-    background: #f9f9f9;
-    border-radius: 8px;
-  }
-
-  .single-year-warning {
-    padding: 12px 16px;
-    background: #fef6e6;
-    border-left: 4px solid #f39c12;
-    border-radius: 0 8px 8px 0;
-    margin-bottom: 16px;
-  }
-
-  .single-year-warning p {
-    margin: 0;
-    font-size: 13px;
-    color: #856404;
-  }
-`;
 
 export default TrendLineChart;

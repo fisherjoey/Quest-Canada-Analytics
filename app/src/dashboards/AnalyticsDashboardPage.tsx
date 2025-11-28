@@ -23,6 +23,11 @@ import { RecommendationsPieChart } from './components/RecommendationsPieChart';
 import { KPICards } from './components/KPICards';
 import { IndicatorHeatmap } from './components/IndicatorHeatmap';
 import { LayoutGrid, TrendingUp, Target, BarChart3, Filter, X, Lock, Unlock, RotateCcw } from 'lucide-react';
+import { cn } from '@src/lib/utils';
+import { Button } from '@src/components/ui/button';
+import { PageHeader } from '@src/components/ui/page-header';
+import { DashboardTab } from '@src/components/ui/dashboard-tab';
+import { CHART_COLOR_PALETTE } from '@src/lib/style-utils';
 import 'react-grid-layout/css/styles.css';
 import 'react-resizable/css/styles.css';
 
@@ -36,16 +41,10 @@ interface SelectedAssessment {
   color: string;
 }
 
-// Color palette for comparing assessments
+// Use color palette from style-utils for consistent theming
 const COMPARISON_COLORS = [
-  '#00a9a6', // Quest teal
-  '#e74c3c', // Red
-  '#3498db', // Blue
-  '#9b59b6', // Purple
-  '#f39c12', // Orange
-  '#1abc9c', // Turquoise
-  '#e91e63', // Pink
-  '#795548', // Brown
+  ...CHART_COLOR_PALETTE,
+  'hsl(340, 82%, 52%)', // Pink (additional)
 ];
 
 // Default layouts for each template
@@ -215,16 +214,16 @@ export function AnalyticsDashboardPage() {
 
   if (isLoading) {
     return (
-      <div className="analytics-dashboard loading">
-        <div className="loading-spinner">Loading assessments...</div>
+      <div className="page-container flex items-center justify-center min-h-[400px]">
+        <div className="text-muted-foreground text-lg">Loading assessments...</div>
       </div>
     );
   }
 
   if (error) {
     return (
-      <div className="analytics-dashboard error">
-        <div className="error-message">Error loading assessments: {(error as Error).message}</div>
+      <div className="page-container flex items-center justify-center min-h-[400px]">
+        <div className="text-destructive text-base">Error loading assessments: {(error as Error).message}</div>
       </div>
     );
   }
@@ -381,64 +380,68 @@ export function AnalyticsDashboardPage() {
   };
 
   return (
-    <div className="analytics-dashboard">
+    <div className="max-w-[1800px] mx-auto px-5 py-5">
       {/* Page Header */}
-      <div className="dashboard-header">
-        <div className="header-content">
-          <h1>
-            <BarChart3 size={32} />
-            Assessment Analytics
-          </h1>
-          <p>Compare assessments, track progress, and analyze indicator performance</p>
-        </div>
-        <div className="header-actions">
-          <button
-            className={`layout-btn ${isLayoutLocked ? 'locked' : ''}`}
-            onClick={() => setIsLayoutLocked(!isLayoutLocked)}
-            title={isLayoutLocked ? 'Unlock layout to drag/resize' : 'Lock layout'}
-          >
-            {isLayoutLocked ? <Lock size={18} /> : <Unlock size={18} />}
-            {isLayoutLocked ? 'Locked' : 'Unlocked'}
-          </button>
-          <button className="reset-btn" onClick={handleResetLayout} title="Reset to default layout">
-            <RotateCcw size={18} />
-            Reset
-          </button>
-          <button className="toggle-selector-btn" onClick={() => setShowSelector(!showSelector)}>
-            <Filter size={18} />
-            {showSelector ? 'Hide' : 'Show'} Selector
-          </button>
-        </div>
-      </div>
+      <PageHeader
+        title="Assessment Analytics"
+        description="Compare assessments, track progress, and analyze indicator performance"
+        actions={
+          <div className="flex gap-2 flex-wrap">
+            <Button
+              variant={isLayoutLocked ? 'secondary' : 'outline'}
+              onClick={() => setIsLayoutLocked(!isLayoutLocked)}
+              title={isLayoutLocked ? 'Unlock layout to drag/resize' : 'Lock layout'}
+              className="gap-2"
+            >
+              {isLayoutLocked ? <Lock size={18} /> : <Unlock size={18} />}
+              {isLayoutLocked ? 'Locked' : 'Unlocked'}
+            </Button>
+            <Button variant="outline" onClick={handleResetLayout} title="Reset to default layout" className="gap-2">
+              <RotateCcw size={18} />
+              Reset
+            </Button>
+            <Button
+              variant="outline"
+              onClick={() => setShowSelector(!showSelector)}
+              className="gap-2 border-quest-teal text-quest-teal hover:bg-quest-teal hover:text-white"
+            >
+              <Filter size={18} />
+              {showSelector ? 'Hide' : 'Show'} Selector
+            </Button>
+          </div>
+        }
+      />
 
       {/* Template Tabs */}
-      <div className="template-tabs">
+      <div className="flex gap-2 mb-4 flex-wrap">
         {templates.map(template => (
-          <button
+          <DashboardTab
             key={template.id}
-            className={`template-tab ${activeTemplate === template.id ? 'active' : ''}`}
+            label={template.label}
+            icon={template.icon}
+            isActive={activeTemplate === template.id}
             onClick={() => setActiveTemplate(template.id)}
-          >
-            {template.icon}
-            <span className="tab-label">{template.label}</span>
-          </button>
+          />
         ))}
       </div>
 
       {/* Template Description */}
-      <div className="template-description">
-        <p>{templates.find(t => t.id === activeTemplate)?.description}</p>
-        {!isLayoutLocked && <span className="drag-hint">Drag widgets to reposition, drag corners to resize</span>}
+      <div className="flex justify-between items-center mb-5 p-3 bg-muted border-l-4 border-quest-teal rounded-r-lg">
+        <p className="m-0 text-muted-foreground">{templates.find(t => t.id === activeTemplate)?.description}</p>
+        {!isLayoutLocked && <span className="text-xs text-muted-foreground italic">Drag widgets to reposition, drag corners to resize</span>}
       </div>
 
-      <div className="dashboard-layout">
+      <div className="flex gap-6 flex-col lg:flex-row">
         {/* Assessment Selector Panel */}
         {showSelector && (
-          <div className="selector-panel">
-            <div className="selector-header">
-              <h3>Select Assessments</h3>
+          <div className="w-full lg:w-80 flex-shrink-0 bg-card rounded-xl p-5 shadow-sm border border-border max-h-[calc(100vh-280px)] overflow-y-auto">
+            <div className="flex justify-between items-center mb-4">
+              <h3 className="m-0 text-base font-semibold text-foreground">Select Assessments</h3>
               {selectedAssessments.length > 0 && (
-                <button className="clear-btn" onClick={handleClearSelection}>
+                <button
+                  className="flex items-center gap-1 px-2.5 py-1.5 bg-destructive-muted text-destructive text-xs rounded cursor-pointer hover:bg-destructive/20 border-none"
+                  onClick={handleClearSelection}
+                >
                   <X size={14} />
                   Clear All
                 </button>
@@ -446,12 +449,21 @@ export function AnalyticsDashboardPage() {
             </div>
 
             {selectedAssessments.length > 0 && (
-              <div className="selected-chips">
+              <div className="flex flex-wrap gap-2 mb-4 pb-4 border-b border-border">
                 {selectedAssessments.map(sel => (
-                  <div key={sel.id} className="selected-chip" style={{ borderColor: sel.color, backgroundColor: `${sel.color}15` }}>
-                    <span className="color-dot" style={{ backgroundColor: sel.color }} />
+                  <div
+                    key={sel.id}
+                    className="flex items-center gap-1.5 px-2.5 py-1.5 border-2 rounded-full text-xs"
+                    style={{ borderColor: sel.color, backgroundColor: `${sel.color}15` }}
+                  >
+                    <span className="w-2 h-2 rounded-full" style={{ backgroundColor: sel.color }} />
                     <span>{sel.communityName} ({sel.year})</span>
-                    <button onClick={() => handleSelectAssessment(sel)}><X size={12} /></button>
+                    <button
+                      className="bg-transparent border-none p-0 cursor-pointer opacity-60 hover:opacity-100 flex"
+                      onClick={() => handleSelectAssessment(sel)}
+                    >
+                      <X size={12} />
+                    </button>
                   </div>
                 ))}
               </div>
@@ -467,12 +479,12 @@ export function AnalyticsDashboardPage() {
         )}
 
         {/* Dashboard Content with Grid Layout */}
-        <div className={`dashboard-content ${!showSelector ? 'full-width' : ''}`}>
+        <div className={cn('flex-1 min-w-0', !showSelector && 'w-full')}>
           {selectedAssessmentData.length === 0 ? (
             <div className="empty-state">
-              <BarChart3 size={64} />
-              <h2>Select Assessments to Compare</h2>
-              <p>Choose one or more assessments from the selector panel to visualize their data</p>
+              <BarChart3 className="empty-state-icon" />
+              <h2 className="empty-state-title">Select Assessments to Compare</h2>
+              <p className="empty-state-description">Choose one or more assessments from the selector panel to visualize their data</p>
             </div>
           ) : (
             <>
@@ -481,7 +493,7 @@ export function AnalyticsDashboardPage() {
 
               {/* Draggable Grid Layout */}
               <GridLayout
-                className="grid-layout"
+                className="mt-5"
                 layout={layouts[activeTemplate]}
                 cols={12}
                 rowHeight={30}
@@ -493,8 +505,8 @@ export function AnalyticsDashboardPage() {
                 margin={[16, 16]}
               >
                 {layouts[activeTemplate].map(item => (
-                  <div key={item.i} className="grid-widget">
-                    <div className="widget-drag-handle" />
+                  <div key={item.i} className="dashboard-widget">
+                    <div className="widget-drag-handle h-2 bg-[repeating-linear-gradient(90deg,hsl(var(--border))_0px,hsl(var(--border))_2px,transparent_2px,transparent_4px)] cursor-move rounded-t-xl" />
                     {renderWidget(item.i)}
                   </div>
                 ))}
@@ -509,224 +521,9 @@ export function AnalyticsDashboardPage() {
   );
 }
 
-// Styles
+// Minimal styles - only what can't be done with Tailwind (grid overrides, widget internals)
 const analyticsStyles = `
-  .analytics-dashboard {
-    max-width: 1800px;
-    margin: 0 auto;
-    padding: 20px;
-    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-  }
-
-  .analytics-dashboard.loading,
-  .analytics-dashboard.error {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    min-height: 400px;
-  }
-
-  .loading-spinner { color: #666; font-size: 18px; }
-  .error-message { color: #e74c3c; font-size: 16px; }
-
-  /* Header */
-  .dashboard-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-    margin-bottom: 24px;
-    padding-bottom: 20px;
-    border-bottom: 2px solid #e0e0e0;
-    flex-wrap: wrap;
-    gap: 16px;
-  }
-
-  .header-content h1 {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    font-size: 32px;
-    color: #333;
-    margin: 0 0 8px 0;
-  }
-
-  .header-content p { color: #666; font-size: 16px; margin: 0; }
-
-  .header-actions {
-    display: flex;
-    gap: 8px;
-    flex-wrap: wrap;
-  }
-
-  .layout-btn, .reset-btn, .toggle-selector-btn {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    padding: 10px 16px;
-    background: white;
-    border: 2px solid #e0e0e0;
-    border-radius: 8px;
-    font-weight: 500;
-    cursor: pointer;
-    transition: all 0.2s;
-    font-size: 14px;
-  }
-
-  .layout-btn:hover, .reset-btn:hover { border-color: #666; }
-  .layout-btn.locked { background: #f0f0f0; border-color: #999; }
-
-  .toggle-selector-btn {
-    border-color: #00a9a6;
-    color: #00a9a6;
-  }
-
-  .toggle-selector-btn:hover {
-    background: #00a9a6;
-    color: white;
-  }
-
-  /* Template Tabs */
-  .template-tabs {
-    display: flex;
-    gap: 8px;
-    margin-bottom: 16px;
-    flex-wrap: wrap;
-  }
-
-  .template-tab {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    padding: 12px 20px;
-    background: white;
-    border: 2px solid #e0e0e0;
-    border-radius: 8px;
-    cursor: pointer;
-    transition: all 0.2s;
-    font-size: 14px;
-    font-weight: 500;
-    color: #666;
-  }
-
-  .template-tab:hover { border-color: #00a9a6; color: #00a9a6; }
-  .template-tab.active { background: #00a9a6; border-color: #00a9a6; color: white; }
-
-  .template-description {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 20px;
-    padding: 12px 16px;
-    background: #f8f9fa;
-    border-left: 4px solid #00a9a6;
-    border-radius: 0 8px 8px 0;
-  }
-
-  .template-description p { margin: 0; color: #666; }
-  .drag-hint { font-size: 12px; color: #999; font-style: italic; }
-
-  /* Layout */
-  .dashboard-layout { display: flex; gap: 24px; }
-
-  .selector-panel {
-    width: 320px;
-    flex-shrink: 0;
-    background: white;
-    border-radius: 12px;
-    padding: 20px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-    max-height: calc(100vh - 280px);
-    overflow-y: auto;
-  }
-
-  .selector-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 16px;
-  }
-
-  .selector-header h3 { margin: 0; font-size: 16px; color: #333; }
-
-  .clear-btn {
-    display: flex;
-    align-items: center;
-    gap: 4px;
-    padding: 6px 10px;
-    background: #fee;
-    border: none;
-    border-radius: 4px;
-    color: #e74c3c;
-    font-size: 12px;
-    cursor: pointer;
-  }
-
-  .clear-btn:hover { background: #fdd; }
-
-  .selected-chips {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
-    margin-bottom: 16px;
-    padding-bottom: 16px;
-    border-bottom: 1px solid #eee;
-  }
-
-  .selected-chip {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    padding: 6px 10px;
-    border: 2px solid;
-    border-radius: 20px;
-    font-size: 12px;
-  }
-
-  .selected-chip .color-dot { width: 8px; height: 8px; border-radius: 50%; }
-  .selected-chip button { background: none; border: none; padding: 0; cursor: pointer; opacity: 0.6; display: flex; }
-  .selected-chip button:hover { opacity: 1; }
-
-  /* Dashboard Content */
-  .dashboard-content { flex: 1; min-width: 0; }
-  .dashboard-content.full-width { width: 100%; }
-
-  .empty-state {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    padding: 80px 40px;
-    background: white;
-    border-radius: 12px;
-    text-align: center;
-    color: #999;
-  }
-
-  .empty-state h2 { margin: 20px 0 8px 0; color: #666; }
-  .empty-state p { margin: 0; }
-
-  /* Grid Layout Widgets */
-  .grid-layout { margin-top: 20px; }
-
-  .grid-widget {
-    background: white;
-    border-radius: 12px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-    overflow: hidden;
-    display: flex;
-    flex-direction: column;
-  }
-
-  .widget-drag-handle {
-    height: 8px;
-    background: linear-gradient(90deg, #e0e0e0 25%, transparent 25%, transparent 50%, #e0e0e0 50%, #e0e0e0 75%, transparent 75%);
-    background-size: 8px 8px;
-    cursor: move;
-    border-radius: 12px 12px 0 0;
-  }
-
-  .widget-drag-handle:hover { background-color: #f0f0f0; }
-
+  /* Widget Content */
   .widget-content {
     flex: 1;
     padding: 16px;
@@ -736,7 +533,7 @@ const analyticsStyles = `
   .widget-content h3 {
     margin: 0 0 12px 0;
     font-size: 15px;
-    color: #333;
+    color: hsl(var(--foreground));
     font-weight: 600;
   }
 
@@ -746,7 +543,7 @@ const analyticsStyles = `
     align-items: center;
     justify-content: center;
     height: 200px;
-    color: #999;
+    color: hsl(var(--muted-foreground));
   }
 
   .empty-widget p { margin: 12px 0 0 0; }
@@ -763,16 +560,25 @@ const analyticsStyles = `
     align-items: center;
     gap: 6px;
     padding: 8px 12px;
-    background: #f5f5f5;
+    background: hsl(var(--muted));
     border: 2px solid transparent;
     border-radius: 6px;
     cursor: pointer;
     transition: all 0.2s;
     font-size: 13px;
+    color: hsl(var(--foreground));
   }
 
-  .indicator-btn:hover { background: #eef; border-color: #00a9a6; }
-  .indicator-btn.active { background: #00a9a6; border-color: #00a9a6; color: white; }
+  .indicator-btn:hover {
+    background: hsl(var(--quest-teal-muted));
+    border-color: hsl(var(--quest-teal));
+  }
+
+  .indicator-btn.active {
+    background: hsl(var(--quest-teal));
+    border-color: hsl(var(--quest-teal));
+    color: white;
+  }
 
   .indicator-btn .indicator-num {
     display: flex;
@@ -800,8 +606,8 @@ const analyticsStyles = `
 
   .indicator-detail-item {
     padding: 10px 14px;
-    border-left: 4px solid #ccc;
-    background: #f9f9f9;
+    border-left: 4px solid hsl(var(--border));
+    background: hsl(var(--muted));
     border-radius: 0 6px 6px 0;
   }
 
@@ -812,18 +618,18 @@ const analyticsStyles = `
     margin-bottom: 6px;
   }
 
-  .community-name { font-weight: 600; color: #333; font-size: 13px; }
+  .community-name { font-weight: 600; color: hsl(var(--foreground)); font-size: 13px; }
 
   .score-badge {
     padding: 3px 8px;
-    background: #e8f5f5;
+    background: hsl(var(--quest-teal-muted));
     border-radius: 10px;
     font-size: 11px;
     font-weight: 600;
-    color: #00a9a6;
+    color: hsl(var(--quest-teal));
   }
 
-  .detail-notes { margin: 0; font-size: 13px; color: #666; line-height: 1.4; }
+  .detail-notes { margin: 0; font-size: 13px; color: hsl(var(--muted-foreground)); line-height: 1.4; }
 
   /* Recommendations List */
   .recommendations-list {
@@ -836,8 +642,8 @@ const analyticsStyles = `
 
   .recommendation-item {
     padding: 12px;
-    border-left: 4px solid #ccc;
-    background: #f9f9f9;
+    border-left: 4px solid hsl(var(--border));
+    background: hsl(var(--muted));
     border-radius: 0 6px 6px 0;
   }
 
@@ -863,28 +669,16 @@ const analyticsStyles = `
     font-weight: 500;
   }
 
-  .priority-badge.priority-high { background: #fee; color: #e74c3c; }
-  .priority-badge.priority-medium { background: #fef6e6; color: #f39c12; }
-  .priority-badge.priority-low { background: #e8f5e9; color: #27ae60; }
+  .priority-badge.priority-high { background: hsl(var(--destructive-muted)); color: hsl(var(--destructive)); }
+  .priority-badge.priority-medium { background: hsl(var(--warning-muted)); color: hsl(var(--warning)); }
+  .priority-badge.priority-low { background: hsl(var(--success-muted)); color: hsl(var(--success)); }
 
-  .status-badge {
-    padding: 3px 8px;
-    border-radius: 10px;
-    font-size: 11px;
-    font-weight: 500;
-    background: #f0f0f0;
-    color: #666;
-  }
-
-  .status-badge.status-completed { background: #e8f5e9; color: #27ae60; }
-  .status-badge.status-in-progress { background: #e3f2fd; color: #2196f3; }
-
-  .rec-text { margin: 0; font-size: 13px; color: #333; line-height: 1.4; }
-  .no-data { text-align: center; color: #999; padding: 30px; }
+  .rec-text { margin: 0; font-size: 13px; color: hsl(var(--foreground)); line-height: 1.4; }
+  .no-data { text-align: center; color: hsl(var(--muted-foreground)); padding: 30px; }
 
   /* React Grid Layout overrides */
   .react-grid-item.react-grid-placeholder {
-    background: #00a9a6 !important;
+    background: hsl(var(--quest-teal)) !important;
     opacity: 0.2;
     border-radius: 12px;
   }
@@ -902,23 +696,12 @@ const analyticsStyles = `
     bottom: 4px;
     width: 8px;
     height: 8px;
-    border-right: 2px solid #ccc;
-    border-bottom: 2px solid #ccc;
+    border-right: 2px solid hsl(var(--border));
+    border-bottom: 2px solid hsl(var(--border));
   }
 
   .react-grid-item:hover .react-resizable-handle::after {
-    border-color: #00a9a6;
-  }
-
-  /* Responsive */
-  @media (max-width: 1200px) {
-    .dashboard-layout { flex-direction: column; }
-    .selector-panel { width: 100%; max-height: none; }
-  }
-
-  @media (max-width: 768px) {
-    .template-tabs { flex-direction: column; }
-    .header-actions { width: 100%; justify-content: flex-start; }
+    border-color: hsl(var(--quest-teal));
   }
 `;
 

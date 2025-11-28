@@ -6,19 +6,20 @@
 import React, { useMemo } from 'react';
 import ReactApexChart from 'react-apexcharts';
 import { ApexOptions } from 'apexcharts';
+import { CHART_COLORS } from '@src/lib/style-utils';
 
 interface ProjectStatusChartProps {
   projects: any[];
 }
 
 const STATUS_COLORS: Record<string, string> = {
-  PLANNED: '#9b59b6',
-  IN_DESIGN: '#3498db',
-  FUNDED: '#1abc9c',
-  IN_PROGRESS: '#f39c12',
-  COMPLETED: '#27ae60',
-  ON_HOLD: '#95a5a6',
-  CANCELLED: '#e74c3c',
+  PLANNED: CHART_COLORS.purple,
+  IN_DESIGN: CHART_COLORS.info,
+  FUNDED: CHART_COLORS.questTeal,
+  IN_PROGRESS: CHART_COLORS.warning,
+  COMPLETED: CHART_COLORS.success,
+  ON_HOLD: 'hsl(140, 10%, 60%)',
+  CANCELLED: CHART_COLORS.destructive,
 };
 
 const STATUS_LABELS: Record<string, string> = {
@@ -42,7 +43,7 @@ export function ProjectStatusChart({ projects }: ProjectStatusChartProps) {
 
     const labels = Object.keys(statusCounts).map(s => STATUS_LABELS[s] || s);
     const data = Object.values(statusCounts);
-    const colors = Object.keys(statusCounts).map(s => STATUS_COLORS[s] || '#999');
+    const colors = Object.keys(statusCounts).map(s => STATUS_COLORS[s] || 'hsl(var(--muted-foreground))');
 
     const chartOptions: ApexOptions = {
       chart: {
@@ -71,7 +72,7 @@ export function ProjectStatusChart({ projects }: ProjectStatusChartProps) {
                 show: true,
                 label: 'Total Projects',
                 fontSize: '12px',
-                color: '#666',
+                color: 'hsl(var(--muted-foreground))',
               },
             },
           },
@@ -87,7 +88,7 @@ export function ProjectStatusChart({ projects }: ProjectStatusChartProps) {
           },
         },
       },
-      stroke: { width: 2, colors: ['#fff'] },
+      stroke: { width: 2, colors: ['hsl(var(--background))'] },
     };
 
     return { series: data, options: chartOptions };
@@ -95,7 +96,7 @@ export function ProjectStatusChart({ projects }: ProjectStatusChartProps) {
 
   if (projects.length === 0) {
     return (
-      <div className="chart-placeholder">
+      <div className="flex items-center justify-center h-[300px] text-muted-foreground bg-muted rounded-lg">
         <p>No projects to display</p>
       </div>
     );
