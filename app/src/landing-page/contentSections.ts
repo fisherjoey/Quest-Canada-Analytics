@@ -49,51 +49,6 @@ export const features = [
   },
 ];
 
-export const examples = [
-  {
-    name: 'Energy Assessment Tools',
-    description: 'Comprehensive framework for evaluating community energy systems and climate readiness',
-    imageSrc: '',
-    href: '/assessments',
-  },
-  {
-    name: 'Project Tracking',
-    description: 'Track project progress, milestones, and outcomes for community-scale initiatives',
-    imageSrc: '',
-    href: '/projects',
-  },
-  {
-    name: 'Impact Reporting',
-    description: 'Generate detailed reports on GHG reductions and progress toward net-zero',
-    imageSrc: '',
-    href: '/admin',
-  },
-];
-
-export const testimonials = [
-  {
-    name: 'Municipal Climate Coordinator',
-    role: 'Mid-sized Canadian City',
-    avatarSrc: '',
-    socialUrl: '',
-    quote: 'Quest Canada tools have transformed how we track and report on our community energy planning. The assessment framework helps us demonstrate progress to stakeholders.',
-  },
-  {
-    name: 'Community Energy Manager',
-    role: 'Northern Municipality',
-    avatarSrc: '',
-    socialUrl: '',
-    quote: 'Managing multiple energy projects across our community is now streamlined. We can track milestones, funding, and outcomes all in one place.',
-  },
-  {
-    name: 'Sustainability Director',
-    role: 'Regional District',
-    avatarSrc: '',
-    socialUrl: '',
-    quote: 'The data visualization helps our leadership make informed decisions about climate priorities and resource allocation on the path to net-zero.',
-  },
-];
-
 export const faqs = [
   {
     id: 1,
