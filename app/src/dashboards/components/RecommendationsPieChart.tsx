@@ -71,8 +71,9 @@ export function RecommendationsPieChart({
         fontSize: '13px',
         fontWeight: 500,
         markers: {
-          size: 8,
-          shape: 'circle'
+          width: 8,
+          height: 8,
+          radius: 8
         },
         itemMargin: {
           horizontal: 12,

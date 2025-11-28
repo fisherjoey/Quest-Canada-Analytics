@@ -162,8 +162,9 @@ export function IndicatorHeatmap({
         horizontalAlign: 'right',
         fontSize: '12px',
         markers: {
-          size: 10,
-          shape: 'square'
+          width: 10,
+          height: 10,
+          radius: 2
         },
         itemMargin: {
           horizontal: 8,

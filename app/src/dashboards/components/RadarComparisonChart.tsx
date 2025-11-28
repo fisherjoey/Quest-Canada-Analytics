@@ -108,8 +108,9 @@ export function RadarComparisonChart({ assessments, onIndicatorClick }: RadarCom
         fontSize: '13px',
         fontWeight: 500,
         markers: {
-          size: 8,
-          shape: 'circle'
+          width: 8,
+          height: 8,
+          radius: 8
         },
         itemMargin: {
           horizontal: 12,
@@ -127,7 +128,6 @@ export function RadarComparisonChart({ assessments, onIndicatorClick }: RadarCom
           size: 180,
           polygons: {
             strokeColors: '#e8e8e8',
-            strokeWidth: 1,
             connectorColors: '#e8e8e8',
             fill: {
               colors: ['#f8f8f8', '#fff']
