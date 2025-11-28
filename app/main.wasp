@@ -347,8 +347,8 @@ page DashboardsPage {
 }
 
 // Interactive Assessment Analytics Dashboard
-route AnalyticsDashboardRoute { path: "/analytics", to: AnalyticsDashboardPage }
-page AnalyticsDashboardPage {
+route AssessmentAnalyticsRoute { path: "/analytics", to: AssessmentAnalyticsPage }
+page AssessmentAnalyticsPage {
   authRequired: true,
   component: import AnalyticsDashboardPage from "@src/dashboards/AnalyticsDashboardPage"
 }

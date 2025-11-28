@@ -1,0 +1,97 @@
+{
+  "capturedAt": "2025-11-28T07:30:02.040Z",
+  "baseUrl": "http://cpsc405.joeyfishertech.com",
+  "pages": [
+    {
+      "path": "/",
+      "name": "landing-page",
+      "title": "Landing Page",
+      "description": "The main landing page showcasing Quest Canada's climate action tracking mission.",
+      "screenshot": "landing-page.png"
+    },
+    {
+      "path": "/login",
+      "name": "login-page",
+      "title": "Login Page",
+      "description": "User authentication page for accessing the application.",
+      "screenshot": "login-page.png"
+    },
+    {
+      "path": "/signup",
+      "name": "signup-page",
+      "title": "Sign Up Page",
+      "description": "New user registration page.",
+      "screenshot": "signup-page.png"
+    },
+    {
+      "path": "/dashboards",
+      "name": "dashboards-page",
+      "title": "Public Dashboards",
+      "description": "Public climate data dashboards and visualizations.",
+      "screenshot": "dashboards-page.png"
+    },
+    {
+      "path": "/assessments",
+      "name": "assessments-list",
+      "title": "Assessments List",
+      "description": "View all climate action benchmark assessments for communities.",
+      "screenshot": "assessments-list.png"
+    },
+    {
+      "path": "/assessments/new",
+      "name": "assessment-new",
+      "title": "Create New Assessment",
+      "description": "Create a new benchmark assessment for a community.",
+      "screenshot": "assessment-new.png"
+    },
+    {
+      "path": "/assessments/import",
+      "name": "assessment-import",
+      "title": "AI Import Assessment",
+      "description": "Import assessments from PDF using AI-powered extraction.",
+      "screenshot": "assessment-import.png"
+    },
+    {
+      "path": "/projects",
+      "name": "projects-list",
+      "title": "Projects List",
+      "description": "View all climate action projects.",
+      "screenshot": "projects-list.png"
+    },
+    {
+      "path": "/projects/new",
+      "name": "project-new",
+      "title": "Create New Project",
+      "description": "Create a new climate action project.",
+      "screenshot": "project-new.png"
+    },
+    {
+      "path": "/account",
+      "name": "account-page",
+      "title": "Account Settings",
+      "description": "Manage your account settings and preferences.",
+      "screenshot": "account-page.png"
+    },
+    {
+      "path": "/admin",
+      "name": "admin-analytics",
+      "title": "Admin Analytics Dashboard",
+      "description": "Analytics overview for administrators.",
+      "screenshot": "admin-analytics.png"
+    },
+    {
+      "path": "/admin/users",
+      "name": "admin-users",
+      "title": "User Management",
+      "description": "Manage user accounts and permissions.",
+      "screenshot": "admin-users.png"
+    },
+    {
+      "path": "/admin/settings",
+      "name": "admin-settings",
+      "title": "Admin Settings",
+      "description": "Application settings and configuration.",
+      "screenshot": "admin-settings.png"
+    }
+  ]
+}
