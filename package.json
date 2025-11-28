@@ -1,0 +1,26 @@
+{
+  "name": "software-project",
+  "version": "1.0.0",
+  "description": "> Modern web application for tracking climate action progress across Canadian municipalities",
+  "main": "index.js",
+  "directories": {
+    "doc": "docs"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/fisherjoey/Quest-Canada-Analytics.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/fisherjoey/Quest-Canada-Analytics/issues"
+  },
+  "homepage": "https://github.com/fisherjoey/Quest-Canada-Analytics#readme",
+  "devDependencies": {
+    "playwright": "^1.57.0"
+  }
+}

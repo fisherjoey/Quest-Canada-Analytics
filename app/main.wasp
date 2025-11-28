@@ -345,6 +345,13 @@ page DashboardsPage {
   authRequired: false,
   component: import DashboardsPage from "@src/dashboards/DashboardsPage"
 }
+
+// Interactive Assessment Analytics Dashboard
+route AnalyticsDashboardRoute { path: "/analytics", to: AnalyticsDashboardPage }
+page AnalyticsDashboardPage {
+  authRequired: true,
+  component: import AnalyticsDashboardPage from "@src/dashboards/AnalyticsDashboardPage"
+}
 //#endregion
 
 //#region AI-Powered Assessment Import

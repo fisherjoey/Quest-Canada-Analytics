@@ -2,3 +2,9 @@
 .claude/
 CLAUDE.md
 client-communications/
+
+# Dependencies
+node_modules/
+
+# Build artifacts
+package-lock.json

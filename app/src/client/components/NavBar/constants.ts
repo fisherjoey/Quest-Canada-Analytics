@@ -10,4 +10,5 @@ export const demoNavigationitems: NavigationItem[] = [
   { name: 'Import PDF', to: routes.AssessmentImportRoute.to },
   { name: 'Projects', to: routes.ProjectsRoute.to },
   { name: 'Dashboards', to: routes.DashboardsRoute.to },
+  { name: 'Analytics', to: routes.AnalyticsDashboardRoute.to },
 ] as const;
