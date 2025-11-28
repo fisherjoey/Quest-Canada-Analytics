@@ -6,6 +6,7 @@ import './Main.css';
 import NavBar from './components/NavBar/NavBar';
 import { demoNavigationitems, marketingNavigationItems } from './components/NavBar/constants';
 import CookieConsentBanner from './components/cookie-consent/Banner';
+import PoweredByInitium from './components/PoweredByInitium';
 
 /**
  * use this component to wrap all child components
@@ -43,15 +44,16 @@ export default function App() {
 
   return (
     <>
-      <div className='min-h-screen bg-background text-foreground'>
+      <div className='min-h-screen bg-background text-foreground flex flex-col'>
         {isAdminDashboard ? (
           <Outlet />
         ) : (
           <>
             {shouldDisplayAppNavBar && <NavBar navigationItems={navigationItems} />}
-            <div className='mx-auto max-w-screen-2xl'>
+            <div className='mx-auto max-w-screen-2xl flex-1'>
               <Outlet />
             </div>
+            <PoweredByInitium className="border-t border-gray-200 dark:border-gray-700" />
           </>
         )}
       </div>
