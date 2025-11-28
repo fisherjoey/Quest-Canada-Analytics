@@ -9,7 +9,7 @@ import { throttleWithTrailingInvocation } from '../../../shared/utils';
 import { UserDropdown } from '../../../user/UserDropdown';
 import { UserMenuItems } from '../../../user/UserMenuItems';
 import { useIsLandingPage } from '../../hooks/useIsLandingPage';
-const logo = 'https://questcanada.org/wp-content/uploads/2018/08/QUEST-Logo.png';
+const logo = '/quest-logo-transparent.png';
 import DarkModeSwitcher from '../DarkModeSwitcher';
 // Removed: import { Announcement } from './Announcement';
 

@@ -10,7 +10,8 @@ import {
 } from 'lucide-react';
 import React, { useEffect, useRef, useState } from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
-import Logo from '../../client/static/quest-logo.svg';
+// Logo now served from public directory
+const Logo = '/quest-logo-transparent.png';
 import { cn } from '../../lib/utils';
 import SidebarLinkGroup from './SidebarLinkGroup';
 

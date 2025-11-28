@@ -3,9 +3,8 @@ import FAQ from './components/FAQ';
 import FeaturesGrid from './components/FeaturesGrid';
 import Footer from './components/Footer';
 import Hero from './components/Hero';
-import Testimonials from './components/Testimonials';
 import SmartEnergyCommunities from './ExampleHighlightedFeature';
-import { examples, faqs, features, footerNavigation, testimonials } from './contentSections';
+import { examples, faqs, features, footerNavigation } from './contentSections';
 
 export default function LandingPage() {
   return (
@@ -15,11 +14,9 @@ export default function LandingPage() {
         <ExamplesCarousel examples={examples} />
         <SmartEnergyCommunities />
         <FeaturesGrid features={features} />
-        <Testimonials testimonials={testimonials} />
         <FAQ faqs={faqs} />
       </main>
       <Footer footerNavigation={footerNavigation} />
     </div>
   );
 }
-

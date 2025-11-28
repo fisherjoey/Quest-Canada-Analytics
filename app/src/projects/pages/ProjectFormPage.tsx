@@ -2,12 +2,14 @@ import React, { useState, useEffect } from "react";
 import { useQuery, useAction } from "wasp/client/operations";
 import { getProject, createProject, updateProject, deleteProject } from "wasp/client/operations";
 import { Link } from "wasp/client/router";
+import { useParams, useNavigate } from "react-router-dom";
 
-export default function ProjectFormPage({ match, history }: any) {
-  const id = match?.params?.id;
+export default function ProjectFormPage() {
+  const { id } = useParams();
+  const navigate = useNavigate();
   const isEditing = !!id;
 
-  const { data: project, isLoading } = useQuery(getProject, { id: id || "" }, { enabled: isEditing });
+  const { data: project, isLoading } = useQuery(getProject, { id: id! }, { enabled: !!id });
   const createProjectFn = useAction(createProject);
   const updateProjectFn = useAction(updateProject);
   const deleteProjectFn = useAction(deleteProject);
@@ -63,7 +65,7 @@ export default function ProjectFormPage({ match, history }: any) {
       }
       
       if (history) {
-        history.push("/projects");
+        navigate("/projects");
       } else {
         window.location.href = "/projects";
       }
@@ -72,7 +74,7 @@ export default function ProjectFormPage({ match, history }: any) {
     }
   };
 
-  if (isLoading) {
+  if (isLoading && id) {
     return <div className="p-8">Loading...</div>;
   }
 
@@ -107,14 +109,18 @@ export default function ProjectFormPage({ match, history }: any) {
           </div>
 
           <div>
-            <label className="block text-sm font-medium mb-1">Community ID *</label>
-            <input
-              type="text"
+            <label className="block text-sm font-medium mb-1">Community *</label>
+            <select
               required
               value={formData.communityId}
               onChange={(e) => setFormData({ ...formData, communityId: e.target.value })}
               className="w-full px-3 py-2 border rounded"
-            />
+            >
+              <option value="">Select a community...</option>
+              <option value="comm-calgary">Calgary</option>
+              <option value="comm-edmonton">Edmonton</option>
+              <option value="comm-vancouver">Vancouver</option>
+            </select>
           </div>
         </div>
 

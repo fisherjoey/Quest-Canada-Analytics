@@ -52,10 +52,16 @@ interface GrafanaDashboardProps {
   refresh?: string;
 
   /**
-   * Height of the iframe
-   * @default '800px'
+   * Height of the iframe - use 'fill' to fill remaining viewport space
+   * @default 'fill'
    */
-  height?: string;
+  height?: string | 'fill';
+
+  /**
+   * Minimum height in pixels
+   * @default 500
+   */
+  minHeight?: number;
 
   /**
    * Custom CSS classes
@@ -88,7 +94,8 @@ export function GrafanaDashboard({
   timeRange = 'from=now-24h&to=now',
   theme = 'light',
   refresh,
-  height = '800px',
+  height = 'fill',
+  minHeight = 500,
   className = '',
   urlParams = {}
 }: GrafanaDashboardProps) {
@@ -99,6 +106,7 @@ export function GrafanaDashboard({
 
     const params: Record<string, string> = {
       orgId: '1',
+      autofitpanels: 'true',  // Make panels fit within available space
       ...urlParams
     };
 
@@ -127,43 +135,30 @@ export function GrafanaDashboard({
 
   const iframeUrl = buildDashboardUrl();
 
-  const containerStyle: React.CSSProperties = {
-    width: '100%',
-    margin: '20px 0'
-  };
-
-  const headerStyle: React.CSSProperties = {
-    marginBottom: '16px',
-    padding: '16px 0',
-    borderBottom: '2px solid #00a9a6'
-  };
-
-  const headerTitleStyle: React.CSSProperties = {
-    margin: 0,
-    color: '#333',
-    fontSize: '24px',
-    fontWeight: 600
-  };
+  // Use CSS calc for fill mode - subtracts approximate header/nav height
+  const iframeHeight = height === 'fill'
+    ? `max(${minHeight}px, calc(100vh - 280px))`
+    : height;
 
   return (
-    <div className={`grafana-dashboard-container ${className}`} style={containerStyle}>
+    <div className={`grafana-dashboard-container ${className}`} style={{ width: '100%', margin: '20px 0' }}>
       {title && (
-        <div className="dashboard-header" style={headerStyle}>
-          <h2 style={headerTitleStyle}>{title}</h2>
+        <div style={{ marginBottom: '16px', padding: '16px 0', borderBottom: '2px solid #00a9a6' }}>
+          <h2 style={{ margin: 0, color: '#333', fontSize: '24px', fontWeight: 600 }}>{title}</h2>
         </div>
       )}
 
       <iframe
         src={iframeUrl}
         width="100%"
-        height={height}
-        frameBorder="0"
-        title={title || `Grafana Dashboard ${dashboardUid}`}
         style={{
+          height: iframeHeight,
           border: 'none',
           borderRadius: '8px',
-          boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)'
+          boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',
+          display: 'block'
         }}
+        title={title || `Grafana Dashboard ${dashboardUid}`}
         sandbox="allow-scripts allow-same-origin allow-forms"
       />
     </div>
@@ -172,6 +167,7 @@ export function GrafanaDashboard({
 
 /**
  * Pre-configured dashboard components for common Quest Canada dashboards
+ * All use fill height by default to fill available viewport space
  */
 
 export function ProjectFundingDashboard() {
@@ -179,7 +175,6 @@ export function ProjectFundingDashboard() {
     <GrafanaDashboard
       dashboardUid="project-funding-simple"
       title="Project Funding Management"
-      height="1000px"
       kiosk={true}
     />
   );
@@ -190,7 +185,6 @@ export function ProjectMilestoneDashboard() {
     <GrafanaDashboard
       dashboardUid="project-milestones-simple"
       title="Project Milestone Management"
-      height="1000px"
       kiosk={true}
     />
   );
@@ -201,7 +195,6 @@ export function BenchmarkStrengthsDashboard() {
     <GrafanaDashboard
       dashboardUid="benchmark-strengths-simple"
       title="Benchmark Strengths & Recommendations"
-      height="1200px"
       kiosk={true}
     />
   );
@@ -212,7 +205,6 @@ export function CommunityStakeholderDashboard() {
     <GrafanaDashboard
       dashboardUid="community-stakeholder-dashboard"
       title="Community Stakeholder Dashboard"
-      height="1200px"
       kiosk={true}
     />
   );
@@ -223,7 +215,6 @@ export function CitizenEngagementDashboard() {
     <GrafanaDashboard
       dashboardUid="citizen-engagement-dashboard"
       title="Citizen Engagement Dashboard"
-      height="1000px"
       kiosk={true}
     />
   );
@@ -234,7 +225,6 @@ export function FunderPolicymakerDashboard() {
     <GrafanaDashboard
       dashboardUid="funder-policymaker-dashboard"
       title="Funder & Policymaker Dashboard"
-      height="1400px"
       kiosk={true}
     />
   );

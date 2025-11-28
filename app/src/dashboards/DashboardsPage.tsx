@@ -39,7 +39,7 @@ const dashboards: DashboardInfo[] = [
     label: 'Projects Overview',
     description: 'Live overview of all projects, communities, and funding',
     icon: '',
-    component: <GrafanaDashboard dashboardUid="projects-overview-simple" title="Projects Overview" height="1000px" kiosk={true} />
+    component: <GrafanaDashboard dashboardUid="projects-overview-simple" title="Projects Overview" kiosk={true} />
   },
   {
     id: 'funding',
@@ -60,7 +60,7 @@ const dashboards: DashboardInfo[] = [
     label: 'Community Assessments',
     description: 'View all 10-indicator benchmark assessments with strengths and recommendations',
     icon: '',
-    component: <GrafanaDashboard dashboardUid="community-assessment" title="Community Assessment Dashboard" height="1200px" kiosk={true} />
+    component: <GrafanaDashboard dashboardUid="community-assessment" title="Community Assessment Dashboard" kiosk={true} />
   },
   {
     id: 'benchmarks',

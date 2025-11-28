@@ -26,8 +26,8 @@ app QuestCanadaApp {
     // NOTE: Plausible does not use Cookies, so you can simply add the scripts here.
     // Google, on the other hand, does, so you must instead add the script dynamically
     // via the Cookie Consent component after the user clicks the "Accept" cookies button.
-    "<script defer data-domain='<your-site-id>' src='https://plausible.io/js/script.js'></script>",  // for production
-    "<script defer data-domain='<your-site-id>' src='https://plausible.io/js/script.local.js'></script>",  // for development
+    // "<script defer data-domain='<your-site-id>' src='https://plausible.io/js/script.js'></script>",  // for production
+    // "<script defer data-domain='<your-site-id>' src='https://plausible.io/js/script.local.js'></script>",  // for development
   ],
 
   // 🔐 Auth out of the box! https://wasp.sh/docs/auth/overview
@@ -252,17 +252,17 @@ query getAssessment {
 // Actions
 action createAssessment {
   fn: import { createAssessment } from "@src/assessments/operations",
-  entities: [Assessment, User]
+  entities: [Assessment, IndicatorScore, Strength, Recommendation, User]
 }
 
 action updateAssessment {
   fn: import { updateAssessment } from "@src/assessments/operations",
-  entities: [Assessment, User]
+  entities: [Assessment, IndicatorScore, Strength, Recommendation, User]
 }
 
 action deleteAssessment {
   fn: import { deleteAssessment } from "@src/assessments/operations",
-  entities: [Assessment, User]
+  entities: [Assessment, IndicatorScore, Strength, Recommendation, User]
 }
 
 // Routes and Pages
@@ -365,9 +365,20 @@ page AssessmentImportPage {
   component: import AssessmentImportPage from "@src/assessments/pages/AssessmentImportPage"
 }
 
+route AssessmentReviewRoute { path: "/assessments/review/:extractionLogId", to: AssessmentReviewPage }
+page AssessmentReviewPage {
+  authRequired: true,
+  component: import { AssessmentReviewPage } from "@src/assessments/pages/AssessmentReviewPage"
+}
+
 query getExtractionLogs {
   fn: import { getExtractionLogs } from "@src/assessments/extractionLogs",
   entities: [AiExtractionLog, User]
 }
 
 //#endregion
+
+query getExtractionStatus {
+  fn: import { getExtractionStatus } from "@src/assessments/getExtractionStatus",
+  entities: [User, AiExtractionLog]
+}

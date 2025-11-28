@@ -1,11 +1,18 @@
-import { defineConfig } from 'vite'
+import { defineConfig } from "vite"
 
 export default defineConfig({
   server: {
     allowedHosts: [
-      'cpsc405.joeyfishertech.com',
-      'localhost',
-      '10.0.0.3'
-    ]
+      "cpsc405.joeyfishertech.com",
+      "localhost",
+      "10.0.0.3"
+    ],
+    proxy: {
+      "/api": {
+        target: "http://localhost:3001",
+        changeOrigin: true,
+        secure: false
+      }
+    }
   }
 })

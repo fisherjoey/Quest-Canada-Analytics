@@ -1,4 +1,12 @@
-<svg width="64" height="64" xmlns="http://www.w3.org/2000/svg">
-  <circle cx="32" cy="32" r="30" fill="#2d7a4f" />
-  <text x="32" y="42" font-family="Arial, sans-serif" font-size="36" font-weight="bold" fill="white" text-anchor="middle">Q</text>
+<svg width="64" height="64" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <!-- Teal maple leaf on white background -->
+  <rect width="64" height="64" fill="white"/>
+  <!-- Maple leaf path (simplified Canadian maple leaf) -->
+  <path d="M32 4 
+           L34 12 L42 8 L38 16 L48 18 L40 22 L46 30 L36 28 L38 38 L32 32 L26 38 L28 28 L18 30 L24 22 L16 18 L26 16 L22 8 L30 12 Z
+           M32 38 L32 60"
+        fill="#008080" 
+        stroke="#008080"
+        stroke-width="3"
+        stroke-linecap="round"/>
 </svg>

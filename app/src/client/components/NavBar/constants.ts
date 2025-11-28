@@ -1,20 +1,13 @@
 import { routes } from 'wasp/client/router';
-import { BlogUrl, DocsUrl } from '../../../shared/common';
 import type { NavigationItem } from './NavBar';
 
-const staticNavigationItems: NavigationItem[] = [
-  { name: 'Documentation', to: DocsUrl },
-  { name: 'Blog', to: BlogUrl },
-];
+// Empty navigation for public/marketing pages (non-logged-in users)
+export const marketingNavigationItems: NavigationItem[] = [] as const;
 
-export const marketingNavigationItems: NavigationItem[] = [
-  { name: 'Features', to: '/#features' },
-  ...staticNavigationItems,
-] as const;
-
+// Portal navigation items (only shown when logged in)
 export const demoNavigationitems: NavigationItem[] = [
   { name: 'Assessments', to: routes.AssessmentsRoute.to },
+  { name: 'Import PDF', to: routes.AssessmentImportRoute.to },
   { name: 'Projects', to: routes.ProjectsRoute.to },
-  { name: 'File Upload', to: routes.FileUploadRoute.to },
-  ...staticNavigationItems,
+  { name: 'Dashboards', to: routes.DashboardsRoute.to },
 ] as const;

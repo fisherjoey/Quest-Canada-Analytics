@@ -1,5 +1,6 @@
 import { useEffect, useMemo } from 'react';
 import { Outlet, useLocation } from 'react-router-dom';
+import { useAuth } from 'wasp/client/auth';
 import { routes } from 'wasp/client/router';
 import './Main.css';
 import NavBar from './components/NavBar/NavBar';
@@ -12,15 +13,17 @@ import CookieConsentBanner from './components/cookie-consent/Banner';
  */
 export default function App() {
   const location = useLocation();
-  const isMarketingPage = useMemo(() => {
-    return location.pathname === '/' || location.pathname.startsWith('/pricing');
-  }, [location]);
-
-  const navigationItems = isMarketingPage ? marketingNavigationItems : demoNavigationitems;
+  const { data: user } = useAuth();
+  
+  // Show portal navigation only when user is logged in
+  const navigationItems = useMemo(() => {
+    return user ? demoNavigationitems : marketingNavigationItems;
+  }, [user]);
 
   const shouldDisplayAppNavBar = useMemo(() => {
     return (
-      location.pathname !== routes.LoginRoute.build() && location.pathname !== routes.SignupRoute.build()
+      location.pathname !== routes.LoginRoute.build() && 
+      location.pathname !== routes.SignupRoute.build()
     );
   }, [location]);
 
