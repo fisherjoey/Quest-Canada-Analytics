@@ -131,7 +131,7 @@ export function AssessmentSelector({
           placeholder="Search communities or years..."
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
-          className="w-full py-2.5 px-3 pl-9 border-2 border-border rounded-lg text-sm transition-colors focus:outline-none focus:border-quest-teal"
+          className="w-full py-2.5 px-3 pl-9 border-2 border-border rounded-lg text-sm bg-background text-foreground placeholder:text-muted-foreground transition-colors focus:outline-none focus:border-quest-teal"
         />
       </div>
 

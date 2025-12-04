@@ -58,6 +58,39 @@
   }
 }
 
+/* Custom Scrollbar Styling */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: hsl(var(--border)) transparent;
+}
+
+*::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+*::-webkit-scrollbar-track {
+  background: transparent;
+  border-radius: 4px;
+}
+
+*::-webkit-scrollbar-thumb {
+  background: hsl(var(--border));
+  border-radius: 4px;
+}
+
+*::-webkit-scrollbar-thumb:hover {
+  background: hsl(var(--muted-foreground));
+}
+
+.dark *::-webkit-scrollbar-thumb {
+  background: hsl(175 15% 30%);
+}
+
+.dark *::-webkit-scrollbar-thumb:hover {
+  background: hsl(175 15% 40%);
+}
+
 /* third-party libraries CSS */
 
 .tableCheckbox:checked ~ div span {
