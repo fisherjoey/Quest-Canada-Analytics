@@ -1,5 +1,24 @@
-import { type GetProjects, type GetProject, type CreateProject, type UpdateProject, type DeleteProject } from "wasp/server/operations";
+import { type GetProjects, type GetProject, type CreateProject, type UpdateProject, type DeleteProject, type GetCommunities } from "wasp/server/operations";
 import { HttpError } from "wasp/server";
+
+// Get all communities for dropdowns
+export const getCommunities: GetCommunities<void, any> = async (args, context) => {
+  if (!context.user) {
+    throw new HttpError(401, "User not authenticated");
+  }
+
+  const communities = await context.entities.Community.findMany({
+    where: { isActive: true },
+    orderBy: { name: "asc" },
+    select: {
+      id: true,
+      name: true,
+      province: true,
+    },
+  });
+
+  return communities;
+};
 
 // Get all projects
 export const getProjects: GetProjects<void, any> = async (args, context) => {

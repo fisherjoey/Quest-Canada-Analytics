@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useQuery, useAction } from "wasp/client/operations";
-import { getProject, createProject, updateProject, deleteProject } from "wasp/client/operations";
+import { getProject, createProject, updateProject, deleteProject, getCommunities } from "wasp/client/operations";
 import { Link } from "wasp/client/router";
 import { useParams, useNavigate } from "react-router-dom";
 
@@ -10,6 +10,7 @@ export default function ProjectFormPage() {
   const isEditing = !!id;
 
   const { data: project, isLoading } = useQuery(getProject, { id: id! }, { enabled: !!id });
+  const { data: communities, isLoading: communitiesLoading } = useQuery(getCommunities);
   const createProjectFn = useAction(createProject);
   const updateProjectFn = useAction(updateProject);
   const deleteProjectFn = useAction(deleteProject);
@@ -115,11 +116,16 @@ export default function ProjectFormPage() {
               value={formData.communityId}
               onChange={(e) => setFormData({ ...formData, communityId: e.target.value })}
               className="w-full px-3 py-2 border border-input rounded bg-background text-foreground focus:ring-2 focus:ring-ring focus:border-ring"
+              disabled={communitiesLoading}
             >
-              <option value="">Select a community...</option>
-              <option value="comm-calgary">Calgary</option>
-              <option value="comm-edmonton">Edmonton</option>
-              <option value="comm-vancouver">Vancouver</option>
+              <option value="">
+                {communitiesLoading ? "Loading communities..." : "Select a community..."}
+              </option>
+              {communities?.map((community: { id: string; name: string; province: string }) => (
+                <option key={community.id} value={community.id}>
+                  {community.name}
+                </option>
+              ))}
             </select>
           </div>
         </div>

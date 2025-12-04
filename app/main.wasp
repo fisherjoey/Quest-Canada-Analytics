@@ -295,6 +295,11 @@ query getProjects {
   entities: [Project, Community, Funding, Milestone, Recommendation, User]
 }
 
+query getCommunities {
+  fn: import { getCommunities } from "@src/projects/operations",
+  entities: [Community]
+}
+
 query getProject {
   fn: import { getProject } from "@src/projects/operations",
   entities: [Project, Community, Funding, Milestone, Recommendation, User]
