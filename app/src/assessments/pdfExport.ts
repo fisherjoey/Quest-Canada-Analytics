@@ -290,42 +290,135 @@ export async function generateAssessmentPDF(
   drawSectionHeader('Dashboard Visualization');
   yPos += 5;
 
-  try {
-    const grafanaBaseUrl = 'https://cpsc405.joeyfishertech.com/grafana';
-    const renderUrl = `${grafanaBaseUrl}/render/d/assessment-detail/assessment-detail-dashboard?orgId=1&var-assessment_id=${assessment.id}&width=1200&height=1600&theme=light&kiosk`;
+  // Draw native charts using jsPDF
+  const CHART_COLORS = {
+    teal: [0, 169, 166] as [number, number, number],
+    blue: [59, 130, 246] as [number, number, number],
+    green: [34, 197, 94] as [number, number, number],
+    amber: [245, 158, 11] as [number, number, number],
+    purple: [139, 92, 246] as [number, number, number],
+    pink: [236, 72, 153] as [number, number, number],
+    cyan: [20, 184, 166] as [number, number, number],
+    orange: [249, 115, 22] as [number, number, number],
+    sky: [6, 182, 212] as [number, number, number],
+    gray: [107, 114, 128] as [number, number, number],
+    red: [239, 68, 68] as [number, number, number],
+  };
 
-    const response = await fetch(renderUrl);
-    if (response.ok) {
-      const blob = await response.blob();
-      const imgData = await new Promise<string>((resolve) => {
-        const reader = new FileReader();
-        reader.onloadend = () => resolve(reader.result as string);
-        reader.readAsDataURL(blob);
-      });
+  const barColors = [CHART_COLORS.teal, CHART_COLORS.blue, CHART_COLORS.green, CHART_COLORS.amber, CHART_COLORS.purple, CHART_COLORS.pink, CHART_COLORS.cyan, CHART_COLORS.orange, CHART_COLORS.sky, CHART_COLORS.gray];
 
-      const imgWidth = contentWidth;
-      // Match Grafana render aspect ratio (1200x1600 = 3:4 portrait)
-      const imgHeight = imgWidth * 1.333; // 3:4 aspect ratio
+  // Draw Indicator Scores Bar Chart
+  if (assessment.indicators && assessment.indicators.length > 0) {
+    const sortedIndicators = [...assessment.indicators].sort((a, b) => a.indicatorNumber - b.indicatorNumber);
+    const indicatorNames: Record<number, string> = { 1: "Governance", 2: "Capacity", 3: "Planning", 4: "Infrastructure", 5: "Operations", 6: "Buildings", 7: "Transportation", 8: "Waste", 9: "Energy", 10: "Other" };
 
-      doc.addImage(imgData, 'PNG', marginLeft, yPos, imgWidth, imgHeight);
-      yPos += imgHeight + 10;
-    } else {
-      throw new Error('Dashboard render unavailable');
-    }
-  } catch (error) {
-    console.error('Failed to capture dashboard:', error);
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(11);
+    doc.setTextColor(...COLORS.black);
+    doc.text('Indicator Scores', marginLeft, yPos);
+    yPos += 8;
 
-    doc.setFont('helvetica', 'italic');
-    doc.setFontSize(10);
-    doc.setTextColor(...COLORS.mediumGray);
-    doc.text('Interactive dashboard available online:', marginLeft, yPos);
-    yPos += 6;
+    const barHeight = 8;
+    const barGap = 3;
+    const maxBarWidth = contentWidth - 45;
+    const labelWidth = 40;
 
-    const dashboardUrl = `https://cpsc405.joeyfishertech.com/assessments/${assessment.id}`;
-    doc.setTextColor(...COLORS.accent);
-    doc.textWithLink(dashboardUrl, marginLeft, yPos, { url: dashboardUrl });
-    yPos += 20;
+    sortedIndicators.forEach((ind, index) => {
+      checkNewPage(barHeight + barGap + 5);
+      const score = Math.round(ind.percentageScore || 0);
+      const barWidth = (score / 100) * maxBarWidth;
+      const color = barColors[index % barColors.length];
+
+      // Label
+      doc.setFont('helvetica', 'normal');
+      doc.setFontSize(8);
+      doc.setTextColor(...COLORS.darkGray);
+      const label = indicatorNames[ind.indicatorNumber] || ind.indicatorName;
+      doc.text(label.substring(0, 12), marginLeft, yPos + barHeight / 2 + 1);
+
+      // Bar background
+      doc.setFillColor(240, 240, 240);
+      doc.rect(marginLeft + labelWidth, yPos, maxBarWidth, barHeight, 'F');
+
+      // Bar fill
+      doc.setFillColor(...color);
+      doc.rect(marginLeft + labelWidth, yPos, barWidth, barHeight, 'F');
+
+      // Score label
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(8);
+      doc.setTextColor(255, 255, 255);
+      if (barWidth > 20) {
+        doc.text(`${score}%`, marginLeft + labelWidth + barWidth - 12, yPos + barHeight / 2 + 1);
+      } else {
+        doc.setTextColor(...COLORS.darkGray);
+        doc.text(`${score}%`, marginLeft + labelWidth + barWidth + 3, yPos + barHeight / 2 + 1);
+      }
+
+      yPos += barHeight + barGap;
+    });
+    yPos += 10;
   }
+
+  // Draw Recommendations by Priority Chart
+  if (assessment.recommendations && assessment.recommendations.length > 0) {
+    checkNewPage(60);
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(11);
+    doc.setTextColor(...COLORS.black);
+    doc.text('Recommendations by Priority', marginLeft, yPos);
+    yPos += 10;
+
+    const priorityCounts: Record<string, number> = { HIGH: 0, MEDIUM: 0, LOW: 0 };
+    assessment.recommendations.forEach(r => {
+      priorityCounts[r.priorityLevel || 'MEDIUM']++;
+    });
+
+    const priorityColors: Record<string, [number, number, number]> = {
+      HIGH: CHART_COLORS.red,
+      MEDIUM: CHART_COLORS.amber,
+      LOW: CHART_COLORS.green,
+    };
+
+    const total = Object.values(priorityCounts).reduce((a, b) => a + b, 0);
+    const boxWidth = 50;
+    const boxHeight = 12;
+    let xOffset = marginLeft;
+
+    Object.entries(priorityCounts).forEach(([priority, count]) => {
+      if (count > 0) {
+        const percentage = Math.round((count / total) * 100);
+
+        // Color box
+        doc.setFillColor(...priorityColors[priority]);
+        doc.rect(xOffset, yPos, boxWidth, boxHeight, 'F');
+
+        // Label inside box
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(9);
+        doc.setTextColor(255, 255, 255);
+        doc.text(`${priority}`, xOffset + 3, yPos + boxHeight / 2 + 1);
+
+        // Count
+        doc.setTextColor(...COLORS.darkGray);
+        doc.text(`${count} (${percentage}%)`, xOffset + boxWidth + 5, yPos + boxHeight / 2 + 1);
+
+        xOffset += boxWidth + 35;
+      }
+    });
+    yPos += boxHeight + 15;
+  }
+
+  // Link to interactive dashboard
+  doc.setFont('helvetica', 'italic');
+  doc.setFontSize(9);
+  doc.setTextColor(...COLORS.mediumGray);
+  doc.text('View interactive dashboard online:', marginLeft, yPos);
+  yPos += 5;
+  const dashboardUrl = `https://cpsc405.joeyfishertech.com/assessments/${assessment.id}`;
+  doc.setTextColor(...COLORS.accent);
+  doc.textWithLink(dashboardUrl, marginLeft, yPos, { url: dashboardUrl });
+  yPos += 15;
 
   // ===== INDICATOR SCORES =====
   doc.addPage();
