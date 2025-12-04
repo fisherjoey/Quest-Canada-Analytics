@@ -126,7 +126,8 @@ async function processExtractionAsync(logId: string, args: any, context: any) {
       apiKey: apiKey,
     });
 
-    const promptPath = join(process.cwd(), 'prompts', 'benchmark-assessment-system.txt');
+    // Navigate from .wasp/out/server/bundle to app/prompts
+    const promptPath = join(process.cwd(), '..', '..', '..', 'prompts', 'benchmark-assessment-system.txt');
     const systemPrompt = await readFile(promptPath, 'utf-8');
 
     console.log(`Extracting text from PDF: ${args.fileName}`);
