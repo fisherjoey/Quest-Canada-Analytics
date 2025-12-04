@@ -590,4 +590,86 @@ form[class*="auth"] input:focus {
   .data-table-cell {
     @apply px-4 py-3 text-sm text-foreground;
   }
+
+  /* Mobile-first responsive utilities */
+  .mobile-scroll-hint {
+    @apply relative;
+  }
+
+  .mobile-scroll-hint::after {
+    content: '';
+    @apply absolute right-0 top-0 bottom-0 w-8 pointer-events-none hidden;
+    background: linear-gradient(to right, transparent, hsl(var(--card)));
+  }
+
+  /* Mobile chart container */
+  .chart-container-mobile {
+    @apply w-full overflow-x-auto;
+  }
+}
+
+/* Mobile-specific overrides outside @layer */
+@media (max-width: 640px) {
+  .mobile-scroll-hint::after {
+    display: block;
+  }
+}
+
+/* Mobile KPI card adjustments */
+@media (max-width: 480px) {
+  .kpi-card {
+    padding: 0.75rem;
+    gap: 0.5rem;
+  }
+
+  .kpi-icon {
+    width: 2.5rem;
+    height: 2.5rem;
+  }
+
+  .kpi-value {
+    font-size: 1.25rem;
+  }
+}
+
+/* Dashboard widget mobile adjustments */
+@media (max-width: 768px) {
+  .dashboard-widget {
+    border-radius: 0.5rem;
+  }
+
+  .widget-content {
+    padding: 0.75rem;
+  }
+
+  .widget-content h3 {
+    font-size: 0.875rem;
+    margin-bottom: 0.5rem;
+  }
+}
+
+/* Mobile-friendly tabs */
+@media (max-width: 640px) {
+  .dashboard-tab {
+    padding: 0.5rem 0.75rem;
+    font-size: 0.75rem;
+    flex-shrink: 0;
+    white-space: nowrap;
+  }
+}
+
+/* ApexCharts mobile responsiveness */
+@media (max-width: 480px) {
+  .apexcharts-legend-text {
+    font-size: 10px !important;
+  }
+
+  .apexcharts-text {
+    font-size: 10px !important;
+  }
+
+  .apexcharts-xaxis-label,
+  .apexcharts-yaxis-label {
+    font-size: 9px !important;
+  }
 }

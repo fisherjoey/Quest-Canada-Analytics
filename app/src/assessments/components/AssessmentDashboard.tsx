@@ -262,10 +262,10 @@ export function AssessmentDashboard({ assessment }: AssessmentDashboardProps) {
       </div>
 
       {/* Charts Row */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
         {/* Indicator Scores Bar Chart */}
-        <div className="bg-card border border-border rounded-lg p-4 shadow-sm">
-          <h3 className="text-lg font-semibold text-foreground mb-4">Indicator Scores</h3>
+        <div className="bg-card border border-border rounded-lg p-3 sm:p-4 shadow-sm">
+          <h3 className="text-base sm:text-lg font-semibold text-foreground mb-3 sm:mb-4">Indicator Scores</h3>
           {indicatorChartData.series.length > 0 && indicatorChartData.series[0].data.length > 0 ? (
             <ReactApexChart
               options={barOptions}
@@ -274,15 +274,15 @@ export function AssessmentDashboard({ assessment }: AssessmentDashboardProps) {
               height={350}
             />
           ) : (
-            <div className="flex items-center justify-center h-[350px] text-muted-foreground">
+            <div className="flex items-center justify-center h-[280px] sm:h-[350px] text-muted-foreground text-sm">
               No indicator data available
             </div>
           )}
         </div>
 
         {/* Recommendations by Priority Pie Chart */}
-        <div className="bg-card border border-border rounded-lg p-4 shadow-sm">
-          <h3 className="text-lg font-semibold text-foreground mb-4">Recommendations by Priority</h3>
+        <div className="bg-card border border-border rounded-lg p-3 sm:p-4 shadow-sm">
+          <h3 className="text-base sm:text-lg font-semibold text-foreground mb-3 sm:mb-4">Recommendations by Priority</h3>
           {recommendationsPieData.series.length > 0 ? (
             <ReactApexChart
               options={pieOptions}
@@ -291,7 +291,7 @@ export function AssessmentDashboard({ assessment }: AssessmentDashboardProps) {
               height={350}
             />
           ) : (
-            <div className="flex items-center justify-center h-[350px] text-muted-foreground">
+            <div className="flex items-center justify-center h-[260px] sm:h-[350px] text-muted-foreground text-sm">
               No recommendations data available
             </div>
           )}
@@ -299,52 +299,52 @@ export function AssessmentDashboard({ assessment }: AssessmentDashboardProps) {
       </div>
 
       {/* Detailed Indicator Scores Table */}
-      <div className="bg-card border border-border rounded-lg p-4 shadow-sm">
-        <h3 className="text-lg font-semibold text-foreground mb-4">Detailed Indicator Scores</h3>
-        <div className="overflow-x-auto">
-          <table className="w-full text-sm">
+      <div className="bg-card border border-border rounded-lg p-3 sm:p-4 shadow-sm">
+        <h3 className="text-base sm:text-lg font-semibold text-foreground mb-3 sm:mb-4">Detailed Indicator Scores</h3>
+        <div className="overflow-x-auto -mx-3 px-3 sm:mx-0 sm:px-0">
+          <table className="w-full text-xs sm:text-sm min-w-[600px]">
             <thead>
               <tr className="border-b border-border">
-                <th className="text-left py-3 px-4 font-semibold text-muted-foreground">#</th>
-                <th className="text-left py-3 px-4 font-semibold text-muted-foreground">Indicator</th>
-                <th className="text-left py-3 px-4 font-semibold text-muted-foreground">Category</th>
-                <th className="text-right py-3 px-4 font-semibold text-muted-foreground">Earned</th>
-                <th className="text-right py-3 px-4 font-semibold text-muted-foreground">Possible</th>
-                <th className="text-right py-3 px-4 font-semibold text-muted-foreground">Score</th>
-                <th className="text-left py-3 px-4 font-semibold text-muted-foreground">Notes</th>
+                <th className="text-left py-2 sm:py-3 px-2 sm:px-4 font-semibold text-muted-foreground">#</th>
+                <th className="text-left py-2 sm:py-3 px-2 sm:px-4 font-semibold text-muted-foreground">Indicator</th>
+                <th className="text-left py-2 sm:py-3 px-2 sm:px-4 font-semibold text-muted-foreground hidden sm:table-cell">Category</th>
+                <th className="text-right py-2 sm:py-3 px-2 sm:px-4 font-semibold text-muted-foreground">Earned</th>
+                <th className="text-right py-2 sm:py-3 px-2 sm:px-4 font-semibold text-muted-foreground">Possible</th>
+                <th className="text-right py-2 sm:py-3 px-2 sm:px-4 font-semibold text-muted-foreground">Score</th>
+                <th className="text-left py-2 sm:py-3 px-2 sm:px-4 font-semibold text-muted-foreground hidden md:table-cell">Notes</th>
               </tr>
             </thead>
             <tbody>
               {assessment.indicators?.map((indicator: any) => (
                 <tr key={indicator.id} className="border-b border-border/50 hover:bg-muted/50">
-                  <td className="py-3 px-4 text-foreground">{indicator.indicatorNumber}</td>
-                  <td className="py-3 px-4 text-foreground font-medium">{indicator.indicatorName}</td>
-                  <td className="py-3 px-4 text-muted-foreground">{indicator.category}</td>
-                  <td className="py-3 px-4 text-right text-foreground">{indicator.pointsEarned}</td>
-                  <td className="py-3 px-4 text-right text-foreground">{indicator.pointsPossible}</td>
-                  <td className="py-3 px-4 text-right">
-                    <span className={`inline-block px-2 py-1 rounded text-xs font-semibold ${getScoreClass(indicator.percentageScore)}`}>
+                  <td className="py-2 sm:py-3 px-2 sm:px-4 text-foreground">{indicator.indicatorNumber}</td>
+                  <td className="py-2 sm:py-3 px-2 sm:px-4 text-foreground font-medium">{indicator.indicatorName}</td>
+                  <td className="py-2 sm:py-3 px-2 sm:px-4 text-muted-foreground hidden sm:table-cell">{indicator.category}</td>
+                  <td className="py-2 sm:py-3 px-2 sm:px-4 text-right text-foreground">{indicator.pointsEarned}</td>
+                  <td className="py-2 sm:py-3 px-2 sm:px-4 text-right text-foreground">{indicator.pointsPossible}</td>
+                  <td className="py-2 sm:py-3 px-2 sm:px-4 text-right">
+                    <span className={`inline-block px-1.5 sm:px-2 py-0.5 sm:py-1 rounded text-xs font-semibold ${getScoreClass(indicator.percentageScore)}`}>
                       {Math.round(indicator.percentageScore)}%
                     </span>
                   </td>
-                  <td className="py-3 px-4 text-muted-foreground max-w-[200px] truncate" title={indicator.notes}>
+                  <td className="py-2 sm:py-3 px-2 sm:px-4 text-muted-foreground max-w-[200px] truncate hidden md:table-cell" title={indicator.notes}>
                     {indicator.notes || "-"}
                   </td>
                 </tr>
               ))}
               {/* Totals Row */}
               <tr className="bg-muted/50 font-semibold">
-                <td className="py-3 px-4 text-primary">TOTAL</td>
-                <td className="py-3 px-4 text-foreground">{indicatorTotals.count} indicators</td>
-                <td className="py-3 px-4"></td>
-                <td className="py-3 px-4 text-right text-foreground">{indicatorTotals.earned}</td>
-                <td className="py-3 px-4 text-right text-foreground">{indicatorTotals.possible}</td>
-                <td className="py-3 px-4 text-right">
-                  <span className="inline-block px-2 py-1 rounded text-xs font-semibold bg-primary/20 text-primary">
+                <td className="py-2 sm:py-3 px-2 sm:px-4 text-primary">TOTAL</td>
+                <td className="py-2 sm:py-3 px-2 sm:px-4 text-foreground">{indicatorTotals.count} indicators</td>
+                <td className="py-2 sm:py-3 px-2 sm:px-4 hidden sm:table-cell"></td>
+                <td className="py-2 sm:py-3 px-2 sm:px-4 text-right text-foreground">{indicatorTotals.earned}</td>
+                <td className="py-2 sm:py-3 px-2 sm:px-4 text-right text-foreground">{indicatorTotals.possible}</td>
+                <td className="py-2 sm:py-3 px-2 sm:px-4 text-right">
+                  <span className="inline-block px-1.5 sm:px-2 py-0.5 sm:py-1 rounded text-xs font-semibold bg-primary/20 text-primary">
                     {indicatorTotals.avgPercent}%
                   </span>
                 </td>
-                <td className="py-3 px-4"></td>
+                <td className="py-2 sm:py-3 px-2 sm:px-4 hidden md:table-cell"></td>
               </tr>
             </tbody>
           </table>
@@ -352,64 +352,64 @@ export function AssessmentDashboard({ assessment }: AssessmentDashboardProps) {
       </div>
 
       {/* Strengths Table */}
-      <div className="bg-card border border-border rounded-lg p-4 shadow-sm">
-        <h3 className="text-lg font-semibold text-foreground mb-4">Strengths</h3>
+      <div className="bg-card border border-border rounded-lg p-3 sm:p-4 shadow-sm">
+        <h3 className="text-base sm:text-lg font-semibold text-foreground mb-3 sm:mb-4">Strengths</h3>
         {assessment.strengths && assessment.strengths.length > 0 ? (
-          <div className="overflow-x-auto">
-            <table className="w-full text-sm">
+          <div className="overflow-x-auto -mx-3 px-3 sm:mx-0 sm:px-0">
+            <table className="w-full text-xs sm:text-sm min-w-[400px]">
               <thead>
                 <tr className="border-b border-border">
-                  <th className="text-left py-3 px-4 font-semibold text-muted-foreground">Category</th>
-                  <th className="text-left py-3 px-4 font-semibold text-muted-foreground">Title</th>
-                  <th className="text-left py-3 px-4 font-semibold text-muted-foreground">Description</th>
+                  <th className="text-left py-2 sm:py-3 px-2 sm:px-4 font-semibold text-muted-foreground">Category</th>
+                  <th className="text-left py-2 sm:py-3 px-2 sm:px-4 font-semibold text-muted-foreground">Title</th>
+                  <th className="text-left py-2 sm:py-3 px-2 sm:px-4 font-semibold text-muted-foreground hidden sm:table-cell">Description</th>
                 </tr>
               </thead>
               <tbody>
                 {assessment.strengths.map((strength: any) => (
                   <tr key={strength.id} className="border-b border-border/50 hover:bg-muted/50">
-                    <td className="py-3 px-4">
-                      <span className="inline-block px-2 py-1 rounded text-xs font-medium bg-success/20 text-success">
+                    <td className="py-2 sm:py-3 px-2 sm:px-4">
+                      <span className="inline-block px-1.5 sm:px-2 py-0.5 sm:py-1 rounded text-xs font-medium bg-success/20 text-success">
                         {strength.category}
                       </span>
                     </td>
-                    <td className="py-3 px-4 text-foreground font-medium">{strength.title}</td>
-                    <td className="py-3 px-4 text-muted-foreground">{strength.description}</td>
+                    <td className="py-2 sm:py-3 px-2 sm:px-4 text-foreground font-medium">{strength.title}</td>
+                    <td className="py-2 sm:py-3 px-2 sm:px-4 text-muted-foreground hidden sm:table-cell">{strength.description}</td>
                   </tr>
                 ))}
               </tbody>
             </table>
           </div>
         ) : (
-          <p className="text-muted-foreground text-center py-8">No strengths recorded</p>
+          <p className="text-muted-foreground text-center py-6 sm:py-8 text-sm">No strengths recorded</p>
         )}
       </div>
 
       {/* Recommendations Table */}
-      <div className="bg-card border border-border rounded-lg p-4 shadow-sm">
-        <h3 className="text-lg font-semibold text-foreground mb-4">Recommendations</h3>
+      <div className="bg-card border border-border rounded-lg p-3 sm:p-4 shadow-sm">
+        <h3 className="text-base sm:text-lg font-semibold text-foreground mb-3 sm:mb-4">Recommendations</h3>
         {assessment.recommendations && assessment.recommendations.length > 0 ? (
-          <div className="overflow-x-auto">
-            <table className="w-full text-sm">
+          <div className="overflow-x-auto -mx-3 px-3 sm:mx-0 sm:px-0">
+            <table className="w-full text-xs sm:text-sm min-w-[500px]">
               <thead>
                 <tr className="border-b border-border">
-                  <th className="text-left py-3 px-4 font-semibold text-muted-foreground">Indicator #</th>
-                  <th className="text-left py-3 px-4 font-semibold text-muted-foreground">Recommendation</th>
-                  <th className="text-left py-3 px-4 font-semibold text-muted-foreground">Priority</th>
-                  <th className="text-left py-3 px-4 font-semibold text-muted-foreground">Status</th>
+                  <th className="text-left py-2 sm:py-3 px-2 sm:px-4 font-semibold text-muted-foreground">#</th>
+                  <th className="text-left py-2 sm:py-3 px-2 sm:px-4 font-semibold text-muted-foreground">Recommendation</th>
+                  <th className="text-left py-2 sm:py-3 px-2 sm:px-4 font-semibold text-muted-foreground">Priority</th>
+                  <th className="text-left py-2 sm:py-3 px-2 sm:px-4 font-semibold text-muted-foreground hidden sm:table-cell">Status</th>
                 </tr>
               </thead>
               <tbody>
                 {assessment.recommendations.map((rec: any) => (
                   <tr key={rec.id} className="border-b border-border/50 hover:bg-muted/50">
-                    <td className="py-3 px-4 text-foreground">{rec.indicatorNumber || "-"}</td>
-                    <td className="py-3 px-4 text-foreground">{rec.recommendationText}</td>
-                    <td className="py-3 px-4">
-                      <span className={`inline-block px-2 py-1 rounded text-xs font-medium ${getPriorityClass(rec.priorityLevel)}`}>
+                    <td className="py-2 sm:py-3 px-2 sm:px-4 text-foreground">{rec.indicatorNumber || "-"}</td>
+                    <td className="py-2 sm:py-3 px-2 sm:px-4 text-foreground">{rec.recommendationText}</td>
+                    <td className="py-2 sm:py-3 px-2 sm:px-4">
+                      <span className={`inline-block px-1.5 sm:px-2 py-0.5 sm:py-1 rounded text-xs font-medium ${getPriorityClass(rec.priorityLevel)}`}>
                         {rec.priorityLevel}
                       </span>
                     </td>
-                    <td className="py-3 px-4">
-                      <span className={`inline-block px-2 py-1 rounded text-xs font-medium ${getStatusClass(rec.implementationStatus)}`}>
+                    <td className="py-2 sm:py-3 px-2 sm:px-4 hidden sm:table-cell">
+                      <span className={`inline-block px-1.5 sm:px-2 py-0.5 sm:py-1 rounded text-xs font-medium ${getStatusClass(rec.implementationStatus)}`}>
                         {rec.implementationStatus?.replace("_", " ")}
                       </span>
                     </td>
@@ -419,7 +419,7 @@ export function AssessmentDashboard({ assessment }: AssessmentDashboardProps) {
             </table>
           </div>
         ) : (
-          <p className="text-muted-foreground text-center py-8">No recommendations recorded</p>
+          <p className="text-muted-foreground text-center py-6 sm:py-8 text-sm">No recommendations recorded</p>
         )}
       </div>
     </div>
