@@ -105,7 +105,28 @@ export function AssessmentDashboard({ assessment }: AssessmentDashboardProps) {
     tooltip: {
       y: { formatter: (val: number) => `${val}%` },
       theme: "dark"
-    }
+    },
+    responsive: [
+      {
+        breakpoint: 768,
+        options: {
+          chart: { height: 300 },
+          dataLabels: { style: { fontSize: "10px" } },
+          yaxis: { labels: { style: { fontSize: "10px" } } },
+          xaxis: { labels: { style: { fontSize: "10px" } } }
+        }
+      },
+      {
+        breakpoint: 480,
+        options: {
+          chart: { height: 280 },
+          dataLabels: { style: { fontSize: "9px" } },
+          yaxis: { labels: { style: { fontSize: "9px" } } },
+          xaxis: { labels: { style: { fontSize: "9px" } } },
+          plotOptions: { bar: { barHeight: "80%" } }
+        }
+      }
+    ]
   };
 
   // Pie chart options for recommendations
@@ -118,7 +139,7 @@ export function AssessmentDashboard({ assessment }: AssessmentDashboardProps) {
     labels: recommendationsPieData.labels,
     colors: ["#ef4444", "#f59e0b", "#10b981"],
     legend: {
-      position: "right",
+      position: "bottom",
       fontSize: "13px",
       markers: { width: 8, height: 8 },
       itemMargin: { horizontal: 8, vertical: 4 },
@@ -146,7 +167,24 @@ export function AssessmentDashboard({ assessment }: AssessmentDashboardProps) {
     tooltip: {
       y: { formatter: (val: number) => `${val} recommendations` },
       theme: "dark"
-    }
+    },
+    responsive: [
+      {
+        breakpoint: 768,
+        options: {
+          chart: { height: 300 },
+          legend: { fontSize: "11px", itemMargin: { horizontal: 6, vertical: 3 } },
+          plotOptions: { pie: { donut: { labels: { total: { fontSize: "12px" } } } } }
+        }
+      },
+      {
+        breakpoint: 480,
+        options: {
+          chart: { height: 260 },
+          legend: { fontSize: "10px" }
+        }
+      }
+    ]
   };
 
   // Calculate totals for indicator table
@@ -182,44 +220,44 @@ export function AssessmentDashboard({ assessment }: AssessmentDashboardProps) {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6">
       {/* KPI Cards - Row 1 */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <div className="bg-card border border-border rounded-lg p-4 text-center shadow-sm">
-          <p className="text-3xl font-bold text-primary">{getPercentageScore(assessment)}%</p>
-          <p className="text-sm text-muted-foreground mt-1">Overall Score</p>
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-2 sm:gap-4">
+        <div className="bg-card border border-border rounded-lg p-3 sm:p-4 text-center shadow-sm">
+          <p className="text-2xl sm:text-3xl font-bold text-primary">{getPercentageScore(assessment)}%</p>
+          <p className="text-xs sm:text-sm text-muted-foreground mt-1">Overall Score</p>
         </div>
-        <div className="bg-card border border-border rounded-lg p-4 text-center shadow-sm">
-          <p className="text-xl font-bold text-foreground truncate">{assessment.community?.name || "N/A"}</p>
-          <p className="text-sm text-muted-foreground mt-1">Community</p>
+        <div className="bg-card border border-border rounded-lg p-3 sm:p-4 text-center shadow-sm">
+          <p className="text-base sm:text-xl font-bold text-foreground truncate">{assessment.community?.name || "N/A"}</p>
+          <p className="text-xs sm:text-sm text-muted-foreground mt-1">Community</p>
         </div>
-        <div className="bg-card border border-border rounded-lg p-4 text-center shadow-sm">
-          <p className="text-2xl font-bold text-success">{assessment.certificationLevel || "Pending"}</p>
-          <p className="text-sm text-muted-foreground mt-1">Certification</p>
+        <div className="bg-card border border-border rounded-lg p-3 sm:p-4 text-center shadow-sm">
+          <p className="text-lg sm:text-2xl font-bold text-success">{assessment.certificationLevel || "Pending"}</p>
+          <p className="text-xs sm:text-sm text-muted-foreground mt-1">Certification</p>
         </div>
-        <div className="bg-card border border-border rounded-lg p-4 text-center shadow-sm">
-          <p className="text-3xl font-bold text-warning">{assessment.indicators?.length || 0}</p>
-          <p className="text-sm text-muted-foreground mt-1">Indicators</p>
+        <div className="bg-card border border-border rounded-lg p-3 sm:p-4 text-center shadow-sm">
+          <p className="text-2xl sm:text-3xl font-bold text-warning">{assessment.indicators?.length || 0}</p>
+          <p className="text-xs sm:text-sm text-muted-foreground mt-1">Indicators</p>
         </div>
       </div>
 
       {/* KPI Cards - Row 2 */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <div className="bg-card border border-border rounded-lg p-4 text-center shadow-sm">
-          <p className="text-3xl font-bold text-foreground">{assessment.assessmentYear}</p>
-          <p className="text-sm text-muted-foreground mt-1">Year</p>
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-2 sm:gap-4">
+        <div className="bg-card border border-border rounded-lg p-3 sm:p-4 text-center shadow-sm">
+          <p className="text-2xl sm:text-3xl font-bold text-foreground">{assessment.assessmentYear}</p>
+          <p className="text-xs sm:text-sm text-muted-foreground mt-1">Year</p>
         </div>
-        <div className="bg-card border border-border rounded-lg p-4 text-center shadow-sm">
-          <p className="text-xl font-bold text-foreground">{assessment.status || "N/A"}</p>
-          <p className="text-sm text-muted-foreground mt-1">Status</p>
+        <div className="bg-card border border-border rounded-lg p-3 sm:p-4 text-center shadow-sm">
+          <p className="text-base sm:text-xl font-bold text-foreground">{assessment.status || "N/A"}</p>
+          <p className="text-xs sm:text-sm text-muted-foreground mt-1">Status</p>
         </div>
-        <div className="bg-card border border-border rounded-lg p-4 text-center shadow-sm">
-          <p className="text-3xl font-bold text-success">{assessment.strengths?.length || 0}</p>
-          <p className="text-sm text-muted-foreground mt-1">Strengths</p>
+        <div className="bg-card border border-border rounded-lg p-3 sm:p-4 text-center shadow-sm">
+          <p className="text-2xl sm:text-3xl font-bold text-success">{assessment.strengths?.length || 0}</p>
+          <p className="text-xs sm:text-sm text-muted-foreground mt-1">Strengths</p>
         </div>
-        <div className="bg-card border border-border rounded-lg p-4 text-center shadow-sm">
-          <p className="text-3xl font-bold text-warning">{assessment.recommendations?.length || 0}</p>
-          <p className="text-sm text-muted-foreground mt-1">Recommendations</p>
+        <div className="bg-card border border-border rounded-lg p-3 sm:p-4 text-center shadow-sm">
+          <p className="text-2xl sm:text-3xl font-bold text-warning">{assessment.recommendations?.length || 0}</p>
+          <p className="text-xs sm:text-sm text-muted-foreground mt-1">Recommendations</p>
         </div>
       </div>
 

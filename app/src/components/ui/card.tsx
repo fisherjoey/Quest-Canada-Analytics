@@ -3,7 +3,7 @@ import * as React from 'react';
 import { cva, VariantProps } from 'class-variance-authority';
 import { cn } from '../../lib/utils';
 
-const cardVariants = cva('rounded-xl border shadow hover:shadow-lg transition-all duration-300 xur', {
+const cardVariants = cva('rounded-xl border shadow hover:shadow-lg transition-all duration-300', {
   variants: {
     variant: {
       default: 'bg-card text-card-foreground',

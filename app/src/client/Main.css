@@ -384,7 +384,7 @@ form[class*="auth"] input:focus {
 
   /* Status Badges */
   .status-badge {
-    @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium;
+    @apply inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium;
   }
 
   .status-completed {
@@ -405,6 +405,15 @@ form[class*="auth"] input:focus {
 
   .status-cancelled {
     @apply bg-destructive-muted text-destructive;
+  }
+
+  /* Score Badges - for percentage scores */
+  .score-badge {
+    @apply inline-flex items-center px-3 py-1 rounded-full text-sm font-medium;
+  }
+
+  .score-badge-sm {
+    @apply inline-flex items-center px-2 py-0.5 rounded text-xs font-semibold;
   }
 
   /* Priority Badges */
@@ -477,6 +486,27 @@ form[class*="auth"] input:focus {
 
   .page-description {
     @apply text-base text-muted-foreground mt-1;
+  }
+
+  /* Action Buttons - for consistent link-styled buttons */
+  .btn-action {
+    @apply inline-flex items-center justify-center gap-2 px-4 py-2 rounded-md text-sm font-medium transition-colors;
+  }
+
+  .btn-action-primary {
+    @apply bg-primary text-primary-foreground hover:bg-primary/90;
+  }
+
+  .btn-action-secondary {
+    @apply bg-secondary text-secondary-foreground hover:bg-secondary/80;
+  }
+
+  .btn-action-success {
+    @apply bg-success text-success-foreground hover:bg-success/90;
+  }
+
+  .btn-action-outline {
+    @apply border border-input bg-background hover:bg-accent hover:text-accent-foreground;
   }
 
   /* Section Layout */
