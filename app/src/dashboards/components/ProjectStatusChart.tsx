@@ -96,8 +96,9 @@ export function ProjectStatusChart({ projects }: ProjectStatusChartProps) {
 
   if (projects.length === 0) {
     return (
-      <div className="flex items-center justify-center h-[300px] text-muted-foreground bg-muted rounded-lg">
-        <p>No projects to display</p>
+      <div className="flex flex-col items-center justify-center h-[300px] text-muted-foreground bg-muted/50 rounded-lg border-2 border-dashed border-muted-foreground/25">
+        <p className="text-lg font-medium mb-1">No Data</p>
+        <p className="text-sm">Create projects to view status distribution</p>
       </div>
     );
   }

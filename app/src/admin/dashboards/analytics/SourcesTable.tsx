@@ -35,8 +35,9 @@ const SourcesTable = ({ sources }: { sources: PageViewSource[] | undefined }) =>
             </div>
           ))
         ) : (
-          <div className='flex items-center justify-center p-2.5 xl:p-5'>
-            <p className='text-foreground'>No data to display</p>
+          <div className='flex flex-col items-center justify-center py-8 text-muted-foreground'>
+            <p className='text-base font-medium mb-1'>No Data</p>
+            <p className='text-sm'>Traffic source data will appear here</p>
           </div>
         )}
       </div>

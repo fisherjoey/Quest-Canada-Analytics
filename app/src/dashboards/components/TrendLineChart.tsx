@@ -203,8 +203,9 @@ export function TrendLineChart({
 
   if (communityTrends.length === 0 || communityTrends.every(t => t.assessments.length === 0)) {
     return (
-      <div className="flex items-center justify-center h-[350px] text-muted-foreground bg-muted rounded-lg">
-        <p>Select assessments to view trends over time</p>
+      <div className="flex flex-col items-center justify-center h-[350px] text-muted-foreground bg-muted/50 rounded-lg border-2 border-dashed border-muted-foreground/25">
+        <p className="text-lg font-medium mb-1">No Data</p>
+        <p className="text-sm">Select assessments above to view trends over time</p>
       </div>
     );
   }

@@ -197,6 +197,27 @@ const RevenueAndProfitChart = ({ weeklyStats, isLoading }: DailyStatsProps) => {
     }
   }, [daysOfWeekArr, dailyRevenueArray]);
 
+  if (isLoading) {
+    return (
+      <div className='col-span-12 rounded-sm border border-border bg-card px-5 pt-7.5 pb-5 shadow-default sm:px-7.5 xl:col-span-8'>
+        <div className='flex flex-col items-center justify-center h-[350px] text-muted-foreground'>
+          <p className='text-base font-medium'>Loading...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!weeklyStats || weeklyStats.length === 0) {
+    return (
+      <div className='col-span-12 rounded-sm border border-border bg-card px-5 pt-7.5 pb-5 shadow-default sm:px-7.5 xl:col-span-8'>
+        <div className='flex flex-col items-center justify-center h-[350px] text-muted-foreground bg-muted/50 rounded-lg border-2 border-dashed border-muted-foreground/25'>
+          <p className='text-lg font-medium mb-1'>No Data</p>
+          <p className='text-sm'>Revenue data will appear here once available</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className='col-span-12 rounded-sm border border-border bg-card px-5 pt-7.5 pb-5 shadow-default sm:px-7.5 xl:col-span-8'>
       <div className='flex flex-wrap items-start justify-between gap-3 sm:flex-nowrap'>

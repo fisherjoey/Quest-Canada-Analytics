@@ -79,7 +79,14 @@ export function KPICards({ assessments }: KPICardsProps) {
     };
   }, [assessments]);
 
-  if (!stats) return null;
+  if (!stats) {
+    return (
+      <div className="flex flex-col items-center justify-center h-[120px] text-muted-foreground bg-muted/50 rounded-lg border-2 border-dashed border-muted-foreground/25 mb-6">
+        <p className="text-lg font-medium mb-1">No Data</p>
+        <p className="text-sm">Select assessments to view key performance indicators</p>
+      </div>
+    );
+  }
 
   // Map score level to icon color
   const getScoreIconColor = (score: number): IconColor => {
