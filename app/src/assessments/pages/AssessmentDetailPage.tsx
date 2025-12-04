@@ -3,7 +3,7 @@ import { useQuery } from "wasp/client/operations";
 import { getAssessment } from "wasp/client/operations";
 import { Link } from "wasp/client/router";
 import { useParams } from "react-router-dom";
-import { GrafanaDashboard } from "../../dashboards/GrafanaDashboard";
+import { AssessmentDashboard } from "../components/AssessmentDashboard";
 import { generateAssessmentPDF } from "../pdfExport";
 
 type TabType = 'overview' | 'dashboard' | 'data';
@@ -203,11 +203,7 @@ export default function AssessmentDetailPage() {
 
         {activeTab === 'dashboard' && (
           <div>
-            <GrafanaDashboard
-              dashboardUid="assessment-detail"
-              urlParams={{ 'var-assessment_id': assessment.id }}
-              kiosk={true}
-            />
+            <AssessmentDashboard assessment={assessment} />
           </div>
         )}
 
