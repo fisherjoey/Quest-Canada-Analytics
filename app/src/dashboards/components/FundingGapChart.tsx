@@ -82,6 +82,58 @@ export function FundingGapChart({ projects }: FundingGapChartProps) {
         borderColor: 'hsl(var(--border))',
         xaxis: { lines: { show: true } },
       },
+      responsive: [
+        {
+          breakpoint: 768,
+          options: {
+            yaxis: {
+              labels: {
+                style: { fontSize: '10px' },
+                maxWidth: 120
+              }
+            },
+            xaxis: {
+              labels: {
+                style: { fontSize: '10px' }
+              }
+            },
+            legend: {
+              fontSize: '11px'
+            },
+            dataLabels: {
+              style: { fontSize: '9px' }
+            }
+          }
+        },
+        {
+          breakpoint: 480,
+          options: {
+            yaxis: {
+              labels: {
+                style: { fontSize: '9px' },
+                maxWidth: 80
+              }
+            },
+            xaxis: {
+              labels: {
+                style: { fontSize: '9px' }
+              }
+            },
+            legend: {
+              fontSize: '10px',
+              position: 'bottom'
+            },
+            dataLabels: {
+              enabled: false
+            },
+            plotOptions: {
+              bar: {
+                barHeight: '75%'
+              }
+            }
+          }
+        }
+      ]
     };
 
     return {

@@ -99,6 +99,55 @@ export function FundingChart({ projects }: FundingChartProps) {
         },
       },
       stroke: { width: 2, colors: ['hsl(var(--background))'] },
+      responsive: [
+        {
+          breakpoint: 768,
+          options: {
+            chart: {
+              height: 280
+            },
+            legend: {
+              fontSize: '11px',
+              itemMargin: { horizontal: 6, vertical: 3 }
+            },
+            plotOptions: {
+              pie: {
+                donut: {
+                  labels: {
+                    name: { fontSize: '11px' },
+                    value: { fontSize: '14px' },
+                    total: { fontSize: '10px' }
+                  }
+                }
+              }
+            }
+          }
+        },
+        {
+          breakpoint: 480,
+          options: {
+            chart: {
+              height: 260
+            },
+            legend: {
+              fontSize: '10px',
+              itemMargin: { horizontal: 4, vertical: 2 }
+            },
+            plotOptions: {
+              pie: {
+                donut: {
+                  size: '60%',
+                  labels: {
+                    name: { fontSize: '10px' },
+                    value: { fontSize: '12px' },
+                    total: { fontSize: '9px' }
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
     };
 
     return { series: data, options: chartOptions, totalFunding: total };

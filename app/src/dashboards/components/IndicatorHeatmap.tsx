@@ -183,7 +183,82 @@ export function IndicatorHeatmap({
       stroke: {
         width: 2,
         colors: ['#fff']
-      }
+      },
+      responsive: [
+        {
+          breakpoint: 1024,
+          options: {
+            chart: {
+              height: 380
+            }
+          }
+        },
+        {
+          breakpoint: 768,
+          options: {
+            chart: {
+              height: 350
+            },
+            dataLabels: {
+              style: {
+                fontSize: '9px'
+              }
+            },
+            xaxis: {
+              labels: {
+                style: {
+                  fontSize: '9px'
+                },
+                maxHeight: 70
+              }
+            },
+            yaxis: {
+              labels: {
+                style: {
+                  fontSize: '10px'
+                }
+              }
+            },
+            legend: {
+              fontSize: '10px',
+              itemMargin: {
+                horizontal: 6,
+                vertical: 3
+              }
+            }
+          }
+        },
+        {
+          breakpoint: 480,
+          options: {
+            chart: {
+              height: 320
+            },
+            dataLabels: {
+              enabled: false
+            },
+            xaxis: {
+              labels: {
+                style: {
+                  fontSize: '8px'
+                },
+                rotate: -90,
+                maxHeight: 60
+              }
+            },
+            yaxis: {
+              labels: {
+                style: {
+                  fontSize: '9px'
+                }
+              }
+            },
+            legend: {
+              show: false
+            }
+          }
+        }
+      ]
     };
 
     return { series: seriesData, options: chartOptions };

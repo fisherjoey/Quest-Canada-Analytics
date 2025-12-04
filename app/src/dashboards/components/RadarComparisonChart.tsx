@@ -135,7 +135,76 @@ export function RadarComparisonChart({ assessments, onIndicatorClick }: RadarCom
             }
           }
         }
-      }
+      },
+      responsive: [
+        {
+          breakpoint: 1024,
+          options: {
+            chart: {
+              height: 400
+            },
+            plotOptions: {
+              radar: {
+                size: 150
+              }
+            }
+          }
+        },
+        {
+          breakpoint: 768,
+          options: {
+            chart: {
+              height: 350
+            },
+            plotOptions: {
+              radar: {
+                size: 120
+              }
+            },
+            xaxis: {
+              labels: {
+                style: {
+                  fontSize: '10px'
+                }
+              }
+            },
+            legend: {
+              fontSize: '11px',
+              itemMargin: {
+                horizontal: 8,
+                vertical: 4
+              }
+            }
+          }
+        },
+        {
+          breakpoint: 480,
+          options: {
+            chart: {
+              height: 300
+            },
+            plotOptions: {
+              radar: {
+                size: 90
+              }
+            },
+            xaxis: {
+              labels: {
+                style: {
+                  fontSize: '9px'
+                }
+              }
+            },
+            legend: {
+              fontSize: '10px',
+              itemMargin: {
+                horizontal: 6,
+                vertical: 3
+              }
+            }
+          }
+        }
+      ]
     };
 
     return { series: seriesData, options: chartOptions };

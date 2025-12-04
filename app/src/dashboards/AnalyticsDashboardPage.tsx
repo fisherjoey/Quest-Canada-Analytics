@@ -14,7 +14,9 @@
 import React, { useState, useMemo, useCallback } from 'react';
 import { useQuery } from 'wasp/client/operations';
 import { getAssessments } from 'wasp/client/operations';
-import GridLayout, { Layout } from 'react-grid-layout';
+import { Responsive, WidthProvider, Layout } from 'react-grid-layout';
+
+const ResponsiveGridLayout = WidthProvider(Responsive);
 import { AssessmentSelector } from './components/AssessmentSelector';
 import { RadarComparisonChart } from './components/RadarComparisonChart';
 import { BarComparisonChart } from './components/BarComparisonChart';
@@ -47,25 +49,51 @@ const COMPARISON_COLORS = [
   'hsl(340, 82%, 52%)', // Pink (additional)
 ];
 
-// Default layouts for each template
+// Responsive breakpoints for grid layout
+const GRID_BREAKPOINTS = { lg: 1200, md: 996, sm: 768, xs: 480, xxs: 0 };
+const GRID_COLS = { lg: 12, md: 12, sm: 6, xs: 4, xxs: 2 };
+
+// Default layouts for each template (lg breakpoint)
 const DEFAULT_LAYOUTS: Record<DashboardTemplate, Layout[]> = {
   'community-comparison': [
-    { i: 'radar', x: 0, y: 0, w: 12, h: 14, minW: 6, minH: 10 },
-    { i: 'bar', x: 0, y: 14, w: 6, h: 10, minW: 4, minH: 8 },
-    { i: 'pie', x: 6, y: 14, w: 6, h: 10, minW: 4, minH: 8 },
-    { i: 'heatmap', x: 0, y: 24, w: 12, h: 12, minW: 6, minH: 10 },
+    { i: 'radar', x: 0, y: 0, w: 12, h: 14, minW: 4, minH: 10 },
+    { i: 'bar', x: 0, y: 14, w: 6, h: 10, minW: 3, minH: 8 },
+    { i: 'pie', x: 6, y: 14, w: 6, h: 10, minW: 3, minH: 8 },
+    { i: 'heatmap', x: 0, y: 24, w: 12, h: 12, minW: 4, minH: 10 },
   ],
   'year-over-year': [
-    { i: 'trend-overall', x: 0, y: 0, w: 12, h: 12, minW: 6, minH: 10 },
-    { i: 'trend-governance', x: 0, y: 12, w: 6, h: 10, minW: 4, minH: 8 },
-    { i: 'trend-capacity', x: 6, y: 12, w: 6, h: 10, minW: 4, minH: 8 },
-    { i: 'yoy-change', x: 0, y: 22, w: 12, h: 10, minW: 6, minH: 8 },
+    { i: 'trend-overall', x: 0, y: 0, w: 12, h: 12, minW: 4, minH: 10 },
+    { i: 'trend-governance', x: 0, y: 12, w: 6, h: 10, minW: 3, minH: 8 },
+    { i: 'trend-capacity', x: 6, y: 12, w: 6, h: 10, minW: 3, minH: 8 },
+    { i: 'yoy-change', x: 0, y: 22, w: 12, h: 10, minW: 4, minH: 8 },
   ],
   'indicator-deep-dive': [
-    { i: 'indicator-selector', x: 0, y: 0, w: 12, h: 5, minW: 8, minH: 4 },
-    { i: 'indicator-bar', x: 0, y: 5, w: 6, h: 10, minW: 4, minH: 8 },
-    { i: 'indicator-notes', x: 6, y: 5, w: 6, h: 10, minW: 4, minH: 8 },
-    { i: 'indicator-recs', x: 0, y: 15, w: 12, h: 12, minW: 6, minH: 8 },
+    { i: 'indicator-selector', x: 0, y: 0, w: 12, h: 5, minW: 4, minH: 4 },
+    { i: 'indicator-bar', x: 0, y: 5, w: 6, h: 10, minW: 3, minH: 8 },
+    { i: 'indicator-notes', x: 6, y: 5, w: 6, h: 10, minW: 3, minH: 8 },
+    { i: 'indicator-recs', x: 0, y: 15, w: 12, h: 12, minW: 4, minH: 8 },
+  ],
+};
+
+// Mobile layouts (stacked vertically)
+const MOBILE_LAYOUTS: Record<DashboardTemplate, Layout[]> = {
+  'community-comparison': [
+    { i: 'radar', x: 0, y: 0, w: 2, h: 12 },
+    { i: 'bar', x: 0, y: 12, w: 2, h: 10 },
+    { i: 'pie', x: 0, y: 22, w: 2, h: 10 },
+    { i: 'heatmap', x: 0, y: 32, w: 2, h: 12 },
+  ],
+  'year-over-year': [
+    { i: 'trend-overall', x: 0, y: 0, w: 2, h: 10 },
+    { i: 'trend-governance', x: 0, y: 10, w: 2, h: 10 },
+    { i: 'trend-capacity', x: 0, y: 20, w: 2, h: 10 },
+    { i: 'yoy-change', x: 0, y: 30, w: 2, h: 10 },
+  ],
+  'indicator-deep-dive': [
+    { i: 'indicator-selector', x: 0, y: 0, w: 2, h: 6 },
+    { i: 'indicator-bar', x: 0, y: 6, w: 2, h: 10 },
+    { i: 'indicator-notes', x: 0, y: 16, w: 2, h: 10 },
+    { i: 'indicator-recs', x: 0, y: 26, w: 2, h: 12 },
   ],
 };
 
@@ -127,6 +155,7 @@ export function AnalyticsDashboardPage() {
       communityName: a.community?.name || 'Unknown',
       year: a.assessmentYear,
       overallScore: a.overallScore,
+      maxPossibleScore: a.maxPossibleScore,
       status: a.status,
     }));
   }, [assessments]);
@@ -209,8 +238,16 @@ export function AnalyticsDashboardPage() {
     'Buildings', 'Transportation', 'Waste', 'Energy', 'Other'
   ];
 
-  // Calculate grid width based on selector visibility
-  const gridWidth = showSelector ? 1100 : 1400;
+  // Generate responsive layouts for all breakpoints
+  const responsiveLayouts = useMemo(() => {
+    return {
+      lg: layouts[activeTemplate],
+      md: layouts[activeTemplate],
+      sm: layouts[activeTemplate].map(item => ({ ...item, w: 6, x: 0 })),
+      xs: MOBILE_LAYOUTS[activeTemplate].map(item => ({ ...item, w: 4 })),
+      xxs: MOBILE_LAYOUTS[activeTemplate]
+    };
+  }, [layouts, activeTemplate]);
 
   if (isLoading) {
     return (
@@ -380,7 +417,7 @@ export function AnalyticsDashboardPage() {
   };
 
   return (
-    <div className="max-w-[1800px] mx-auto px-5 py-5">
+    <div className="max-w-[1800px] mx-auto px-3 sm:px-5 py-4 sm:py-5">
       {/* Page Header */}
       <PageHeader
         title="Assessment Analytics"
@@ -413,7 +450,7 @@ export function AnalyticsDashboardPage() {
       />
 
       {/* Template Tabs */}
-      <div className="flex gap-2 mb-4 flex-wrap">
+      <div className="flex gap-2 mb-4 flex-wrap overflow-x-auto pb-2 -mx-3 px-3 sm:mx-0 sm:px-0">
         {templates.map(template => (
           <DashboardTab
             key={template.id}
@@ -426,15 +463,15 @@ export function AnalyticsDashboardPage() {
       </div>
 
       {/* Template Description */}
-      <div className="flex justify-between items-center mb-5 p-3 bg-muted border-l-4 border-quest-teal rounded-r-lg">
-        <p className="m-0 text-muted-foreground">{templates.find(t => t.id === activeTemplate)?.description}</p>
-        {!isLayoutLocked && <span className="text-xs text-muted-foreground italic">Drag widgets to reposition, drag corners to resize</span>}
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 mb-5 p-3 bg-muted border-l-4 border-quest-teal rounded-r-lg">
+        <p className="m-0 text-sm sm:text-base text-muted-foreground">{templates.find(t => t.id === activeTemplate)?.description}</p>
+        {!isLayoutLocked && <span className="text-xs text-muted-foreground italic hidden sm:block">Drag widgets to reposition, drag corners to resize</span>}
       </div>
 
-      <div className="flex gap-6 flex-col lg:flex-row">
+      <div className="flex gap-4 sm:gap-6 flex-col lg:flex-row">
         {/* Assessment Selector Panel */}
         {showSelector && (
-          <div className="w-full lg:w-80 flex-shrink-0 bg-card rounded-xl p-5 shadow-sm border border-border max-h-[calc(100vh-280px)] overflow-y-auto">
+          <div className="w-full lg:w-80 flex-shrink-0 bg-card rounded-xl p-4 sm:p-5 shadow-sm border border-border max-h-[60vh] lg:max-h-[calc(100vh-280px)] overflow-y-auto">
             <div className="flex justify-between items-center mb-4">
               <h3 className="m-0 text-base font-semibold text-foreground">Select Assessments</h3>
               {selectedAssessments.length > 0 && (
@@ -491,14 +528,18 @@ export function AnalyticsDashboardPage() {
               {/* KPI Summary Cards */}
               <KPICards assessments={selectedAssessmentData} />
 
-              {/* Draggable Grid Layout */}
-              <GridLayout
+              {/* Draggable Responsive Grid Layout */}
+              <ResponsiveGridLayout
                 className="mt-5"
-                layout={layouts[activeTemplate]}
-                cols={12}
+                layouts={responsiveLayouts}
+                breakpoints={GRID_BREAKPOINTS}
+                cols={GRID_COLS}
                 rowHeight={30}
-                width={gridWidth}
-                onLayoutChange={handleLayoutChange}
+                onLayoutChange={(currentLayout: Layout[], allLayouts: any) => {
+                  if (allLayouts.lg) {
+                    handleLayoutChange(allLayouts.lg);
+                  }
+                }}
                 isDraggable={!isLayoutLocked}
                 isResizable={!isLayoutLocked}
                 draggableHandle=".widget-drag-handle"
@@ -506,11 +547,11 @@ export function AnalyticsDashboardPage() {
               >
                 {layouts[activeTemplate].map(item => (
                   <div key={item.i} className="dashboard-widget">
-                    <div className="widget-drag-handle h-2 bg-[repeating-linear-gradient(90deg,hsl(var(--border))_0px,hsl(var(--border))_2px,transparent_2px,transparent_4px)] cursor-move rounded-t-xl" />
+                    <div className="widget-drag-handle h-2 bg-[repeating-linear-gradient(90deg,hsl(var(--border))_0px,hsl(var(--border))_2px,transparent_2px,transparent_4px)] cursor-move rounded-t-xl hidden sm:block" />
                     {renderWidget(item.i)}
                   </div>
                 ))}
-              </GridLayout>
+              </ResponsiveGridLayout>
             </>
           )}
         </div>

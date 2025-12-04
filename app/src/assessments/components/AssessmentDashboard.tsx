@@ -24,6 +24,14 @@ const INDICATOR_NAMES: Record<number, string> = {
   10: "Other"
 };
 
+// Calculate percentage score from raw points
+const getPercentageScore = (assessment: any): number => {
+  if (!assessment.overallScore || !assessment.maxPossibleScore) {
+    return 0;
+  }
+  return Math.round((assessment.overallScore / assessment.maxPossibleScore) * 100);
+};
+
 export function AssessmentDashboard({ assessment }: AssessmentDashboardProps) {
   // Prepare indicator scores data for horizontal bar chart
   const indicatorChartData = useMemo(() => {
@@ -178,7 +186,7 @@ export function AssessmentDashboard({ assessment }: AssessmentDashboardProps) {
       {/* KPI Cards - Row 1 */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         <div className="bg-card border border-border rounded-lg p-4 text-center shadow-sm">
-          <p className="text-3xl font-bold text-primary">{assessment.overallScore || 0}%</p>
+          <p className="text-3xl font-bold text-primary">{getPercentageScore(assessment)}%</p>
           <p className="text-sm text-muted-foreground mt-1">Overall Score</p>
         </div>
         <div className="bg-card border border-border rounded-lg p-4 text-center shadow-sm">

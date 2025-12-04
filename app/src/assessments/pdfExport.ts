@@ -15,6 +15,7 @@ interface AssessmentData {
   assessorEmail?: string;
   generalNotes?: string;
   overallScore?: number;
+  maxPossibleScore?: number;
   createdAt: string;
   community?: { name: string };
   indicators?: Array<{
@@ -237,12 +238,13 @@ export async function generateAssessmentPDF(
   yPos += 10;
 
   // Overall Score display (if available)
-  if (assessment.overallScore !== undefined) {
+  if (assessment.overallScore !== undefined && assessment.maxPossibleScore) {
+    const percentageScore = Math.round((assessment.overallScore / assessment.maxPossibleScore) * 100);
     yPos += 5;
     doc.setFont('helvetica', 'bold');
     doc.setFontSize(12);
     doc.setTextColor(...COLORS.accent);
-    doc.text(`Overall Score: ${assessment.overallScore}%`, pageWidth / 2, yPos, { align: 'center' });
+    doc.text(`Overall Score: ${percentageScore}%`, pageWidth / 2, yPos, { align: 'center' });
     doc.setTextColor(...COLORS.black);
     yPos += 5;
   }

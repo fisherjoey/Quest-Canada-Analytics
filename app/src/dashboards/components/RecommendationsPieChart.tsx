@@ -131,17 +131,74 @@ export function RecommendationsPieChart({
         width: 2,
         colors: ['hsl(var(--background))']
       },
-      responsive: [{
-        breakpoint: 480,
-        options: {
-          chart: {
-            width: 280
-          },
-          legend: {
-            position: 'bottom'
+      responsive: [
+        {
+          breakpoint: 768,
+          options: {
+            chart: {
+              height: 300
+            },
+            legend: {
+              fontSize: '11px',
+              itemMargin: {
+                horizontal: 10,
+                vertical: 6
+              }
+            },
+            plotOptions: {
+              pie: {
+                donut: {
+                  labels: {
+                    name: {
+                      fontSize: '12px'
+                    },
+                    value: {
+                      fontSize: '20px'
+                    },
+                    total: {
+                      fontSize: '12px'
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        {
+          breakpoint: 480,
+          options: {
+            chart: {
+              height: 280
+            },
+            legend: {
+              fontSize: '10px',
+              position: 'bottom',
+              itemMargin: {
+                horizontal: 8,
+                vertical: 4
+              }
+            },
+            plotOptions: {
+              pie: {
+                donut: {
+                  size: '60%',
+                  labels: {
+                    name: {
+                      fontSize: '11px'
+                    },
+                    value: {
+                      fontSize: '18px'
+                    },
+                    total: {
+                      fontSize: '11px'
+                    }
+                  }
+                }
+              }
+            }
           }
         }
-      }]
+      ]
     };
 
     return {

@@ -101,6 +101,45 @@ export function MilestoneTimeline({ projects }: MilestoneTimelineProps) {
         borderColor: 'hsl(var(--border))',
         xaxis: { lines: { show: true } },
       },
+      responsive: [
+        {
+          breakpoint: 768,
+          options: {
+            yaxis: {
+              labels: {
+                style: { fontSize: '10px' },
+                maxWidth: 150
+              }
+            },
+            xaxis: {
+              labels: {
+                style: { fontSize: '10px' }
+              }
+            }
+          }
+        },
+        {
+          breakpoint: 480,
+          options: {
+            yaxis: {
+              labels: {
+                style: { fontSize: '9px' },
+                maxWidth: 100
+              }
+            },
+            xaxis: {
+              labels: {
+                style: { fontSize: '9px' }
+              }
+            },
+            plotOptions: {
+              bar: {
+                barHeight: '70%'
+              }
+            }
+          }
+        }
+      ]
     };
 
     return {

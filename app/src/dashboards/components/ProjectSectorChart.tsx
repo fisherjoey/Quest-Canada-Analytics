@@ -104,6 +104,55 @@ export function ProjectSectorChart({ projects, showGhgImpact = false }: ProjectS
         xaxis: { lines: { show: true } },
         yaxis: { lines: { show: false } },
       },
+      responsive: [
+        {
+          breakpoint: 768,
+          options: {
+            chart: {
+              height: 260
+            },
+            yaxis: {
+              labels: {
+                style: { fontSize: '10px' }
+              }
+            },
+            xaxis: {
+              labels: {
+                style: { fontSize: '10px' }
+              }
+            },
+            dataLabels: {
+              style: { fontSize: '10px' }
+            }
+          }
+        },
+        {
+          breakpoint: 480,
+          options: {
+            chart: {
+              height: 240
+            },
+            yaxis: {
+              labels: {
+                style: { fontSize: '9px' }
+              }
+            },
+            xaxis: {
+              labels: {
+                style: { fontSize: '9px' }
+              }
+            },
+            dataLabels: {
+              style: { fontSize: '9px' }
+            },
+            plotOptions: {
+              bar: {
+                barHeight: '70%'
+              }
+            }
+          }
+        }
+      ]
     };
 
     return { series: chartSeries, options: chartOptions };

@@ -107,6 +107,53 @@ export function CommunityComparisonBar({
         xaxis: { lines: { show: true } },
         yaxis: { lines: { show: false } },
       },
+      responsive: [
+        {
+          breakpoint: 768,
+          options: {
+            yaxis: {
+              labels: {
+                style: { fontSize: '10px' },
+                maxWidth: 140
+              }
+            },
+            xaxis: {
+              labels: {
+                style: { fontSize: '10px' }
+              }
+            },
+            dataLabels: {
+              style: { fontSize: '10px' },
+              offsetX: 25
+            }
+          }
+        },
+        {
+          breakpoint: 480,
+          options: {
+            yaxis: {
+              labels: {
+                style: { fontSize: '9px' },
+                maxWidth: 100
+              }
+            },
+            xaxis: {
+              labels: {
+                style: { fontSize: '9px' }
+              }
+            },
+            dataLabels: {
+              style: { fontSize: '9px' },
+              offsetX: 20
+            },
+            plotOptions: {
+              bar: {
+                barHeight: '75%'
+              }
+            }
+          }
+        }
+      ]
     };
 
     return {

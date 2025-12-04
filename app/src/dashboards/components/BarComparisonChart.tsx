@@ -174,7 +174,60 @@ export function BarComparisonChart({
             value: 0.85
           }
         }
-      }
+      },
+      responsive: [
+        {
+          breakpoint: 768,
+          options: {
+            chart: {
+              height: 280
+            },
+            dataLabels: {
+              style: {
+                fontSize: '10px'
+              }
+            },
+            xaxis: {
+              labels: {
+                style: {
+                  fontSize: '10px'
+                },
+                maxHeight: 60
+              }
+            }
+          }
+        },
+        {
+          breakpoint: 480,
+          options: {
+            chart: {
+              height: 250
+            },
+            plotOptions: {
+              bar: {
+                horizontal: true,
+                columnWidth: '80%',
+                barHeight: '80%'
+              }
+            },
+            dataLabels: {
+              offsetY: 0,
+              offsetX: 25,
+              style: {
+                fontSize: '9px'
+              }
+            },
+            xaxis: {
+              labels: {
+                rotate: 0,
+                style: {
+                  fontSize: '9px'
+                }
+              }
+            }
+          }
+        }
+      ]
     };
 
     // Add annotation line for changes

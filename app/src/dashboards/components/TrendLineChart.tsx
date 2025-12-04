@@ -195,7 +195,95 @@ export function TrendLineChart({
             }
           }
         ]
-      }
+      },
+      responsive: [
+        {
+          breakpoint: 768,
+          options: {
+            chart: {
+              height: 300
+            },
+            markers: {
+              size: 4
+            },
+            legend: {
+              fontSize: '11px',
+              itemMargin: {
+                horizontal: 8,
+                vertical: 4
+              }
+            },
+            xaxis: {
+              labels: {
+                style: {
+                  fontSize: '10px'
+                }
+              },
+              title: {
+                style: {
+                  fontSize: '10px'
+                }
+              }
+            },
+            yaxis: {
+              labels: {
+                style: {
+                  fontSize: '10px'
+                }
+              },
+              title: {
+                style: {
+                  fontSize: '10px'
+                }
+              }
+            }
+          }
+        },
+        {
+          breakpoint: 480,
+          options: {
+            chart: {
+              height: 260
+            },
+            stroke: {
+              width: 2
+            },
+            markers: {
+              size: 3
+            },
+            legend: {
+              fontSize: '10px',
+              itemMargin: {
+                horizontal: 6,
+                vertical: 3
+              }
+            },
+            xaxis: {
+              labels: {
+                style: {
+                  fontSize: '9px'
+                }
+              },
+              title: {
+                text: ''
+              }
+            },
+            yaxis: {
+              labels: {
+                style: {
+                  fontSize: '9px'
+                }
+              },
+              title: {
+                text: ''
+              }
+            },
+            annotations: {
+              yaxis: []
+            }
+          }
+        }
+      ]
     };
 
     return { series: seriesData, options: chartOptions };

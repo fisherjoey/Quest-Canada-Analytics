@@ -89,6 +89,55 @@ export function ProjectStatusChart({ projects }: ProjectStatusChartProps) {
         },
       },
       stroke: { width: 2, colors: ['hsl(var(--background))'] },
+      responsive: [
+        {
+          breakpoint: 768,
+          options: {
+            chart: {
+              height: 280
+            },
+            legend: {
+              fontSize: '11px',
+              itemMargin: { horizontal: 8, vertical: 4 }
+            },
+            plotOptions: {
+              pie: {
+                donut: {
+                  labels: {
+                    name: { fontSize: '12px' },
+                    value: { fontSize: '18px' },
+                    total: { fontSize: '11px' }
+                  }
+                }
+              }
+            }
+          }
+        },
+        {
+          breakpoint: 480,
+          options: {
+            chart: {
+              height: 260
+            },
+            legend: {
+              fontSize: '10px',
+              itemMargin: { horizontal: 6, vertical: 3 }
+            },
+            plotOptions: {
+              pie: {
+                donut: {
+                  size: '55%',
+                  labels: {
+                    name: { fontSize: '11px' },
+                    value: { fontSize: '16px' },
+                    total: { fontSize: '10px' }
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
     };
 
     return { series: data, options: chartOptions };

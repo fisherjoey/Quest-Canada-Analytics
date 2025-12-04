@@ -9,6 +9,14 @@ import { generateAssessmentPDF } from "../pdfExport";
 type TabType = 'overview' | 'dashboard' | 'data';
 type DataSection = 'indicators' | 'strengths' | 'recommendations';
 
+// Calculate percentage score from raw points
+const getPercentageScore = (assessment: any): number => {
+  if (!assessment.overallScore || !assessment.maxPossibleScore) {
+    return 0;
+  }
+  return Math.round((assessment.overallScore / assessment.maxPossibleScore) * 100);
+};
+
 export default function AssessmentDetailPage() {
   const { id } = useParams();
   const [activeTab, setActiveTab] = useState<TabType>('overview');
@@ -87,9 +95,9 @@ export default function AssessmentDetailPage() {
             <p className="text-muted-foreground mt-2">
               Year: {assessment.assessmentYear} | Created: {new Date(assessment.createdAt).toLocaleDateString()}
             </p>
-            {assessment.overallScore !== undefined && (
+            {assessment.overallScore !== undefined && assessment.maxPossibleScore && (
               <p className="text-lg font-semibold text-primary mt-1">
-                Overall Score: {assessment.overallScore}%
+                Overall Score: {getPercentageScore(assessment)}%
               </p>
             )}
           </div>
@@ -183,7 +191,7 @@ export default function AssessmentDetailPage() {
                   <p className="text-sm text-warning">Recommendations</p>
                 </div>
                 <div className="bg-secondary/10 dark:bg-secondary/20 p-4 rounded text-center border border-secondary/20">
-                  <p className="text-2xl font-bold text-secondary">{assessment.overallScore || 0}%</p>
+                  <p className="text-2xl font-bold text-secondary">{getPercentageScore(assessment)}%</p>
                   <p className="text-sm text-secondary">Overall Score</p>
                 </div>
               </div>

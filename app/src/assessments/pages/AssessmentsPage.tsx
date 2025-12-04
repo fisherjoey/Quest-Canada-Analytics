@@ -8,9 +8,18 @@ interface Assessment {
   assessmentYear: number;
   createdAt: string;
   overallScore?: number;
+  maxPossibleScore?: number;
   status: string;
   community?: { name: string };
 }
+
+// Calculate percentage score from raw points
+const getPercentageScore = (assessment: Assessment): number | undefined => {
+  if (assessment.overallScore === undefined || !assessment.maxPossibleScore) {
+    return undefined;
+  }
+  return Math.round((assessment.overallScore / assessment.maxPossibleScore) * 100);
+};
 
 interface GroupedAssessments {
   [communityName: string]: Assessment[];
@@ -139,9 +148,9 @@ export default function AssessmentsPage() {
                       <h2 className="text-xl font-semibold text-foreground">{communityName}</h2>
                       <p className="text-sm text-muted-foreground">
                         {communityAssessments.length} {communityAssessments.length === 1 ? 'assessment' : 'assessments'}
-                        {latestAssessment.overallScore !== undefined && (
+                        {getPercentageScore(latestAssessment) !== undefined && (
                           <span className="ml-2">
-                            • Latest score: <span className="font-medium text-primary">{latestAssessment.overallScore}%</span>
+                            • Latest score: <span className="font-medium text-primary">{getPercentageScore(latestAssessment)}%</span>
                           </span>
                         )}
                       </p>
@@ -175,13 +184,13 @@ export default function AssessmentsPage() {
                               </span>
                             </div>
                             <div className="flex items-center gap-4">
-                              {assessment.overallScore !== undefined && (
+                              {getPercentageScore(assessment) !== undefined && (
                                 <span className={`px-3 py-1 rounded-full text-sm font-medium ${
-                                  assessment.overallScore >= 70 ? 'bg-success/20 text-success dark:bg-success/30' :
-                                  assessment.overallScore >= 50 ? 'bg-warning/20 text-warning dark:bg-warning/30' :
+                                  getPercentageScore(assessment)! >= 70 ? 'bg-success/20 text-success dark:bg-success/30' :
+                                  getPercentageScore(assessment)! >= 50 ? 'bg-warning/20 text-warning dark:bg-warning/30' :
                                   'bg-destructive/20 text-destructive dark:bg-destructive/30'
                                 }`}>
-                                  {assessment.overallScore}%
+                                  {getPercentageScore(assessment)}%
                                 </span>
                               )}
                               <span className={`px-2 py-1 rounded text-xs font-medium ${

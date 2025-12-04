@@ -8,7 +8,9 @@
 import React, { useState, useRef, useMemo, useCallback, useEffect } from 'react';
 import { useQuery } from 'wasp/client/operations';
 import { getProjects, getAssessments } from 'wasp/client/operations';
-import GridLayout, { Layout } from 'react-grid-layout';
+import { Responsive, WidthProvider, Layout } from 'react-grid-layout';
+
+const ResponsiveGridLayout = WidthProvider(Responsive);
 import { LayoutGrid, DollarSign, CheckCircle2, Users, BarChart3, Building, Lock, Unlock, RotateCcw } from 'lucide-react';
 import { cn } from '../lib/utils';
 import { DashboardTab as DashboardTabComponent } from '../components/ui/dashboard-tab';
@@ -45,40 +47,81 @@ interface DashboardInfo {
   icon: React.ReactNode;
 }
 
+// Responsive breakpoints for grid layout
+const GRID_BREAKPOINTS = { lg: 1200, md: 996, sm: 768, xs: 480, xxs: 0 };
+const GRID_COLS = { lg: 12, md: 12, sm: 6, xs: 4, xxs: 2 };
+
 // Default layouts for each dashboard
 const DEFAULT_LAYOUTS: Record<DashboardTab, Layout[]> = {
   overview: [
-    { i: 'status', x: 0, y: 0, w: 6, h: 10, minW: 4, minH: 8 },
-    { i: 'sector', x: 6, y: 0, w: 6, h: 10, minW: 4, minH: 8 },
-    { i: 'milestones', x: 0, y: 10, w: 12, h: 12, minW: 6, minH: 10 },
+    { i: 'status', x: 0, y: 0, w: 6, h: 10, minW: 3, minH: 8 },
+    { i: 'sector', x: 6, y: 0, w: 6, h: 10, minW: 3, minH: 8 },
+    { i: 'milestones', x: 0, y: 10, w: 12, h: 12, minW: 4, minH: 10 },
   ],
   funding: [
-    { i: 'funding-breakdown', x: 0, y: 0, w: 6, h: 10, minW: 4, minH: 8 },
-    { i: 'funding-gap', x: 6, y: 0, w: 6, h: 12, minW: 4, minH: 10 },
-    { i: 'sector-cost', x: 0, y: 12, w: 12, h: 10, minW: 6, minH: 8 },
+    { i: 'funding-breakdown', x: 0, y: 0, w: 6, h: 10, minW: 3, minH: 8 },
+    { i: 'funding-gap', x: 6, y: 0, w: 6, h: 12, minW: 3, minH: 10 },
+    { i: 'sector-cost', x: 0, y: 12, w: 12, h: 10, minW: 4, minH: 8 },
   ],
   milestones: [
-    { i: 'timeline', x: 0, y: 0, w: 12, h: 16, minW: 8, minH: 12 },
-    { i: 'status-breakdown', x: 0, y: 16, w: 6, h: 10, minW: 4, minH: 8 },
-    { i: 'completion-rate', x: 6, y: 16, w: 6, h: 10, minW: 4, minH: 8 },
+    { i: 'timeline', x: 0, y: 0, w: 12, h: 16, minW: 4, minH: 12 },
+    { i: 'status-breakdown', x: 0, y: 16, w: 6, h: 10, minW: 3, minH: 8 },
+    { i: 'completion-rate', x: 6, y: 16, w: 6, h: 10, minW: 3, minH: 8 },
   ],
   assessments: [
-    { i: 'community-scores', x: 0, y: 0, w: 12, h: 12, minW: 6, minH: 10 },
-    { i: 'heatmap', x: 0, y: 12, w: 12, h: 12, minW: 6, minH: 10 },
-    { i: 'recommendations', x: 0, y: 24, w: 6, h: 10, minW: 4, minH: 8 },
-    { i: 'radar', x: 6, y: 24, w: 6, h: 10, minW: 4, minH: 8 },
+    { i: 'community-scores', x: 0, y: 0, w: 12, h: 12, minW: 4, minH: 10 },
+    { i: 'heatmap', x: 0, y: 12, w: 12, h: 12, minW: 4, minH: 10 },
+    { i: 'recommendations', x: 0, y: 24, w: 6, h: 10, minW: 3, minH: 8 },
+    { i: 'radar', x: 6, y: 24, w: 6, h: 10, minW: 3, minH: 8 },
   ],
   community: [
-    { i: 'overview-scores', x: 0, y: 0, w: 6, h: 10, minW: 4, minH: 8 },
-    { i: 'project-status', x: 6, y: 0, w: 6, h: 10, minW: 4, minH: 8 },
-    { i: 'recommendations-pie', x: 0, y: 10, w: 6, h: 10, minW: 4, minH: 8 },
-    { i: 'funding-summary', x: 6, y: 10, w: 6, h: 10, minW: 4, minH: 8 },
+    { i: 'overview-scores', x: 0, y: 0, w: 6, h: 10, minW: 3, minH: 8 },
+    { i: 'project-status', x: 6, y: 0, w: 6, h: 10, minW: 3, minH: 8 },
+    { i: 'recommendations-pie', x: 0, y: 10, w: 6, h: 10, minW: 3, minH: 8 },
+    { i: 'funding-summary', x: 6, y: 10, w: 6, h: 10, minW: 3, minH: 8 },
   ],
   funder: [
-    { i: 'portfolio-status', x: 0, y: 0, w: 6, h: 10, minW: 4, minH: 8 },
-    { i: 'ghg-impact', x: 6, y: 0, w: 6, h: 10, minW: 4, minH: 8 },
-    { i: 'funding-allocation', x: 0, y: 10, w: 6, h: 10, minW: 4, minH: 8 },
-    { i: 'community-progress', x: 6, y: 10, w: 6, h: 12, minW: 4, minH: 10 },
+    { i: 'portfolio-status', x: 0, y: 0, w: 6, h: 10, minW: 3, minH: 8 },
+    { i: 'ghg-impact', x: 6, y: 0, w: 6, h: 10, minW: 3, minH: 8 },
+    { i: 'funding-allocation', x: 0, y: 10, w: 6, h: 10, minW: 3, minH: 8 },
+    { i: 'community-progress', x: 6, y: 10, w: 6, h: 12, minW: 3, minH: 10 },
+  ],
+};
+
+// Mobile layouts (stacked vertically)
+const MOBILE_LAYOUTS: Record<DashboardTab, Layout[]> = {
+  overview: [
+    { i: 'status', x: 0, y: 0, w: 2, h: 10 },
+    { i: 'sector', x: 0, y: 10, w: 2, h: 10 },
+    { i: 'milestones', x: 0, y: 20, w: 2, h: 10 },
+  ],
+  funding: [
+    { i: 'funding-breakdown', x: 0, y: 0, w: 2, h: 10 },
+    { i: 'funding-gap', x: 0, y: 10, w: 2, h: 12 },
+    { i: 'sector-cost', x: 0, y: 22, w: 2, h: 10 },
+  ],
+  milestones: [
+    { i: 'timeline', x: 0, y: 0, w: 2, h: 14 },
+    { i: 'status-breakdown', x: 0, y: 14, w: 2, h: 10 },
+    { i: 'completion-rate', x: 0, y: 24, w: 2, h: 10 },
+  ],
+  assessments: [
+    { i: 'community-scores', x: 0, y: 0, w: 2, h: 10 },
+    { i: 'heatmap', x: 0, y: 10, w: 2, h: 10 },
+    { i: 'recommendations', x: 0, y: 20, w: 2, h: 10 },
+    { i: 'radar', x: 0, y: 30, w: 2, h: 10 },
+  ],
+  community: [
+    { i: 'overview-scores', x: 0, y: 0, w: 2, h: 10 },
+    { i: 'project-status', x: 0, y: 10, w: 2, h: 10 },
+    { i: 'recommendations-pie', x: 0, y: 20, w: 2, h: 10 },
+    { i: 'funding-summary', x: 0, y: 30, w: 2, h: 10 },
+  ],
+  funder: [
+    { i: 'portfolio-status', x: 0, y: 0, w: 2, h: 10 },
+    { i: 'ghg-impact', x: 0, y: 10, w: 2, h: 10 },
+    { i: 'funding-allocation', x: 0, y: 20, w: 2, h: 10 },
+    { i: 'community-progress', x: 0, y: 30, w: 2, h: 10 },
   ],
 };
 
@@ -130,23 +173,6 @@ export function DashboardsPage() {
   const [activeTab, setActiveTab] = useState<DashboardTab>('overview');
   const [isLayoutLocked, setIsLayoutLocked] = useState(false);
   const contentRef = useRef<HTMLDivElement>(null);
-  const gridContainerRef = useRef<HTMLDivElement>(null);
-  const [gridWidth, setGridWidth] = useState(1200);
-
-  // Track container width for responsive grid
-  useEffect(() => {
-    const updateWidth = () => {
-      if (gridContainerRef.current) {
-        // Subtract padding (40px = 20px on each side)
-        const containerWidth = gridContainerRef.current.offsetWidth - 40;
-        setGridWidth(Math.max(containerWidth, 600));
-      }
-    };
-
-    updateWidth();
-    window.addEventListener('resize', updateWidth);
-    return () => window.removeEventListener('resize', updateWidth);
-  }, []);
 
   // Load layouts from localStorage
   const [layouts, setLayouts] = useState<Record<DashboardTab, Layout[]>>(() => {
@@ -185,6 +211,17 @@ export function DashboardsPage() {
 
   const activeDashboard = dashboards.find(d => d.id === activeTab);
   const isLoading = projectsLoading || assessmentsLoading;
+
+  // Generate responsive layouts for all breakpoints
+  const responsiveLayouts = useMemo(() => {
+    return {
+      lg: layouts[activeTab],
+      md: layouts[activeTab],
+      sm: layouts[activeTab].map(item => ({ ...item, w: 6, x: 0 })),
+      xs: MOBILE_LAYOUTS[activeTab].map(item => ({ ...item, w: 4 })),
+      xxs: MOBILE_LAYOUTS[activeTab]
+    };
+  }, [layouts, activeTab]);
 
   // Latest assessments for charts
   const latestAssessments = useMemo(() => {
@@ -396,7 +433,7 @@ export function DashboardsPage() {
   }
 
   return (
-    <div className="w-full px-4 sm:px-6 lg:px-8 py-5">
+    <div className="w-full px-3 sm:px-4 md:px-6 lg:px-8 py-4 sm:py-5">
       {/* Page Header */}
       <PageHeader
         title="Quest Canada Dashboards"
@@ -427,7 +464,7 @@ export function DashboardsPage() {
       />
 
       {/* Dashboard Tabs */}
-      <div className="flex gap-2 mb-6 overflow-x-auto py-2 border-b-2 border-border">
+      <div className="flex gap-2 mb-4 sm:mb-6 overflow-x-auto pb-2 -mx-3 px-3 sm:mx-0 sm:px-0 border-b-2 border-border">
         {dashboards.map(dashboard => (
           <DashboardTabComponent
             key={dashboard.id}
@@ -441,11 +478,11 @@ export function DashboardsPage() {
 
       {/* Dashboard Description */}
       {activeDashboard && (
-        <div className="flex flex-col gap-1 bg-card p-4 rounded-lg mb-6 border-l-4 border-quest-teal shadow-sm border border-border">
-          <h2 className="text-xl font-semibold text-foreground m-0">{activeDashboard.label}</h2>
-          <p className="text-sm text-muted-foreground m-0">{activeDashboard.description}</p>
+        <div className="flex flex-col gap-1 bg-card p-3 sm:p-4 rounded-lg mb-4 sm:mb-6 border-l-4 border-quest-teal shadow-sm border border-border">
+          <h2 className="text-lg sm:text-xl font-semibold text-foreground m-0">{activeDashboard.label}</h2>
+          <p className="text-xs sm:text-sm text-muted-foreground m-0">{activeDashboard.description}</p>
           {!isLayoutLocked && (
-            <span className="text-xs text-muted-foreground italic mt-1">
+            <span className="text-xs text-muted-foreground italic mt-1 hidden sm:block">
               Drag widgets to reposition, drag corners to resize
             </span>
           )}
@@ -453,7 +490,7 @@ export function DashboardsPage() {
       )}
 
       {/* Dashboard Content */}
-      <div ref={contentRef} className="bg-card rounded-xl p-5 shadow-sm border border-border">
+      <div ref={contentRef} className="bg-card rounded-xl p-3 sm:p-5 shadow-sm border border-border">
         {/* KPI Cards */}
         <DashboardKPICards
           projects={projects || []}
@@ -461,14 +498,18 @@ export function DashboardsPage() {
           type={activeTab === 'assessments' ? 'assessments' : activeTab === 'overview' || activeTab === 'community' ? 'combined' : 'projects'}
         />
 
-        {/* Grid Layout Container */}
-        <div ref={gridContainerRef} className="mt-4 w-full">
-          <GridLayout
-            layout={layouts[activeTab]}
-            cols={12}
+        {/* Responsive Grid Layout Container */}
+        <div className="mt-4 w-full">
+          <ResponsiveGridLayout
+            layouts={responsiveLayouts}
+            breakpoints={GRID_BREAKPOINTS}
+            cols={GRID_COLS}
             rowHeight={30}
-            width={gridWidth}
-            onLayoutChange={handleLayoutChange}
+            onLayoutChange={(currentLayout: Layout[], allLayouts: any) => {
+              if (allLayouts.lg) {
+                handleLayoutChange(allLayouts.lg);
+              }
+            }}
             isDraggable={!isLayoutLocked}
             isResizable={!isLayoutLocked}
             draggableHandle=".widget-drag-handle"
@@ -476,11 +517,11 @@ export function DashboardsPage() {
           >
             {layouts[activeTab].map(item => (
               <div key={item.i} className="dashboard-widget">
-                <div className="widget-drag-handle h-2 bg-[repeating-linear-gradient(90deg,hsl(var(--border))_0px,hsl(var(--border))_2px,transparent_2px,transparent_4px)] cursor-move rounded-t-xl" />
+                <div className="widget-drag-handle h-2 bg-[repeating-linear-gradient(90deg,hsl(var(--border))_0px,hsl(var(--border))_2px,transparent_2px,transparent_4px)] cursor-move rounded-t-xl hidden sm:block" />
                 {renderWidget(item.i)}
               </div>
             ))}
-          </GridLayout>
+          </ResponsiveGridLayout>
         </div>
       </div>
 

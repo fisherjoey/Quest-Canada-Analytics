@@ -15,8 +15,17 @@ interface AssessmentOption {
   communityName: string;
   year: number;
   overallScore: number | null;
+  maxPossibleScore: number | null;
   status: string;
 }
+
+// Calculate percentage score from raw points
+const getPercentageScore = (assessment: AssessmentOption): number | null => {
+  if (assessment.overallScore === null || !assessment.maxPossibleScore) {
+    return null;
+  }
+  return Math.round((assessment.overallScore / assessment.maxPossibleScore) * 100);
+};
 
 interface AssessmentSelectorProps {
   assessments: AssessmentOption[];
@@ -209,9 +218,9 @@ export function AssessmentSelector({
                             <span className="font-semibold text-foreground">{assessment.year}</span>
                             <span className="text-[11px] text-muted-foreground uppercase">{assessment.status}</span>
                           </div>
-                          <div className={cn("font-bold text-sm", getScoreColorClass(assessment.overallScore))}>
-                            {assessment.overallScore !== null
-                              ? `${assessment.overallScore.toFixed(0)}%`
+                          <div className={cn("font-bold text-sm", getScoreColorClass(getPercentageScore(assessment)))}>
+                            {getPercentageScore(assessment) !== null
+                              ? `${getPercentageScore(assessment)}%`
                               : '-'
                             }
                           </div>
