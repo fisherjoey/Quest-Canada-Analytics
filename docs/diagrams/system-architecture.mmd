@@ -1,0 +1,50 @@
+flowchart TB
+    subgraph Client["Client Browser"]
+        LP[Landing Page]
+        AD[Assessment Pages]
+        PD[Project Pages]
+        AN[Analytics Dashboard]
+        PDF[PDF Export]
+    end
+
+    subgraph WaspBackend["Wasp Backend (Node.js)"]
+        API[API Routes]
+        AUTH[Auth Service]
+        OPS[Operations Layer]
+    end
+
+    subgraph Services["Application Services"]
+        AI[AI Extraction Service]
+        PDFGEN[PDF Generator]
+        S3SVC[S3 Service]
+    end
+
+    subgraph External["External Services"]
+        CLAUDE[Claude Haiku 4.5 API]
+        S3[AWS S3 Storage]
+        GRAFANA[Grafana Dashboards]
+        SMTP[Email Service]
+    end
+
+    subgraph Database["PostgreSQL Database"]
+        USERS[(Users)]
+        COMM[(Communities)]
+        ASSESS[(Assessments)]
+        PROJ[(Projects)]
+        LOGS[(Extraction Logs)]
+    end
+
+    Client -->|HTTPS| API
+    API --> AUTH
+    API --> OPS
+
+    OPS --> AI
+    OPS --> PDFGEN
+    OPS --> S3SVC
+
+    AI -->|Streaming API| CLAUDE
+    PDFGEN -->|Render API| GRAFANA
+    S3SVC -->|Presigned URLs| S3
+    AUTH -->|Email Verification| SMTP
+
+    OPS -->|Prisma ORM| Database

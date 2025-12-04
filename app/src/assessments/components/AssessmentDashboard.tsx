@@ -107,7 +107,7 @@ export function AssessmentDashboard({ assessment }: AssessmentDashboardProps) {
     legend: {
       position: "right",
       fontSize: "13px",
-      markers: { size: 8 },
+      markers: { width: 8, height: 8 },
       itemMargin: { horizontal: 8, vertical: 4 }
     },
     dataLabels: {

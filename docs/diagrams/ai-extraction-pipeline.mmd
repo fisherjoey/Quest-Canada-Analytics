@@ -1,0 +1,48 @@
+sequenceDiagram
+    participant U as User
+    participant FE as Frontend
+    participant BE as Backend API
+    participant DB as PostgreSQL
+    participant AI as Claude API
+
+    U->>FE: Upload PDF file
+    FE->>FE: Convert to Base64
+    FE->>BE: POST /extractAssessmentFromPDF
+
+    BE->>DB: INSERT AiExtractionLog (status=PROCESSING)
+    DB-->>BE: Return extractionLogId
+    BE-->>FE: Return { extractionLogId, processing: true }
+
+    Note over FE: Display "Processing..." status
+
+    rect rgb(240, 240, 240)
+        Note over BE,AI: Async Background Process
+        BE->>BE: Extract text from PDF (pdf-parse)
+        BE->>AI: Stream message request
+        AI-->>BE: JSON response (streaming chunks)
+        BE->>BE: Parse JSON from response
+        BE->>DB: UPDATE AiExtractionLog (status=COMPLETED)
+    end
+
+    loop Every 2 seconds
+        FE->>BE: GET /getExtractionStatus
+        BE->>DB: SELECT status FROM AiExtractionLog
+        DB-->>BE: Return status + data
+        BE-->>FE: Return { status, extractedData }
+    end
+
+    Note over FE: Display Review Page
+
+    U->>FE: Review and confirm data
+    FE->>BE: POST /importExtractedAssessment
+
+    BE->>DB: INSERT Assessment
+    BE->>DB: INSERT IndicatorScore[] (10 records)
+    BE->>DB: INSERT Strength[] (n records)
+    BE->>DB: INSERT Recommendation[] (n records)
+
+    DB-->>BE: Return assessmentId
+    BE-->>FE: Return { success: true, assessmentId }
+
+    FE->>FE: Navigate to /assessments/{id}
+    Note over U: View imported assessment

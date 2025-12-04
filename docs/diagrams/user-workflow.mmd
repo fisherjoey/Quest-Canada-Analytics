@@ -1,0 +1,35 @@
+flowchart LR
+    subgraph Upload["1. Upload"]
+        A[Select PDF File]
+        B[Upload to Server]
+    end
+
+    subgraph Extract["2. AI Extraction"]
+        C[Parse PDF Text]
+        D[Send to Claude API]
+        E[Receive Structured Data]
+    end
+
+    subgraph Review["3. Review"]
+        F[Display Extracted Data]
+        G{Data Correct?}
+        H[Manual Corrections]
+    end
+
+    subgraph Import["4. Import"]
+        I[Create Assessment Record]
+        J[Create Indicators]
+        K[Create Strengths]
+        L[Create Recommendations]
+    end
+
+    subgraph Analyze["5. Analyze"]
+        M[View Dashboard]
+        N[Compare Communities]
+        O[Export PDF Report]
+    end
+
+    A --> B --> C --> D --> E --> F --> G
+    G -->|No| H --> F
+    G -->|Yes| I --> J --> K --> L --> M
+    M --> N --> O
