@@ -76,25 +76,25 @@ export function getKpiIconClass(color: IconColor): string {
 }
 
 // Chart color palette using CSS variable values
-// These are HSL values that match our design tokens
+// These are HSL values that match our design tokens (teal-based theme)
 export const CHART_COLORS = {
   questTeal: 'hsl(173, 100%, 33%)',
   destructive: 'hsl(0, 84%, 60%)',
-  info: 'hsl(211, 100%, 50%)',
+  info: 'hsl(199, 89%, 48%)',
   warning: 'hsl(38, 92%, 50%)',
-  success: 'hsl(145, 65%, 40%)',
-  primary: 'hsl(145, 65%, 35%)',
-  secondary: 'hsl(140, 45%, 55%)',
+  success: 'hsl(160, 65%, 40%)',
+  primary: 'hsl(173, 100%, 33%)',
+  secondary: 'hsl(173, 60%, 45%)',
   purple: 'hsl(271, 40%, 55%)',
 } as const;
 
 // Array of chart colors for sequential use
 export const CHART_COLOR_PALETTE = [
   CHART_COLORS.questTeal,
-  CHART_COLORS.destructive,
   CHART_COLORS.info,
-  CHART_COLORS.warning,
   CHART_COLORS.success,
+  CHART_COLORS.warning,
+  CHART_COLORS.destructive,
   CHART_COLORS.purple,
   CHART_COLORS.secondary,
 ] as const;
@@ -121,7 +121,7 @@ export function getScoreChartColor(score: number | null): string {
 export const STATUS_CHART_COLORS = {
   completed: CHART_COLORS.success,
   'in-progress': CHART_COLORS.info,
-  pending: 'hsl(140, 10%, 45%)', // muted-foreground
+  pending: 'hsl(173, 10%, 45%)', // muted-foreground
   delayed: CHART_COLORS.warning,
   cancelled: CHART_COLORS.destructive,
 } as const;

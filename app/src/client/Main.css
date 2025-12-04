@@ -102,37 +102,64 @@
   @apply dark:!border-b-muted;
 }
 
+/* Cookie Consent Banner - Dark Mode */
+.dark #cc-main {
+  --cc-bg: hsl(175 25% 10%);
+  --cc-text: hsl(0 0% 98%);
+  --cc-btn-primary-bg: hsl(173 80% 45%);
+  --cc-btn-primary-text: hsl(0 0% 98%);
+  --cc-btn-primary-hover-bg: hsl(173 80% 40%);
+  --cc-btn-secondary-bg: hsl(175 20% 22%);
+  --cc-btn-secondary-text: hsl(0 0% 98%);
+  --cc-btn-secondary-hover-bg: hsl(175 20% 28%);
+  --cc-toggle-bg-off: hsl(175 15% 25%);
+  --cc-toggle-bg-on: hsl(173 80% 45%);
+  --cc-cookie-category-block-bg: hsl(175 20% 15%);
+  --cc-cookie-category-block-bg-hover: hsl(175 20% 18%);
+  --cc-section-border: hsl(175 15% 22%);
+  --cc-overlay-bg: rgba(0, 0, 0, 0.65);
+  --cc-separator-border-color: hsl(175 15% 22%);
+}
+
+.dark .cc-link {
+  color: hsl(173 80% 55%) !important;
+}
+
+.dark .cc-link:hover {
+  color: hsl(173 80% 65%) !important;
+}
+
 @layer base {
   :root {
     --background: 0 0% 100%;
-    --foreground: 140 20% 15%;
+    --foreground: 175 20% 15%;
     --card: 0 0% 100%;
-    --card-foreground: 140 20% 15%;
-    --card-accent: 140 35% 95%;
-    --card-accent-foreground: 140 20% 15%;
-    --card-subtle: 140 20% 98%;
-    --card-subtle-foreground: 140 20% 15%;
+    --card-foreground: 175 20% 15%;
+    --card-accent: 173 35% 95%;
+    --card-accent-foreground: 175 20% 15%;
+    --card-subtle: 173 20% 98%;
+    --card-subtle-foreground: 175 20% 15%;
     --popover: 0 0% 100%;
-    --popover-foreground: 140 20% 15%;
-    --primary: 145 65% 35%;
+    --popover-foreground: 175 20% 15%;
+    --primary: 173 100% 33%;
     --primary-foreground: 0 0% 98%;
-    --secondary: 140 45% 55%;
+    --secondary: 173 60% 45%;
     --secondary-foreground: 0 0% 98%;
-    --secondary-muted: 140 35% 75%;
-    --secondary-muted-foreground: 140 20% 15%;
-    --muted: 140 20% 96%;
-    --muted-foreground: 140 10% 45%;
-    --accent: 145 65% 35%;
+    --secondary-muted: 173 40% 70%;
+    --secondary-muted-foreground: 175 20% 15%;
+    --muted: 173 15% 96%;
+    --muted-foreground: 173 10% 45%;
+    --accent: 173 100% 33%;
     --accent-foreground: 0 0% 98%;
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 98%;
-    --success: 145 65% 40%;
+    --success: 160 65% 40%;
     --success-foreground: 0 0% 98%;
     --warning: 38 92% 50%;
     --warning-foreground: 0 0% 98%;
-    --border: 140 20% 89%;
-    --input: 140 20% 89%;
-    --ring: 145 65% 35%;
+    --border: 173 15% 89%;
+    --input: 173 15% 89%;
+    --ring: 173 100% 33%;
     --radius: 0.5rem;
 
     /* Quest Brand Colors */
@@ -140,61 +167,61 @@
     --quest-teal-foreground: 0 0% 98%;
 
     /* Info color */
-    --info: 211 100% 50%;
+    --info: 199 89% 48%;
     --info-foreground: 0 0% 98%;
 
     /* Muted semantic backgrounds */
-    --success-muted: 145 40% 95%;
+    --success-muted: 160 40% 95%;
     --warning-muted: 38 60% 95%;
     --destructive-muted: 0 50% 95%;
-    --info-muted: 211 60% 95%;
+    --info-muted: 199 60% 95%;
     --quest-teal-muted: 173 60% 95%;
   }
 
   .dark {
-    --background: 140 30% 8%;
+    --background: 175 30% 8%;
     --foreground: 0 0% 98%;
-    --card: 140 30% 8%;
+    --card: 175 25% 10%;
     --card-foreground: 0 0% 98%;
-    --card-accent: 140 25% 85%;
-    --card-accent-foreground: 140 30% 8%;
-    --card-subtle: 140 25% 12%;
+    --card-accent: 173 25% 85%;
+    --card-accent-foreground: 175 30% 8%;
+    --card-subtle: 175 25% 12%;
     --card-subtle-foreground: 0 0% 98%;
-    --popover: 140 30% 8%;
+    --popover: 175 25% 10%;
     --popover-foreground: 0 0% 98%;
-    --primary: 140 25% 85%;
-    --primary-foreground: 140 30% 8%;
-    --secondary: 145 60% 50%;
+    --primary: 173 80% 45%;
+    --primary-foreground: 0 0% 98%;
+    --secondary: 173 60% 50%;
     --secondary-foreground: 0 0% 98%;
-    --secondary-muted: 145 30% 70%;
-    --secondary-muted-foreground: 140 30% 8%;
-    --muted: 140 25% 15%;
+    --secondary-muted: 173 30% 65%;
+    --secondary-muted-foreground: 175 30% 8%;
+    --muted: 175 20% 15%;
     --muted-foreground: 0 0% 65%;
-    --accent: 140 20% 22%;
+    --accent: 175 20% 22%;
     --accent-foreground: 0 0% 98%;
     --destructive: 0 62% 63%;
     --destructive-foreground: 0 0% 98%;
-    --success: 145 60% 45%;
+    --success: 160 60% 45%;
     --success-foreground: 0 0% 98%;
     --warning: 38 92% 50%;
     --warning-foreground: 0 0% 98%;
-    --border: 140 20% 20%;
-    --input: 140 20% 20%;
-    --ring: 0 0% 83%;
+    --border: 175 15% 22%;
+    --input: 175 15% 22%;
+    --ring: 173 80% 45%;
 
     /* Quest Brand Colors - Dark Mode */
     --quest-teal: 173 80% 45%;
     --quest-teal-foreground: 0 0% 98%;
 
     /* Info color - Dark Mode */
-    --info: 211 80% 60%;
+    --info: 199 80% 60%;
     --info-foreground: 0 0% 98%;
 
     /* Muted semantic backgrounds - Dark Mode */
-    --success-muted: 145 30% 20%;
+    --success-muted: 160 30% 20%;
     --warning-muted: 38 40% 20%;
     --destructive-muted: 0 40% 20%;
-    --info-muted: 211 40% 20%;
+    --info-muted: 199 40% 20%;
     --quest-teal-muted: 173 40% 20%;
   }
 }

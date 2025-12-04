@@ -141,23 +141,18 @@ export function GrafanaDashboard({
     : height;
 
   return (
-    <div className={`grafana-dashboard-container ${className}`} style={{ width: '100%', margin: '20px 0' }}>
+    <div className={`grafana-dashboard-container w-full my-5 ${className}`}>
       {title && (
-        <div style={{ marginBottom: '16px', padding: '16px 0', borderBottom: '2px solid #00a9a6' }}>
-          <h2 style={{ margin: 0, color: '#333', fontSize: '24px', fontWeight: 600 }}>{title}</h2>
+        <div className="mb-4 py-4 border-b-2 border-primary">
+          <h2 className="m-0 text-foreground text-2xl font-semibold">{title}</h2>
         </div>
       )}
 
       <iframe
         src={iframeUrl}
         width="100%"
-        style={{
-          height: iframeHeight,
-          border: 'none',
-          borderRadius: '8px',
-          boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',
-          display: 'block'
-        }}
+        className="border-none rounded-lg shadow-md block"
+        style={{ height: iframeHeight }}
         title={title || `Grafana Dashboard ${dashboardUid}`}
         sandbox="allow-scripts allow-same-origin allow-forms"
       />

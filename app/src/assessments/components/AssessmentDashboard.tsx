@@ -60,7 +60,8 @@ export function AssessmentDashboard({ assessment }: AssessmentDashboardProps) {
     chart: {
       type: "bar",
       fontFamily: "Inter, -apple-system, BlinkMacSystemFont, sans-serif",
-      toolbar: { show: true, tools: { download: true, selection: false, zoom: false, zoomin: false, zoomout: false, pan: false, reset: false } }
+      toolbar: { show: true, tools: { download: true, selection: false, zoom: false, zoomin: false, zoomout: false, pan: false, reset: false } },
+      foreColor: "hsl(var(--muted-foreground))"
     },
     plotOptions: {
       bar: {
@@ -71,7 +72,7 @@ export function AssessmentDashboard({ assessment }: AssessmentDashboardProps) {
         dataLabels: { position: "center" }
       }
     },
-    colors: ["#00a9a6", "#3b82f6", "#22c55e", "#f59e0b", "#8b5cf6", "#ec4899", "#14b8a6", "#f97316", "#06b6d4", "#6b7280"],
+    colors: ["#00a9a6", "#0ea5e9", "#10b981", "#f59e0b", "#8b5cf6", "#ec4899", "#14b8a6", "#f97316", "#06b6d4", "#6b7280"],
     dataLabels: {
       enabled: true,
       formatter: (val: number) => `${val}%`,
@@ -87,28 +88,33 @@ export function AssessmentDashboard({ assessment }: AssessmentDashboardProps) {
       labels: { style: { fontSize: "12px", fontWeight: 500 } }
     },
     grid: {
-      borderColor: "#e5e7eb",
+      borderColor: "hsl(var(--border))",
       strokeDashArray: 4,
       xaxis: { lines: { show: true } },
       yaxis: { lines: { show: false } }
     },
     legend: { show: false },
-    tooltip: { y: { formatter: (val: number) => `${val}%` } }
+    tooltip: {
+      y: { formatter: (val: number) => `${val}%` },
+      theme: "dark"
+    }
   };
 
   // Pie chart options for recommendations
   const pieOptions: ApexOptions = {
     chart: {
       type: "donut",
-      fontFamily: "Inter, -apple-system, BlinkMacSystemFont, sans-serif"
+      fontFamily: "Inter, -apple-system, BlinkMacSystemFont, sans-serif",
+      foreColor: "hsl(var(--muted-foreground))"
     },
     labels: recommendationsPieData.labels,
-    colors: ["#ef4444", "#f59e0b", "#22c55e"],
+    colors: ["#ef4444", "#f59e0b", "#10b981"],
     legend: {
       position: "right",
       fontSize: "13px",
       markers: { width: 8, height: 8 },
-      itemMargin: { horizontal: 8, vertical: 4 }
+      itemMargin: { horizontal: 8, vertical: 4 },
+      labels: { colors: "hsl(var(--foreground))" }
     },
     dataLabels: {
       enabled: true,
@@ -123,12 +129,16 @@ export function AssessmentDashboard({ assessment }: AssessmentDashboardProps) {
           size: "55%",
           labels: {
             show: true,
-            total: { show: true, label: "Total", fontSize: "14px", fontWeight: 600 }
+            total: { show: true, label: "Total", fontSize: "14px", fontWeight: 600, color: "hsl(var(--foreground))" },
+            value: { color: "hsl(var(--foreground))" }
           }
         }
       }
     },
-    tooltip: { y: { formatter: (val: number) => `${val} recommendations` } }
+    tooltip: {
+      y: { formatter: (val: number) => `${val} recommendations` },
+      theme: "dark"
+    }
   };
 
   // Calculate totals for indicator table
